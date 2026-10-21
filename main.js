@@ -157,16 +157,19 @@
       this.lastScrambleStr = '';
 
       // Initialize
-      this.initScene();
-      this.initMaterials();
-      this.createCube();
-      this.setupInteractions();
-      this.setupHUD();
-      this.setupKeyboardShortcuts();
-      this.animate();
-
-      // Update status
-      this.updateStatus('Solved', 'ready');
+      try {
+        this.initScene();
+        this.initMaterials();
+        this.createCube();
+        this.setupInteractions();
+        this.setupHUD();
+        this.setupKeyboardShortcuts();
+        this.animate();
+        this.updateStatus('Solved', 'ready');
+      } catch (err) {
+        console.error('RubikApp initialization failed:', err);
+        global.__init_error = err.message + '\n' + (err.stack || '');
+      }
     }
 
     // --- Three.js Setup ---
@@ -1230,8 +1233,9 @@
 
   // Bootstrap application on DOM ready or immediately if already loaded
   function initApp() {
-    if (!global.app) {
-      global.app = new RubikApp();
+    if (!global.rubikAppInstance) {
+      global.rubikAppInstance = new RubikApp();
+      global.rubikApp = global.rubikAppInstance;
     }
   }
 

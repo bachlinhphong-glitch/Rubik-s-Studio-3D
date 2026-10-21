@@ -27,7 +27,7 @@
   </script>
 </head>
 <body>
-  <div id="app">
+  <div id="app-root">
     <!-- Top Header HUD -->
     <header class="top-nav">
       <div class="brand">
@@ -245,8 +245,8 @@
     </aside>
   </div>
 
-  <!-- Application Logic -->
-  <script src="solver.js"></script>
-  <script src="main.js"></script>
+  <!-- Application Logic (with cache-buster) -->
+  <script src="solver.js?v=2"></script>
+  <script src="main.js?v=2"></script>
 </body>
 </html>
