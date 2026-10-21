@@ -110,8 +110,84 @@
 
   const CORES = {
     black: { name: 'Black Core (Nhựa Đen)', color: 0x121316 },
-    primary: { name: 'Milky White (Trắng Sữa)', color: 0xe2e8f0 },
-    midnight: { name: 'Midnight Cyber (Tím Đêm)', color: 0x1e1b4b }
+    primary: { name: 'Milky White (Trắng Sữa GAN)', color: 0xe2e8f0 },
+    cyan_ballcore: { name: 'Cyan Ball-Core (Lõi Ngọc MoYu WRM)', color: 0x06b6d4 },
+    midnight: { name: 'Midnight Cyber (Tím Đêm Pha Lê)', color: 0x1e1b4b }
+  };
+
+  const ICONIC_CUBES = {
+    gan14: {
+      id: 'gan14',
+      name: 'GAN 14 MagLev Pro UV',
+      brand: 'GAN CUBE',
+      theme: 'classic',
+      finish: 'glossy',
+      core: 'primary',
+      sound: 'magnetic',
+      speed: 180,
+      centerLogo: 'GAN',
+      isCarbonTexture: false
+    },
+    moyu_v9: {
+      id: 'moyu_v9',
+      name: 'MoYu WeiLong WRM V9 Ball-Core',
+      brand: 'MoYu Culture',
+      theme: 'classic',
+      finish: 'glossy',
+      core: 'cyan_ballcore',
+      sound: 'magnetic',
+      speed: 160,
+      centerLogo: 'MoYu',
+      isCarbonTexture: false
+    },
+    carbon_3d: {
+      id: 'carbon_3d',
+      name: 'Carbon Fiber 3D Stealth',
+      brand: 'HyperMod Custom',
+      theme: 'carbon',
+      finish: 'matte',
+      core: 'black',
+      sound: 'keyboard',
+      speed: 220,
+      centerLogo: '⚡',
+      isCarbonTexture: true
+    },
+    qiyi_macaron: {
+      id: 'qiyi_macaron',
+      name: 'QiYi Warrior Macaron Pastel',
+      brand: 'QiYi MoFangGe',
+      theme: 'pastel',
+      finish: 'matte',
+      core: 'primary',
+      sound: 'acoustic',
+      speed: 250,
+      centerLogo: 'QiYi',
+      isCarbonTexture: false
+    },
+    crystal_phantom: {
+      id: 'crystal_phantom',
+      name: 'Crystal Jelly Phantom Limited',
+      brand: 'X-Cube Lab',
+      theme: 'cyberpunk',
+      finish: 'metallic',
+      core: 'midnight',
+      sound: 'magnetic',
+      speed: 200,
+      centerLogo: '❄️',
+      isCarbonTexture: false
+    },
+    vintage_1980: {
+      id: 'vintage_1980',
+      name: 'Vintage 1980s Erno Rubik Original',
+      brand: 'Ideal Toy (1980)',
+      theme: 'vintage',
+      finish: 'glossy',
+      core: 'black',
+      sound: 'acoustic',
+      speed: 280,
+      centerLogo: 'RUBIK',
+      isCarbonTexture: false
+    }
   };
 
   class AudioFeedback {
@@ -368,9 +444,12 @@
       this.starField = null;
 
       // Personalization Preferences (loaded from localStorage)
+      this.currentIconicCube = 'gan14';
+      this.centerLogo = 'GAN';
+      this.isCarbonTexture = false;
       this.currentTheme = 'classic';
-      this.currentFinish = 'matte';
-      this.currentCore = 'black';
+      this.currentFinish = 'glossy';
+      this.currentCore = 'primary';
       this.currentEnv = 'studio';
       this.isFocusMode = false;
       this.wasSolved = true;
@@ -385,6 +464,11 @@
           const p = JSON.parse(savedProf);
           if (p.nickname) this.userProfile.nickname = p.nickname;
           if (p.avatar) this.userProfile.avatar = p.avatar;
+          if (p.iconicCube && ICONIC_CUBES[p.iconicCube]) {
+            this.currentIconicCube = p.iconicCube;
+            this.centerLogo = ICONIC_CUBES[p.iconicCube].centerLogo;
+            this.isCarbonTexture = !!ICONIC_CUBES[p.iconicCube].isCarbonTexture;
+          }
           if (p.theme && THEMES[p.theme]) this.currentTheme = p.theme;
           if (p.finish && FINISHES[p.finish]) this.currentFinish = p.finish;
           if (p.core && CORES[p.core]) this.currentCore = p.core;
@@ -440,6 +524,8 @@
         // Initialize Speedcubing Competition Timer & Formulas Cheat Sheet
         this.speedTimer = new SpeedcubingTimer(this);
         this.cheatSheet = new FormulaCheatSheet(this);
+        this.masterclass = new MasterclassManager(this);
+        this.aiCoach = new RubikAICoach(this);
 
         this.updateUserProfileDisplay();
       } catch (err) {
@@ -547,7 +633,16 @@
         canvas.height = 256;
         const ctx = canvas.getContext('2d');
 
-        ctx.fillStyle = this.currentCore === 'primary' ? '#d4d4d8' : '#0a0a0c';
+        // Plastic border color based on core
+        if (this.currentCore === 'primary') {
+          ctx.fillStyle = '#e2e8f0';
+        } else if (this.currentCore === 'cyan_ballcore') {
+          ctx.fillStyle = '#0891b2';
+        } else if (this.currentCore === 'midnight') {
+          ctx.fillStyle = '#1e1b4b';
+        } else {
+          ctx.fillStyle = '#0a0a0c';
+        }
         ctx.fillRect(0, 0, 256, 256);
 
         const margin = 12;
@@ -564,12 +659,56 @@
         ctx.fillStyle = scheme.css;
         ctx.fill();
 
-        const grad = ctx.createLinearGradient(margin, margin, margin + w, margin + h);
-        grad.addColorStop(0, 'rgba(255, 255, 255, 0.16)');
-        grad.addColorStop(0.4, 'rgba(255, 255, 255, 0.03)');
-        grad.addColorStop(1, 'rgba(0, 0, 0, 0.1)');
-        ctx.fillStyle = grad;
-        ctx.fill();
+        // If Carbon Fiber texture is active:
+        if (this.isCarbonTexture) {
+          ctx.save();
+          ctx.clip();
+          ctx.fillStyle = '#0f172a';
+          ctx.fillRect(margin, margin, w, h);
+
+          // Carbon fiber 3D cross-weave diagonal pattern
+          ctx.strokeStyle = scheme.css;
+          ctx.lineWidth = 3.5;
+          for (let x = -256; x < 512; x += 16) {
+            ctx.beginPath();
+            ctx.moveTo(x, 0);
+            ctx.lineTo(x + 256, 256);
+            ctx.stroke();
+          }
+
+          ctx.strokeStyle = 'rgba(0, 0, 0, 0.7)';
+          ctx.lineWidth = 3.5;
+          for (let x = -256; x < 512; x += 16) {
+            ctx.beginPath();
+            ctx.moveTo(x + 256, 0);
+            ctx.lineTo(x, 256);
+            ctx.stroke();
+          }
+
+          // Subtle racing border
+          ctx.lineWidth = 8;
+          ctx.strokeStyle = scheme.css;
+          ctx.stroke();
+          ctx.restore();
+        } else {
+          const grad = ctx.createLinearGradient(margin, margin, margin + w, margin + h);
+          grad.addColorStop(0, 'rgba(255, 255, 255, 0.16)');
+          grad.addColorStop(0.4, 'rgba(255, 255, 255, 0.03)');
+          grad.addColorStop(1, 'rgba(0, 0, 0, 0.1)');
+          ctx.fillStyle = grad;
+          ctx.fill();
+        }
+
+        // Center piece logo watermark on face U (White)
+        if (faceKey === 'U' && this.centerLogo) {
+          ctx.save();
+          ctx.font = '800 32px "Inter", sans-serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillStyle = this.isCarbonTexture ? '#ffffff' : 'rgba(15, 23, 42, 0.45)';
+          ctx.fillText(this.centerLogo, 128, 128);
+          ctx.restore();
+        }
 
         ctx.lineWidth = 3;
         ctx.strokeStyle = 'rgba(0, 0, 0, 0.14)';
@@ -589,6 +728,39 @@
           metalness: finishCfg.metalness
         });
       }
+    }
+
+    applyIconicSpeedcube(cubeId) {
+      const cube = ICONIC_CUBES[cubeId] || ICONIC_CUBES.gan14;
+      this.currentIconicCube = cube.id;
+      this.currentTheme = cube.theme;
+      this.currentFinish = cube.finish;
+      this.currentCore = cube.core;
+      this.turnDuration = cube.speed;
+      this.audio.soundPack = cube.sound;
+      this.centerLogo = cube.centerLogo;
+      this.isCarbonTexture = !!cube.isCarbonTexture;
+
+      const slider = document.getElementById('speed-slider');
+      const valDisplay = document.getElementById('speed-val-display');
+      if (slider) slider.value = cube.speed;
+      if (valDisplay) valDisplay.textContent = `${cube.speed}ms`;
+
+      document.querySelectorAll('.speedcube-card-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.cube === cube.id);
+      });
+      document.querySelectorAll('.finish-chip-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.finish === cube.finish);
+      });
+      document.querySelectorAll('.core-chip-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.core === cube.core);
+      });
+      document.querySelectorAll('.sound-pack-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.sound === cube.sound);
+      });
+
+      this.updateMaterials();
+      this.saveUserProfile();
     }
 
     updateMaterials() {
@@ -1607,6 +1779,9 @@
       } else {
         this.wasSolved = false;
       }
+      if (this.aiCoach && this.aiCoach.isOpen) {
+        this.aiCoach.analyze();
+      }
     }
 
     // --- UI and HUD Binding ---
@@ -1698,10 +1873,40 @@
       document.getElementById('btn-top-cheatsheet')?.addEventListener('click', () => {
         this.switchTab('cheatsheet-tab');
       });
+      document.getElementById('btn-top-masterclass')?.addEventListener('click', () => {
+        this.switchTab('masterclass-tab');
+      });
+      document.getElementById('btn-top-coach')?.addEventListener('click', () => {
+        if (this.aiCoach) this.aiCoach.toggle();
+      });
+      document.getElementById('btn-floating-coach')?.addEventListener('click', () => {
+        if (this.aiCoach) this.aiCoach.toggle();
+      });
+
+      // Scramble text click to copy
+      document.querySelector('.scramble-bar')?.addEventListener('click', () => {
+        const text = document.getElementById('scramble-text')?.textContent;
+        if (text && text !== 'Solved') {
+          navigator.clipboard.writeText(text);
+          const bar = document.querySelector('.scramble-bar');
+          if (bar) {
+            const orig = bar.title;
+            bar.title = 'Đã sao chép scramble!';
+            setTimeout(() => { bar.title = orig; }, 1500);
+          }
+        }
+      });
 
       // Zen Focus Mode
       document.getElementById('btn-toggle-focus')?.addEventListener('click', () => this.toggleFocusMode());
       document.getElementById('btn-exit-focus')?.addEventListener('click', () => this.toggleFocusMode());
+
+      // Personalization: Iconic Speedcube Pickers
+      document.querySelectorAll('.speedcube-card-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          this.applyIconicSpeedcube(btn.dataset.cube);
+        });
+      });
 
       // Personalization: Cube Theme Pickers
       document.querySelectorAll('.theme-card-btn').forEach(btn => {
@@ -2934,11 +3139,11 @@
           </div>
           <p class="formula-desc">${item.desc}</p>
           <div class="formula-actions">
-            <button class="btn-try-3d action-btn btn-secondary" title="Xem trên khối 3D">
+            <button class="btn-try-3d" title="Xem trên khối 3D">
               <span class="btn-icon">▶</span>
               <span>Thử trên 3D</span>
             </button>
-            <button class="btn-copy-alg btn-outline" title="Sao chép công thức">
+            <button class="btn-copy-alg" title="Sao chép công thức">
               <span class="btn-icon">📋</span>
               <span>Copy</span>
             </button>
@@ -2964,12 +3169,568 @@
     }
   }
 
+  // ==========================================================================
+  // Masterclass & World Champions Video Guides
+  // ==========================================================================
+  class MasterclassManager {
+    constructor(app) {
+      this.app = app;
+      this.activePro = 'all';
+      this.videos = [
+        {
+          id: 'jperm_beginner',
+          pro: 'jperm',
+          author: 'J Perm',
+          authorSub: '5.2M Subscribers • Thánh Hướng Dẫn',
+          avatar: '🎓',
+          level: 'Beginner (Cơ Bản)',
+          badgeClass: 'badge-beginner',
+          title: 'Hướng Dẫn Giải Rubik 3x3 Cơ Bản 7 Bước Dễ Hiểu Nhất',
+          ytId: 'R-R0KrXvWbc',
+          duration: '10:14',
+          quote: '“Đừng học thuộc lòng vẹt! Hãy hiểu cơ chế hoán vị của từng viên cạnh và góc. Nắm vững Sexy Move (R U R\' U\') sẽ giải quyết được 80% tình huống.”',
+          scramble: "D' R2 U' B2 U F2 D' B2 L2 D2 L' U B' R2 B2 D2 U' F L",
+          tryType: 'scramble',
+          tryLabel: '⚡ Nạp Scramble Luyện Tập'
+        },
+        {
+          id: 'jperm_cfop',
+          pro: 'jperm',
+          author: 'J Perm',
+          authorSub: '5.2M Subscribers • Thánh Hướng Dẫn',
+          avatar: '⚡',
+          level: 'CFOP (Sub-20)',
+          badgeClass: 'badge-cfop',
+          title: 'Lộ Trình Học Full CFOP Từ Sub-60 Xuống Sub-20',
+          ytId: 'x5jB_6jYk4M',
+          duration: '14:32',
+          quote: '“Look-ahead quan trọng hơn TPS rất nhiều. Khi xoay cặp F2L hiện tại, mắt bạn phải quét tìm cặp F2L tiếp theo. Tuyệt đối không nhìn vào viên đang xoay!”',
+          scramble: "R U R' U' R' F R2 U' R' U' R U R' F'",
+          tryType: 'alg',
+          tryLabel: '⚡ Thử T-Perm Kinh Điển'
+        },
+        {
+          id: 'feliks_inspection',
+          pro: 'feliks',
+          author: 'Feliks Zemdegs',
+          authorSub: '2x World Champion • 120+ Kỷ Lục Thế Giới',
+          avatar: '🏆',
+          level: 'Nâng Cao (Sub-15)',
+          badgeClass: 'badge-wr',
+          title: 'Masterclass: Cách Quan Sát 15s (Inspection) & Lập Kế Hoạch Cross + 1st Pair',
+          ytId: 'MS5jhby2VdY',
+          duration: '11:45',
+          quote: '“15 giây quan sát đầu trận là 70% chiến thắng. Mục tiêu là lập kế hoạch giải xong Chữ Thập (Cross) nhắm mắt dưới 8 bước, đồng thời bám vết cặp F2L đầu tiên!”',
+          scramble: "B2 L2 U2 R2 D' F2 D B2 R2 D2 U' F' L' B' D' R' F' D R2 U",
+          tryType: 'scramble',
+          tryLabel: '⚡ Thử Scramble 4.22s Của Feliks'
+        },
+        {
+          id: 'max_park_wr',
+          pro: 'maxpark',
+          author: 'Max Park',
+          authorSub: 'WR 3.13s Single • Huyền Thoại Tốc Độ',
+          avatar: '🔥',
+          level: 'Kỷ Lục Thế Giới (WR)',
+          badgeClass: 'badge-wr',
+          title: 'Max Park Phân Tích Kỷ Lục Thế Giới 3.13 Giây & Kỹ Thuật Rotationless F2L',
+          ytId: 'fbdQn3Z3gM4',
+          duration: '08:20',
+          quote: '“Hạn chế tối đa việc xoay toàn bộ khối (Cube Rotations). Hãy học cách chèn F2L vào các khe phía sau (Back-slot insertion) bằng cả hai tay để giữ nhịp TPS trên 10 turns/s!”',
+          scramble: "D2 F' R2 U' B2 L2 F2 R2 U' B2 U F R' D' F2 L' B2 D2 F' R2",
+          tryType: 'scramble',
+          tryLabel: '⚡ Nạp Kỷ Lục WR 3.13s Của Max'
+        },
+        {
+          id: 'tymon_fingertricks',
+          pro: 'tymon',
+          author: 'Tymon Kolasiński',
+          authorSub: 'Vô Địch Châu Âu • Bậc Thầy TPS & FMC',
+          avatar: '⚡',
+          level: 'Chuyên Nghiệp (Sub-10)',
+          badgeClass: 'badge-tps',
+          title: 'Tymon Hướng Dẫn Finger-tricks Mượt Mà Cho Sexy Move, Sune & PLL',
+          ytId: '3bV-3-J3E0E',
+          duration: '13:05',
+          quote: '“Đừng gồng cổ tay! Xoay bằng đầu đốt ngón trỏ và ngón áp út. Thành thạo U2 Double Flick (ngón trỏ rồi ngón giữa kéo bồi) sẽ nhân đôi TPS của bạn!”',
+          scramble: "R U2 R' U' R U' R'",
+          tryType: 'alg',
+          tryLabel: '⚡ Luyện Sune Siêu Tốc'
+        }
+      ];
+
+      this.currentModalVideo = null;
+      this.initEvents();
+      this.render();
+    }
+
+    initEvents() {
+      document.querySelectorAll('.masterclass-filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.masterclass-filter-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          this.activePro = btn.dataset.pro;
+          this.render();
+        });
+      });
+
+      // YouTube Modal Close & Backdrop
+      document.getElementById('btn-close-yt-modal')?.addEventListener('click', () => this.closeModal());
+      document.getElementById('yt-backdrop')?.addEventListener('click', () => this.closeModal());
+
+      // Modal "Try on 3D" action button
+      document.getElementById('btn-yt-try-3d')?.addEventListener('click', () => {
+        if (this.currentModalVideo) {
+          this.executeVideoAction(this.currentModalVideo);
+          this.closeModal();
+        }
+      });
+    }
+
+    openModal(video) {
+      this.currentModalVideo = video;
+      const modal = document.getElementById('youtube-modal');
+      const iframe = document.getElementById('yt-iframe');
+      const title = document.getElementById('yt-modal-title');
+      const desc = document.getElementById('yt-modal-desc');
+      const actionText = document.getElementById('btn-yt-try-3d-text');
+
+      if (title) title.textContent = video.title;
+      if (desc) desc.textContent = `${video.author} (${video.authorSub}) • ${video.quote}`;
+      if (actionText) actionText.textContent = video.tryLabel;
+      if (iframe) iframe.src = `https://www.youtube-nocookie.com/embed/${video.ytId}?autoplay=1`;
+
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    closeModal() {
+      const modal = document.getElementById('youtube-modal');
+      const iframe = document.getElementById('yt-iframe');
+      if (iframe) iframe.src = '';
+      if (modal) modal.classList.add('hidden');
+      this.currentModalVideo = null;
+    }
+
+    executeVideoAction(video) {
+      if (video.tryType === 'scramble') {
+        this.app.createCube();
+        this.app.queueSequence(video.scramble, { duration: 120 });
+        this.app.updateScrambleDisplay(video.scramble);
+        this.app.updateStatus('Scrambled', 'scrambled');
+      } else {
+        this.app.queueSequence(video.scramble, { duration: 200 });
+      }
+      this.app.switchTab('controls-tab');
+    }
+
+    render() {
+      const container = document.getElementById('masterclass-card-list');
+      if (!container) return;
+      container.innerHTML = '';
+
+      const filtered = this.activePro === 'all'
+        ? this.videos
+        : this.videos.filter(v => v.pro === this.activePro);
+
+      filtered.forEach(video => {
+        const card = document.createElement('div');
+        card.className = 'pro-card';
+
+        const thumbUrl = `https://img.youtube.com/vi/${video.ytId}/hqdefault.jpg`;
+
+        card.innerHTML = `
+          <div class="pro-card-header">
+            <div class="pro-author-wrap">
+              <div class="pro-avatar">${video.avatar}</div>
+              <div>
+                <div class="pro-author-name">${video.author}</div>
+                <div class="pro-author-sub">${video.authorSub}</div>
+              </div>
+            </div>
+            <span class="pro-level-badge ${video.badgeClass}">${video.level}</span>
+          </div>
+
+          <div class="pro-thumb-container" title="Bấm để xem video">
+            <img src="${thumbUrl}" alt="${video.title}" loading="lazy">
+            <div class="pro-play-overlay">▶</div>
+            <span class="pro-duration-pill">${video.duration}</span>
+          </div>
+
+          <h4 class="pro-video-title">${video.title}</h4>
+
+          <div class="pro-quote-box">
+            ${video.quote}
+          </div>
+
+          <div class="pro-card-actions">
+            <button class="pro-btn-watch btn-watch-video" title="Xem video hướng dẫn">
+              <span>▶</span>
+              <span>Xem Video</span>
+            </button>
+            <button class="pro-btn-try btn-try-action" title="${video.tryLabel}">
+              <span>⚡</span>
+              <span>${video.tryLabel}</span>
+            </button>
+          </div>
+        `;
+
+        card.querySelector('.pro-thumb-container')?.addEventListener('click', () => this.openModal(video));
+        card.querySelector('.btn-watch-video')?.addEventListener('click', () => this.openModal(video));
+        card.querySelector('.btn-try-action')?.addEventListener('click', () => this.executeVideoAction(video));
+
+        container.appendChild(card);
+      });
+    }
+  }
+
+  // ==========================================================================
+  // Interactive AI Rubik Coach & Assistant
+  // ==========================================================================
+  class RubikAICoach {
+    constructor(app) {
+      this.app = app;
+      this.isOpen = false;
+      this.currentHintMoves = [];
+      this.currentStage = 'cross';
+      this.initEvents();
+      setTimeout(() => this.analyze(), 600);
+    }
+
+    initEvents() {
+      document.getElementById('btn-close-coach')?.addEventListener('click', () => this.close());
+      document.getElementById('btn-refresh-coach')?.addEventListener('click', () => this.analyze());
+
+      document.getElementById('btn-coach-demo-step')?.addEventListener('click', () => this.executeHintDemo());
+      document.getElementById('btn-coach-auto-solve')?.addEventListener('click', () => {
+        this.close();
+        this.app.solve();
+      });
+
+      document.querySelectorAll('.coach-prompt-chip').forEach(btn => {
+        btn.addEventListener('click', () => {
+          this.handleQuickPrompt(btn.dataset.prompt);
+        });
+      });
+
+      document.getElementById('btn-coach-send')?.addEventListener('click', () => this.sendUserMessage());
+      document.getElementById('coach-user-input')?.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          this.sendUserMessage();
+        }
+      });
+    }
+
+    toggle() {
+      if (this.isOpen) {
+        this.close();
+      } else {
+        this.open();
+      }
+    }
+
+    open() {
+      this.isOpen = true;
+      const drawer = document.getElementById('ai-coach-drawer');
+      if (drawer) drawer.classList.remove('hidden');
+      this.analyze();
+    }
+
+    close() {
+      this.isOpen = false;
+      const drawer = document.getElementById('ai-coach-drawer');
+      if (drawer) drawer.classList.add('hidden');
+    }
+
+    analyze() {
+      let faceletStr = '';
+      try {
+        faceletStr = extractFaceletString(this.app.cubies, THREE);
+      } catch (e) {
+        return;
+      }
+
+      const isSolved = isCubeSolved(faceletStr);
+      const stageBadge = document.getElementById('coach-stage-badge');
+      const progressBar = document.getElementById('coach-stage-progress');
+      const stageDesc = document.getElementById('coach-stage-desc');
+      const statCross = document.getElementById('stat-cross-val');
+      const statFirst = document.getElementById('stat-first-val');
+      const statF2L = document.getElementById('stat-f2l-val');
+      const statLL = document.getElementById('stat-ll-val');
+
+      if (isSolved) {
+        this.currentStage = 'solved';
+        if (stageBadge) {
+          stageBadge.textContent = '🎉 ĐÃ GIẢI HOÀN TẤT';
+          stageBadge.className = 'stage-badge badge-ready';
+        }
+        if (progressBar) progressBar.style.width = '100%';
+        if (stageDesc) stageDesc.innerHTML = '<strong>Tuyệt vời!</strong> Khối Rubik 3D đã được giải hoàn chỉnh 100%. Hãy nhấn Scramble hoặc giữ phím Space để bấm giờ thi đấu nhé!';
+        if (statCross) statCross.textContent = '4/4';
+        if (statFirst) statFirst.textContent = '4/4';
+        if (statF2L) statF2L.textContent = '4/4';
+        if (statLL) statLL.textContent = 'Đã xong';
+
+        this.updateHintDisplay([], 'Khối đã giải xong hoàn hảo!', 'solved');
+        return;
+      }
+
+      // 1. Check White Cross (Face U edges: UB, UL, UR, UF)
+      let crossCount = 0;
+      if (faceletStr[1] === 'U' && faceletStr[46] === 'B') crossCount++;
+      if (faceletStr[3] === 'U' && faceletStr[37] === 'L') crossCount++;
+      if (faceletStr[5] === 'U' && faceletStr[10] === 'R') crossCount++;
+      if (faceletStr[7] === 'U' && faceletStr[19] === 'F') crossCount++;
+
+      // 2. Check First Layer Corners (U0, U2, U6, U8)
+      let cornersCount = 0;
+      if (crossCount === 4) {
+        if (faceletStr[0] === 'U' && faceletStr[47] === 'B' && faceletStr[36] === 'L') cornersCount++;
+        if (faceletStr[2] === 'U' && faceletStr[45] === 'B' && faceletStr[11] === 'R') cornersCount++;
+        if (faceletStr[6] === 'U' && faceletStr[18] === 'F' && faceletStr[38] === 'L') cornersCount++;
+        if (faceletStr[8] === 'U' && faceletStr[20] === 'F' && faceletStr[9] === 'R') cornersCount++;
+      }
+
+      // 3. Check Middle Layer (F2L) Edges (FL, FR, BL, BR)
+      let f2lCount = 0;
+      if (cornersCount === 4) {
+        if (faceletStr[21] === 'F' && faceletStr[39] === 'L') f2lCount++;
+        if (faceletStr[23] === 'F' && faceletStr[21] === 'R') f2lCount++;
+        if (faceletStr[48] === 'B' && faceletStr[41] === 'L') f2lCount++;
+        if (faceletStr[50] === 'B' && faceletStr[14] === 'R') f2lCount++;
+      }
+
+      // 4. Check Yellow Face Edges (D28, D30, D32, D34)
+      let yellowEdges = 0;
+      if (faceletStr[28] === 'D') yellowEdges++;
+      if (faceletStr[30] === 'D') yellowEdges++;
+      if (faceletStr[32] === 'D') yellowEdges++;
+      if (faceletStr[34] === 'D') yellowEdges++;
+
+      if (statCross) statCross.textContent = `${crossCount}/4`;
+      if (statFirst) statFirst.textContent = `${cornersCount}/4`;
+      if (statF2L) statF2L.textContent = `${f2lCount}/4`;
+      if (statLL) statLL.textContent = yellowEdges === 4 ? 'Chữ Thập Vàng' : `${yellowEdges}/4 Cạnh Vàng`;
+
+      let stageName = '';
+      let progressPct = 15;
+      let explanation = '';
+
+      if (crossCount < 4) {
+        this.currentStage = 'cross';
+        stageName = 'Bước 1: Chữ Thập Trắng';
+        progressPct = 10 + crossCount * 5;
+        explanation = `Bạn đã đúng ${crossCount}/4 cạnh Chữ Thập Trắng. Mục tiêu: Tìm các cạnh trắng còn lại và đưa về mặt U khớp màu với các tâm kề.`;
+      } else if (cornersCount < 4) {
+        this.currentStage = 'first_layer';
+        stageName = 'Bước 2: Tầng 1 (Góc Trắng)';
+        progressPct = 30 + cornersCount * 5;
+        explanation = `Đã xong Chữ Thập Trắng! Đang giải góc tầng 1 (${cornersCount}/4). Áp dụng Sexy Move (R U R' U') để lật viên góc trắng vào đúng vị trí.`;
+      } else if (f2lCount < 4) {
+        this.currentStage = 'f2l';
+        stageName = 'Bước 3: Tầng 2 (F2L Cạnh Giữa)';
+        progressPct = 50 + f2lCount * 5;
+        explanation = `Tầng 1 đã hoàn thiện! Đang ghép 4 cạnh tầng 2 (${f2lCount}/4). Sử dụng công thức chèn cạnh phải hoặc chèn cạnh trái để đưa cạnh vào khe.`;
+      } else if (yellowEdges < 4) {
+        this.currentStage = 'oll_cross';
+        stageName = 'Bước 4: Chữ Thập Vàng (OLL)';
+        progressPct = 72;
+        const pattern = yellowEdges === 0 ? 'Dấu chấm (Dot)' : (yellowEdges === 2 ? 'Chữ L ngược / Đường thẳng ngang' : 'Chữ thập');
+        explanation = `Nhận diện dạng ${pattern} trên mặt vàng. Công thức thần thánh: F R U R' U' F' để tạo Chữ Thập Vàng!`;
+      } else {
+        this.currentStage = 'pll';
+        stageName = 'Bước 5 & 6: Tầng Cuối (OLL & PLL)';
+        progressPct = 88;
+        explanation = `Chữ thập vàng đã xong! Áp dụng Sune (R U R' U R U2 R') để hoàn thành mặt vàng, sau đó dùng T-Perm hoặc U-Perm để hoán vị hoàn tất khối!`;
+      }
+
+      if (stageBadge) {
+        stageBadge.textContent = stageName;
+        stageBadge.className = 'stage-badge';
+      }
+      if (progressBar) progressBar.style.width = `${progressPct}%`;
+      if (stageDesc) stageDesc.textContent = explanation;
+
+      this.computeNextMoveHint(faceletStr);
+    }
+
+    async computeNextMoveHint(faceletStr) {
+      const hintCode = document.getElementById('coach-hint-moves');
+      const hintVn = document.getElementById('coach-hint-explanation');
+      const hintTag = document.getElementById('coach-hint-stage');
+
+      if (hintCode) hintCode.textContent = 'Đang tính toán...';
+
+      try {
+        const solution = await solveCube(faceletStr);
+        if (solution && solution.success && solution.moves && solution.moves.length > 0) {
+          const chunk = solution.moves.slice(0, Math.min(3, solution.moves.length));
+          this.currentHintMoves = chunk;
+
+          const notationStr = chunk.join(' ');
+          if (hintCode) hintCode.textContent = notationStr;
+          if (hintTag) hintTag.textContent = `Nước đi 1 - ${chunk.length} / ${solution.moves.length}`;
+
+          const translation = this.translateMovesToVietnamese(chunk);
+          if (hintVn) hintVn.textContent = translation;
+        } else {
+          this.currentHintMoves = [];
+          if (hintCode) hintCode.textContent = 'None';
+          if (hintVn) hintVn.textContent = 'Khối đã ở vị trí giải xong hoặc trạng thái sẵn sàng.';
+        }
+      } catch (err) {
+        this.currentHintMoves = [];
+        if (hintCode) hintCode.textContent = 'Lỗi tính toán';
+        if (hintVn) hintVn.textContent = 'Hãy thử bấm "Quét Lại" hoặc kiểm tra lại khối.';
+      }
+    }
+
+    translateMovesToVietnamese(moves) {
+      const dict = {
+        'U': 'Mặt Trên sang trái',
+        "U'": 'Mặt Trên sang phải',
+        'U2': 'Mặt Trên xoay 180°',
+        'D': 'Mặt Dưới sang phải',
+        "D'": 'Mặt Dưới sang trái',
+        'D2': 'Mặt Dưới xoay 180°',
+        'R': 'Mặt Phải lên',
+        "R'": 'Mặt Phải xuống',
+        'R2': 'Mặt Phải xoay 180°',
+        'L': 'Mặt Trái xuống',
+        "L'": 'Mặt Trái lên',
+        'L2': 'Mặt Trái xoay 180°',
+        'F': 'Mặt Trước xuôi chiều kim đồng hồ',
+        "F'": 'Mặt Trước ngược chiều kim đồng hồ',
+        'F2': 'Mặt Trước xoay 180°',
+        'B': 'Mặt Sau xuôi chiều kim đồng hồ',
+        "B'": 'Mặt Sau ngược chiều kim đồng hồ',
+        'B2': 'Mặt Sau xoay 180°'
+      };
+
+      const steps = moves.map(m => dict[m] || m).join(', sau đó ');
+      return `👉 Hướng dẫn: ${steps}.`;
+    }
+
+    updateHintDisplay(moves, explanation, tagText) {
+      const hintCode = document.getElementById('coach-hint-moves');
+      const hintVn = document.getElementById('coach-hint-explanation');
+      const hintTag = document.getElementById('coach-hint-stage');
+      if (hintCode) hintCode.textContent = moves.length > 0 ? moves.join(' ') : 'None';
+      if (hintVn) hintVn.textContent = explanation;
+      if (hintTag) hintTag.textContent = tagText;
+      this.currentHintMoves = moves;
+    }
+
+    executeHintDemo() {
+      if (this.currentHintMoves.length === 0) {
+        this.addChatMessage('assistant', 'Hiện tại không có nước đi gợi ý nào để demo. Bạn hãy xáo khối để mình hướng dẫn nhé!');
+        return;
+      }
+      const movesToRun = [...this.currentHintMoves];
+      this.app.queueSequence(movesToRun, {
+        duration: 220,
+        onComplete: () => {
+          this.analyze();
+        }
+      });
+      this.addChatMessage('assistant', `⚡ Mình vừa xoay demo cho bạn chuỗi: <strong>${movesToRun.join(' ')}</strong> trên khối 3D! Bạn có thể bấm tiếp tục để giải từng bước.`);
+    }
+
+    handleQuickPrompt(promptKey) {
+      if (promptKey === 'state') {
+        this.addChatMessage('user', 'Soi tình trạng khối hiện tại của tôi với!');
+        this.analyze();
+        const stageDesc = document.getElementById('coach-stage-desc')?.textContent || '';
+        this.addChatMessage('assistant', `🔍 <strong>Phân Tích Hiện Tại:</strong> ${stageDesc}<br><br>💡 Gợi ý nước đi tối ưu: <code>${this.currentHintMoves.join(' ') || 'None'}</code>. Bạn bấm nút <strong>"AI Xoay Demo Trên 3D"</strong> để xem trực tiếp nhé!`);
+      } else if (promptKey === 'sexy') {
+        this.addChatMessage('user', 'Sexy Move là gì và tại sao tuyển thủ hay dùng?');
+        this.addChatMessage('assistant', `⚡ <strong>Sexy Move</strong> là tổ hợp 4 bước kinh điển nhất thế giới speedcubing:<br><br>
+        <code>R U R' U'</code> (Phải lên, Trên sang trái, Phải xuống, Trên sang phải).<br><br>
+        ✨ <em>Bí mật thú vị:</em> Nếu khối Rubik đang giải xong, bạn thực hiện Sexy Move đúng <strong>6 lần liên tiếp</strong>, khối sẽ tự động trở về trạng thái giải hoàn tất ban đầu!`);
+      } else if (promptKey === 'oll') {
+        this.addChatMessage('user', 'Tôi bị kẹt ở Chữ L / Mặt Vàng, giải thế nào?');
+        this.addChatMessage('assistant', `🟡 <strong>Cách giải quyết Chữ Thập Vàng (OLL):</strong><br><br>
+        1. <strong>Dấu chấm (Dot):</strong> Xoay <code>F R U R' U' F'</code> để tạo thành chữ L ngược.<br>
+        2. <strong>Chữ L ngược:</strong> Để chữ L ở góc trên-trái (vị trí 9h và 12h), xoay <code>f R U R' U' f'</code> (f là xoay cả 2 lớp trước) để thành Chữ Thập Vàng ngay lập tức!<br>
+        3. <strong>Đường ngang (Line):</strong> Để đường thẳng nằm ngang, xoay <code>F R U R' U' F'</code>.<br><br>
+        👉 Bạn có thể xem tab <strong>Formulas</strong> để thử ngay trên 3D!`);
+      } else if (promptKey === 'sub30') {
+        this.addChatMessage('user', 'Làm sao để giải Rubik dưới 30 giây (Sub-30)?');
+        this.addChatMessage('assistant', `🏎️ <strong>Chiến thuật đạt Sub-30 từ Feliks & J Perm:</strong><br><br>
+        1. <strong>Look-ahead (Nhìn trước):</strong> Xoay chậm lại 20-30% nhưng không bao giờ dừng tay (No pause). Dùng mắt tìm cặp F2L tiếp theo trong lúc xoay cặp hiện tại.<br>
+        2. <strong>Finger-tricks:</strong> Học cách búng ngón trỏ (U/U') và flick kép (U2) bằng ngón trỏ + ngón giữa.<br>
+        3. <strong>Học 2-Look OLL & 2-Look PLL:</strong> Chỉ cần 9 công thức OLL và 6 công thức PLL là đủ để xuống Sub-25!<br>
+        4. <strong>Luyện Cross dưới 8 bước:</strong> Tận dụng trọn vẹn 15s inspection.`);
+      } else if (promptKey === 'tperm') {
+        this.addChatMessage('user', 'T-Perm là gì và cách nhận biết?');
+        this.addChatMessage('assistant', `🔄 <strong>T-Perm (PLL):</strong><br><br>
+        <code>R U R' U' R' F R2 U' R' U' R U R' F'</code><br><br>
+        👁️ <strong>Dấu hiệu nhận biết nhanh:</strong> Có 2 góc đối diện đã đúng màu (Headlights nằm bên trái) và 1 thanh khối 2 viên hoàn chỉnh ở mặt phải. Đây là công thức PLL được sử dụng nhiều nhất trong các giải đấu WCA!`);
+      } else if (promptKey === 'lookahead') {
+        this.addChatMessage('user', 'Kỹ thuật Look-ahead là gì?');
+        this.addChatMessage('assistant', `👁️ <strong>Look-ahead (Nhìn trước):</strong><br><br>
+        Khi ngón tay bạn đã quen thuộc một công thức (Muscle Memory), não và mắt bạn không cần nhìn vào viên đang xoay nữa. Thay vào đó, hãy dùng mắt quét tìm cặp F2L tiếp theo hoặc dự đoán góc OLL.<br><br>
+        <em>Tuyển thủ số 1 thế giới Tymon Kolasiński từng nói:</em> "TPS 6 turns/giây mà không dừng lại bao giờ cũng đánh bại TPS 12 turns/giây mà khựng lại 1 giây!"`);
+      }
+    }
+
+    sendUserMessage() {
+      const input = document.getElementById('coach-user-input');
+      if (!input) return;
+      const text = input.value.trim();
+      if (!text) return;
+      input.value = '';
+
+      this.addChatMessage('user', text);
+
+      setTimeout(() => {
+        const lower = text.toLowerCase();
+        if (lower.includes('f2l') || lower.includes('tầng 2')) {
+          this.addChatMessage('assistant', `🧩 <strong>Bí quyết F2L:</strong> F2L gồm 41 trường hợp, nhưng bạn không cần học thuộc vẹt thuật toán! Hãy nhớ nguyên tắc 3 bước: <em>1. Đưa viên góc và cạnh lên tầng 3 -> 2. Tách hoặc ghép chúng lại thành 1 cặp cùng hướng -> 3. Chèn vào khe đúng màu (slot)!</em>`);
+        } else if (lower.includes('cross') || lower.includes('chữ thập')) {
+          this.addChatMessage('assistant', `✝️ <strong>Chữ Thập Trắng (Cross):</strong> Hãy luôn giữ tâm trắng ở dưới đáy (hoặc trên đỉnh nếu bạn mới tập). Mục tiêu của mọi speedcuber chuyên nghiệp là giải xong Cross trong tối đa 8 bước xoay và dưới 2 giây!`);
+        } else if (lower.includes('sune') || lower.includes('mặt vàng')) {
+          this.addChatMessage('assistant', `🌟 <strong>Công thức Sune:</strong> <code>R U R' U R U2 R'</code>. Đây là thuật toán OLL phổ biến và dễ xoay nhất thế giới, dùng để định hướng các góc vàng lên trên!`);
+        } else if (lower.includes('nhanh') || lower.includes('tốc độ') || lower.includes('tps')) {
+          this.addChatMessage('assistant', `⚡ <strong>Tăng tốc độ xoay (TPS):</strong> Đừng xoay bằng toàn bộ bàn tay hay cổ tay. Hãy dùng đầu đốt ngón tay trỏ và ngón áp út. Hãy vào tab <strong>Tuyển Thủ</strong> để xem hướng dẫn finger-trick của Tymon nhé!`);
+        } else if (lower.includes('kẹt') || lower.includes('giải hộ') || lower.includes('giúp')) {
+          this.addChatMessage('assistant', `💪 Đừng lo lắng! Bấm ngay nút <strong>"AI Xoay Demo Trên 3D"</strong> ở trên để mình biểu diễn nước đi trực tiếp trên khối cho bạn xem nhé!`);
+        } else {
+          this.addChatMessage('assistant', `🤖 Mình đã hiểu! Hiện tại khối Rubik đang ở <strong>${document.getElementById('coach-stage-badge')?.textContent || 'bước giải'}</strong>. Bạn có thể bấm <strong>"AI Xoay Demo Trên 3D"</strong> để xem nước đi tiếp theo, hoặc chọn một trong các câu hỏi gợi ý ở trên nhé!`);
+        }
+      }, 400);
+    }
+
+    addChatMessage(role, htmlContent) {
+      const chatContainer = document.getElementById('coach-chat-messages');
+      if (!chatContainer) return;
+
+      const msgDiv = document.createElement('div');
+      msgDiv.className = `chat-msg ${role === 'user' ? 'user-msg' : 'coach-msg'}`;
+      const avatar = role === 'user' ? (this.app.userProfile.avatar || '⚡') : '🤖';
+
+      msgDiv.innerHTML = `
+        <div class="msg-avatar">${avatar}</div>
+        <div class="msg-bubble">
+          <p>${htmlContent}</p>
+        </div>
+      `;
+
+      chatContainer.appendChild(msgDiv);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+  }
+
   // Expose to global scope
   global.RubikApp = RubikApp;
   global.RealCubeScanner = RealCubeScanner;
   global.SpeedcubingTimer = SpeedcubingTimer;
   global.FormulaCheatSheet = FormulaCheatSheet;
+  global.MasterclassManager = MasterclassManager;
+  global.RubikAICoach = RubikAICoach;
   global.AudioFeedback = AudioFeedback;
+  global.ICONIC_CUBES = ICONIC_CUBES;
   global.CONFIG = CONFIG;
 
   function initApp() {
