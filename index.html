@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Rubik's Studio 3D - Interactive Cube & Kociemba Two-Phase AI Solver</title>
+  
+  <!-- Modern Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Three.js & OrbitControls via CDNs (Works on file://, http://, and GitHub Pages) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+  <!-- Kociemba Two-Phase Solver (Local with CDN Fallback) -->
+  <script src="min2phase.js"></script>
+  <script>
+    if (typeof window.min2phase === 'undefined') {
+      const script = document.createElement('script');
+      script.src = 'https://cdn.jsdelivr.net/gh/cs0x7f/min2phase.js@master/min2phase.js';
+      document.head.appendChild(script);
+    }
+  </script>
+</head>
+<body>
+  <div id="app">
+    <!-- Top Header HUD -->
+    <header class="top-nav">
+      <div class="brand">
+        <div class="brand-cube-icon">
+          <div class="cube-face f-top"></div>
+          <div class="cube-face f-left"></div>
+          <div class="cube-face f-right"></div>
+        </div>
+        <div class="brand-info">
+          <h1>Rubik's Studio 3D</h1>
+          <span class="subtext">Kociemba Two-Phase Solver</span>
+        </div>
+      </div>
+
+      <div class="header-center">
+        <div id="status-badge" class="status-badge status-ready">Solved</div>
+        <div class="scramble-bar" title="Current Scramble">
+          <span class="scramble-label">Scramble:</span>
+          <span id="scramble-text" class="scramble-code">Solved</span>
+        </div>
+      </div>
+
+      <div class="header-stats">
+        <div class="stat-pill">
+          <span class="stat-name">Turns</span>
+          <span id="move-count-display" class="stat-value">0</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- 3D Canvas Viewport -->
+    <main id="canvas-container"></main>
+
+    <!-- Drag Hint Overlay -->
+    <div class="gesture-hint">
+      <span class="hint-icon">👆</span> Drag face to turn layer &bull; Drag outside to orbit view
+    </div>
+
+    <!-- Solution Timeline Floating Filmstrip -->
+    <section class="timeline-container" id="timeline-section">
+      <div class="timeline-header">
+        <div class="timeline-title">
+          <span class="pulse-dot"></span>
+          <span>Solution Steps</span>
+          <span id="solution-move-count" class="badge">0 moves</span>
+        </div>
+        <div class="timeline-actions">
+          <span id="playback-step-display" class="step-counter">No active solution</span>
+        </div>
+      </div>
+      <div class="timeline-scroll-wrapper">
+        <div id="solution-timeline" class="solution-timeline">
+          <div class="empty-timeline">Click "Solve Cube" to calculate the optimal solution steps.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Floating HUD Control Panel -->
+    <aside class="control-panel glassmorphism">
+      <!-- Tabs Navigation -->
+      <nav class="panel-tabs">
+        <button class="tab-btn active" data-tab="controls-tab">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"></rect><circle cx="6" cy="12" r="2"></circle><path d="M14 9l3 3-3 3"></path></svg>
+          Controls
+        </button>
+        <button class="tab-btn" data-tab="solution-tab">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+          Algorithm
+        </button>
+        <button class="tab-btn" data-tab="settings-tab">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+          Settings
+        </button>
+      </nav>
+
+      <!-- Tab 1: Controls -->
+      <div id="controls-tab" class="tab-content active">
+        <!-- Primary Action Group -->
+        <div class="action-grid">
+          <button id="btn-scramble" class="action-btn btn-primary" title="Scramble 20 WCA moves">
+            <span class="btn-icon">🎲</span>
+            <span>Scramble</span>
+          </button>
+          <button id="btn-solve" class="action-btn btn-accent" title="Solve with Kociemba 2-Phase Engine">
+            <span class="btn-icon">⚡</span>
+            <span>Solve Cube</span>
+          </button>
+          <button id="btn-reset" class="action-btn btn-secondary" title="Reset to Solved State">
+            <span class="btn-icon">↺</span>
+            <span>Reset</span>
+          </button>
+        </div>
+
+        <!-- Playback Controller -->
+        <div class="section-card playback-card">
+          <div class="section-title">Step-by-Step Playback</div>
+          <div class="playback-btn-group">
+            <button id="btn-step-prev" class="ctrl-btn" title="Previous Step (Undo)" disabled>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="19 20 9 12 19 4 19 20"></polygon><line x1="5" y1="19" x2="5" y2="5" stroke="currentColor" stroke-width="2"></line></svg>
+              <span>Prev</span>
+            </button>
+            <button id="btn-play-pause" class="ctrl-btn ctrl-btn-highlight" title="Play or Pause Solution" disabled>
+              <span class="icon">▶</span> Play
+            </button>
+            <button id="btn-step-next" class="ctrl-btn" title="Next Step" disabled>
+              <span>Next</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 4 15 12 5 20 5 4"></polygon><line x1="19" y1="5" x2="19" y2="19" stroke="currentColor" stroke-width="2"></line></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Manual Face Turns -->
+        <div class="section-card">
+          <div class="section-header-compact">
+            <span class="section-title">Manual Face Turns</span>
+            <span class="keyboard-badge">Or press U, D, L, R, F, B</span>
+          </div>
+          <div class="manual-turns-grid">
+            <button class="manual-turn-btn c-white" data-move="U">U</button>
+            <button class="manual-turn-btn c-white" data-move="U'">U'</button>
+            <button class="manual-turn-btn c-yellow" data-move="D">D</button>
+            <button class="manual-turn-btn c-yellow" data-move="D'">D'</button>
+            <button class="manual-turn-btn c-green" data-move="F">F</button>
+            <button class="manual-turn-btn c-green" data-move="F'">F'</button>
+            <button class="manual-turn-btn c-blue" data-move="B">B</button>
+            <button class="manual-turn-btn c-blue" data-move="B'">B'</button>
+            <button class="manual-turn-btn c-red" data-move="R">R</button>
+            <button class="manual-turn-btn c-red" data-move="R'">R'</button>
+            <button class="manual-turn-btn c-orange" data-move="L">L</button>
+            <button class="manual-turn-btn c-orange" data-move="L'">L'</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 2: Solution & Algorithm -->
+      <div id="solution-tab" class="tab-content">
+        <div class="section-card">
+          <div class="section-title">Full Solution Sequence</div>
+          <div class="algorithm-box">
+            <code id="full-algorithm-text">None</code>
+          </div>
+          <button id="btn-copy-solution" class="btn-outline full-width">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+            Copy Solution
+          </button>
+        </div>
+
+        <div class="section-card">
+          <div class="section-title">Algorithm Details</div>
+          <div class="info-list">
+            <div class="info-item">
+              <span class="info-label">Engine</span>
+              <span class="info-value">Kociemba Two-Phase</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Color Standard</span>
+              <span class="info-value">WCA Western (BOY)</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Optimality</span>
+              <span class="info-value">Sub-22 Moves</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 3: Settings -->
+      <div id="settings-tab" class="tab-content">
+        <!-- Animation Speed -->
+        <div class="section-card">
+          <div class="setting-row">
+            <label for="speed-slider">Rotation Speed</label>
+            <span id="speed-val-display" class="slider-val">250ms</span>
+          </div>
+          <input type="range" id="speed-slider" min="80" max="600" step="20" value="250" class="custom-range">
+          <div class="range-labels">
+            <span>Fast (80ms)</span>
+            <span>Smooth (600ms)</span>
+          </div>
+        </div>
+
+        <!-- Camera Views -->
+        <div class="section-card">
+          <div class="section-title">Camera Perspectives</div>
+          <div class="camera-grid">
+            <button class="camera-preset-btn" data-preset="iso">Isometric</button>
+            <button class="camera-preset-btn" data-preset="front">Front (F)</button>
+            <button class="camera-preset-btn" data-preset="top">Top (U)</button>
+            <button class="camera-preset-btn" data-preset="right">Right (R)</button>
+          </div>
+        </div>
+
+        <!-- Audio Toggle -->
+        <div class="section-card">
+          <div class="setting-row">
+            <label for="sound-toggle">Tactile Turn Sound FX</label>
+            <input type="checkbox" id="sound-toggle" checked class="custom-checkbox">
+          </div>
+        </div>
+
+        <!-- Keyboard Shortcuts -->
+        <div class="section-card">
+          <div class="section-title">Keyboard Shortcuts</div>
+          <div class="shortcut-list">
+            <div class="shortcut-item"><kbd>U</kbd> <kbd>D</kbd> <kbd>L</kbd> <kbd>R</kbd> <kbd>F</kbd> <kbd>B</kbd> <span>Turn Face Clockwise</span></div>
+            <div class="shortcut-item"><kbd>Shift</kbd> + <kbd>Face</kbd> <span>Turn Face Prime (Counter-CW)</span></div>
+            <div class="shortcut-item"><kbd>Space</kbd> <span>Play / Pause Auto-Solve</span></div>
+            <div class="shortcut-item"><kbd>&larr;</kbd> <kbd>&rarr;</kbd> <span>Step Prev / Next</span></div>
+            <div class="shortcut-item"><kbd>S</kbd> <span>Random 20 Scramble</span></div>
+            <div class="shortcut-item"><kbd>Enter</kbd> <span>Calculate Solution</span></div>
+            <div class="shortcut-item"><kbd>Esc</kbd> <span>Reset Cube</span></div>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <!-- Application Logic -->
+  <script src="solver.js"></script>
+  <script src="main.js"></script>
+</body>
+</html>
