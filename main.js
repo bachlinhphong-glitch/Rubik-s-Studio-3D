@@ -43,10 +43,84 @@
     defaultPlaybackSpeed: 300 // ms
   };
 
+  // --- Personalization Schemes & Themes ---
+  const THEMES = {
+    classic: {
+      name: 'WCA Classic (Tiêu Chuẩn)',
+      colors: {
+        U: { name: 'White', hex: 0xffffff, css: '#ffffff' },
+        D: { name: 'Yellow', hex: 0xffd500, css: '#ffd500' },
+        F: { name: 'Green', hex: 0x009b48, css: '#009b48' },
+        B: { name: 'Blue', hex: 0x0046ad, css: '#0046ad' },
+        R: { name: 'Red', hex: 0xb71234, css: '#b71234' },
+        L: { name: 'Orange', hex: 0xff5800, css: '#ff5800' }
+      }
+    },
+    cyberpunk: {
+      name: 'Cyberpunk Neon (Dạ Quang)',
+      colors: {
+        U: { name: 'Ice White', hex: 0xe0f2fe, css: '#e0f2fe' },
+        D: { name: 'Neon Yellow', hex: 0xfacc15, css: '#facc15' },
+        F: { name: 'Acid Green', hex: 0x22c55e, css: '#22c55e' },
+        B: { name: 'Electric Cyan', hex: 0x06b6d4, css: '#06b6d4' },
+        R: { name: 'Neon Pink', hex: 0xf43f5e, css: '#f43f5e' },
+        L: { name: 'Laser Orange', hex: 0xf97316, css: '#f97316' }
+      }
+    },
+    pastel: {
+      name: 'Pastel Aesthetic (Dịu Mắt)',
+      colors: {
+        U: { name: 'Pearl Cream', hex: 0xfdfbf7, css: '#fdfbf7' },
+        D: { name: 'Soft Butter', hex: 0xfef08a, css: '#fef08a' },
+        F: { name: 'Mint Green', hex: 0x86efac, css: '#86efac' },
+        B: { name: 'Sky Blue', hex: 0x7dd3fc, css: '#7dd3fc' },
+        R: { name: 'Coral Rose', hex: 0xfca5a5, css: '#fca5a5' },
+        L: { name: 'Peach Orange', hex: 0xfdba74, css: '#fdba74' }
+      }
+    },
+    carbon: {
+      name: 'Carbon Stealth (Siêu Xe)',
+      colors: {
+        U: { name: 'Silver Slate', hex: 0xf1f5f9, css: '#f1f5f9' },
+        D: { name: 'Racing Gold', hex: 0xeab308, css: '#eab308' },
+        F: { name: 'Emerald Race', hex: 0x10b981, css: '#10b981' },
+        B: { name: 'Royal Blue', hex: 0x2563eb, css: '#2563eb' },
+        R: { name: 'Crimson Red', hex: 0xef4444, css: '#ef4444' },
+        L: { name: 'Sunset Amber', hex: 0xf97316, css: '#f97316' }
+      }
+    },
+    vintage: {
+      name: 'Vintage 80s (Cổ Điển)',
+      colors: {
+        U: { name: 'Warm Cream', hex: 0xfef3c7, css: '#fef3c7' },
+        D: { name: 'Mustard Gold', hex: 0xd97706, css: '#d97706' },
+        F: { name: 'Pine Forest', hex: 0x059669, css: '#059669' },
+        B: { name: 'Navy Blue', hex: 0x1d4ed8, css: '#1d4ed8' },
+        R: { name: 'Brick Red', hex: 0xdc2626, css: '#dc2626' },
+        L: { name: 'Rust Orange', hex: 0xea580c, css: '#ea580c' }
+      }
+    }
+  };
+
+  const FINISHES = {
+    matte: { name: 'Frosted Matte (Nhám Lì Gan MagLev)', roughness: 0.62, metalness: 0.04 },
+    glossy: { name: 'Glossy Vinyl (Bóng Bẩy)', roughness: 0.16, metalness: 0.08 },
+    metallic: { name: 'Metallic Chrome (Kim Loại)', roughness: 0.26, metalness: 0.8 }
+  };
+
+  const CORES = {
+    black: { name: 'Black Core (Nhựa Đen)', color: 0x121316 },
+    primary: { name: 'Milky White (Trắng Sữa)', color: 0xe2e8f0 },
+    midnight: { name: 'Midnight Cyber (Tím Đêm)', color: 0x1e1b4b }
+  };
+
   class AudioFeedback {
     constructor() {
       this.ctx = null;
       this.enabled = true;
+      this.soundPack = 'magnetic'; // 'magnetic' | 'keyboard' | 'acoustic' | 'mute'
+      this.volume = 0.5;
+      this.hapticsEnabled = true;
     }
 
     init() {
@@ -57,7 +131,13 @@
     }
 
     playTurnSound() {
-      if (!this.enabled) return;
+      if (!this.enabled || this.soundPack === 'mute') return;
+
+      // Haptic Vibration on mobile devices
+      if (this.hapticsEnabled && typeof navigator !== 'undefined' && navigator.vibrate) {
+        try { navigator.vibrate(12); } catch {}
+      }
+
       try {
         this.init();
         if (!this.ctx) return;
@@ -70,52 +150,92 @@
         const gain = this.ctx.createGain();
         const filter = this.ctx.createBiquadFilter();
 
-        filter.type = 'bandpass';
-        filter.frequency.setValueAtTime(1400, now);
-        filter.Q.setValueAtTime(3.5, now);
-
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(320, now);
-        osc.frequency.exponentialRampToValueAtTime(70, now + 0.04);
-
-        gain.gain.setValueAtTime(0.28, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+        if (this.soundPack === 'keyboard') {
+          // Thocky mechanical switch
+          filter.type = 'lowpass';
+          filter.frequency.setValueAtTime(800, now);
+          osc.type = 'square';
+          osc.frequency.setValueAtTime(320, now);
+          osc.frequency.exponentialRampToValueAtTime(90, now + 0.05);
+          gain.gain.setValueAtTime(0.22 * this.volume, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+        } else if (this.soundPack === 'acoustic') {
+          // Acoustic wood snap
+          filter.type = 'bandpass';
+          filter.frequency.setValueAtTime(1800, now);
+          filter.Q.setValueAtTime(4.0, now);
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(800, now);
+          osc.frequency.exponentialRampToValueAtTime(140, now + 0.04);
+          gain.gain.setValueAtTime(0.3 * this.volume, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+        } else {
+          // 'magnetic' speedcube snap
+          filter.type = 'bandpass';
+          filter.frequency.setValueAtTime(1400, now);
+          filter.Q.setValueAtTime(3.5, now);
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(320, now);
+          osc.frequency.exponentialRampToValueAtTime(70, now + 0.04);
+          gain.gain.setValueAtTime(0.28 * this.volume, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+        }
 
         osc.connect(filter);
         filter.connect(gain);
         gain.connect(this.ctx.destination);
 
         osc.start(now);
-        osc.stop(now + 0.045);
-      } catch {
-        // Ignore
-      }
+        osc.stop(now + 0.055);
+      } catch {}
     }
 
     playSolveSound() {
-      if (!this.enabled) return;
+      if (!this.enabled || this.soundPack === 'mute') return;
       try {
         this.init();
         if (!this.ctx) return;
+        if (this.ctx.state === 'suspended') this.ctx.resume();
         const now = this.ctx.currentTime;
         [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
           const osc = this.ctx.createOscillator();
           const gain = this.ctx.createGain();
           osc.frequency.setValueAtTime(freq, now + idx * 0.08);
-          gain.gain.setValueAtTime(0.18, now + idx * 0.08);
+          gain.gain.setValueAtTime(0.18 * this.volume, now + idx * 0.08);
           gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.08 + 0.18);
           osc.connect(gain);
           gain.connect(this.ctx.destination);
           osc.start(now + idx * 0.08);
           osc.stop(now + idx * 0.08 + 0.2);
         });
-      } catch {
-        // Ignore
-      }
+      } catch {}
+    }
+
+    playCelebrationFanfare() {
+      if (!this.enabled || this.soundPack === 'mute') return;
+      try {
+        this.init();
+        if (!this.ctx) return;
+        if (this.ctx.state === 'suspended') this.ctx.resume();
+        const now = this.ctx.currentTime;
+        // Joyful fanfare: C5, E5, G5, C6 (chord arpeggio)
+        [523.25, 659.25, 783.99, 1046.50, 1318.51].forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, now + idx * 0.09);
+          gain.gain.setValueAtTime(0.25 * this.volume, now + idx * 0.09);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.09 + 0.35);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now + idx * 0.09);
+          osc.stop(now + idx * 0.09 + 0.4);
+        });
+      } catch {}
     }
 
     playBeep(freq = 880, duration = 0.08) {
-      if (!this.enabled) return;
+      if (!this.enabled || this.soundPack === 'mute') return;
       try {
         this.init();
         if (!this.ctx) return;
@@ -125,7 +245,7 @@
         const gain = this.ctx.createGain();
         osc.type = 'sine';
         osc.frequency.setValueAtTime(freq, now);
-        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.setValueAtTime(0.2 * this.volume, now);
         gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
         osc.connect(gain);
         gain.connect(this.ctx.destination);
@@ -135,11 +255,108 @@
     }
   }
 
+  // ==========================================================================
+  // Celebration Confetti Particle Engine (Zero Dependency)
+  // ==========================================================================
+  class ConfettiCelebration {
+    constructor() {
+      this.canvas = null;
+      this.ctx = null;
+      this.particles = [];
+      this.animating = false;
+    }
+
+    init() {
+      if (!this.canvas) {
+        this.canvas = document.getElementById('confetti-canvas');
+        if (!this.canvas) {
+          this.canvas = document.createElement('canvas');
+          this.canvas.id = 'confetti-canvas';
+          this.canvas.className = 'confetti-layer';
+          document.body.appendChild(this.canvas);
+        }
+        this.ctx = this.canvas.getContext('2d');
+        window.addEventListener('resize', () => this.resize());
+        this.resize();
+      }
+    }
+
+    resize() {
+      if (this.canvas) {
+        this.canvas.width = window.innerWidth;
+        this.canvas.height = window.innerHeight;
+      }
+    }
+
+    burst(count = 140) {
+      this.init();
+      const colors = ['#38bdf8', '#818cf8', '#34d399', '#facc15', '#f43f5e', '#fb923c', '#e879f9'];
+      for (let i = 0; i < count; i++) {
+        this.particles.push({
+          x: window.innerWidth * (0.3 + Math.random() * 0.4),
+          y: window.innerHeight * 0.65,
+          vx: (Math.random() - 0.5) * 18,
+          vy: -Math.random() * 20 - 8,
+          size: Math.random() * 8 + 5,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          rotation: Math.random() * 360,
+          vrot: (Math.random() - 0.5) * 14,
+          gravity: 0.45,
+          alpha: 1
+        });
+      }
+
+      if (!this.animating) {
+        this.animating = true;
+        this.loop();
+      }
+    }
+
+    loop() {
+      if (this.particles.length === 0) {
+        if (this.ctx && this.canvas) {
+          this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        }
+        this.animating = false;
+        return;
+      }
+
+      if (this.ctx && this.canvas) {
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+        for (let i = this.particles.length - 1; i >= 0; i--) {
+          const p = this.particles[i];
+          p.vy += p.gravity;
+          p.x += p.vx;
+          p.y += p.vy;
+          p.rotation += p.vrot;
+          p.alpha -= 0.007;
+
+          if (p.alpha <= 0 || p.y > this.canvas.height + 25) {
+            this.particles.splice(i, 1);
+            continue;
+          }
+
+          this.ctx.save();
+          this.ctx.globalAlpha = Math.max(p.alpha, 0);
+          this.ctx.translate(p.x, p.y);
+          this.ctx.rotate((p.rotation * Math.PI) / 180);
+          this.ctx.fillStyle = p.color;
+          this.ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.7);
+          this.ctx.restore();
+        }
+      }
+
+      requestAnimationFrame(() => this.loop());
+    }
+  }
+
   class RubikApp {
     constructor() {
       this.container = document.getElementById('canvas-container') || document.body;
       this.cubies = [];
       this.audio = new AudioFeedback();
+      this.confetti = new ConfettiCelebration();
 
       // Scene & Rendering
       this.scene = null;
@@ -147,6 +364,36 @@
       this.renderer = null;
       this.controls = null;
       this.pivot = null;
+      this.envGroup = null;
+      this.starField = null;
+
+      // Personalization Preferences (loaded from localStorage)
+      this.currentTheme = 'classic';
+      this.currentFinish = 'matte';
+      this.currentCore = 'black';
+      this.currentEnv = 'studio';
+      this.isFocusMode = false;
+      this.wasSolved = true;
+      this.userProfile = {
+        nickname: 'SpeedCuber_VN',
+        avatar: '⚡'
+      };
+
+      try {
+        const savedProf = localStorage.getItem('rubik_user_profile');
+        if (savedProf) {
+          const p = JSON.parse(savedProf);
+          if (p.nickname) this.userProfile.nickname = p.nickname;
+          if (p.avatar) this.userProfile.avatar = p.avatar;
+          if (p.theme && THEMES[p.theme]) this.currentTheme = p.theme;
+          if (p.finish && FINISHES[p.finish]) this.currentFinish = p.finish;
+          if (p.core && CORES[p.core]) this.currentCore = p.core;
+          if (p.env) this.currentEnv = p.env;
+          if (p.soundPack) this.audio.soundPack = p.soundPack;
+          if (p.volume !== undefined) this.audio.volume = p.volume;
+          if (p.haptics !== undefined) this.audio.hapticsEnabled = p.haptics;
+        }
+      } catch (e) {}
 
       // Materials & Textures
       this.stickerTextures = {};
@@ -193,6 +440,8 @@
         // Initialize Speedcubing Competition Timer & Formulas Cheat Sheet
         this.speedTimer = new SpeedcubingTimer(this);
         this.cheatSheet = new FormulaCheatSheet(this);
+
+        this.updateUserProfileDisplay();
       } catch (err) {
         console.error('RubikApp initialization failed:', err);
       }
@@ -264,6 +513,11 @@
       this.pivot = new THREE.Group();
       this.scene.add(this.pivot);
 
+      // 3D Environment Group
+      this.envGroup = new THREE.Group();
+      this.scene.add(this.envGroup);
+      this.setEnvironment(this.currentEnv);
+
       window.addEventListener('resize', () => this.onWindowResize());
     }
 
@@ -277,19 +531,23 @@
 
     // --- Material & Vinyl Sticker Generation ---
     initMaterials() {
+      const coreCfg = CORES[this.currentCore] || CORES.black;
+      const finishCfg = FINISHES[this.currentFinish] || FINISHES.matte;
+      const themeCfg = THEMES[this.currentTheme] || THEMES.classic;
+
       this.coreMaterial = new THREE.MeshStandardMaterial({
-        color: 0x141416,
-        roughness: 0.5,
-        metalness: 0.1
+        color: coreCfg.color,
+        roughness: finishCfg.roughness,
+        metalness: finishCfg.metalness
       });
 
-      for (const [faceKey, scheme] of Object.entries(COLOR_SCHEME)) {
+      for (const [faceKey, scheme] of Object.entries(themeCfg.colors)) {
         const canvas = document.createElement('canvas');
         canvas.width = 256;
         canvas.height = 256;
         const ctx = canvas.getContext('2d');
 
-        ctx.fillStyle = '#0a0a0c';
+        ctx.fillStyle = this.currentCore === 'primary' ? '#d4d4d8' : '#0a0a0c';
         ctx.fillRect(0, 0, 256, 256);
 
         const margin = 12;
@@ -309,12 +567,12 @@
         const grad = ctx.createLinearGradient(margin, margin, margin + w, margin + h);
         grad.addColorStop(0, 'rgba(255, 255, 255, 0.16)');
         grad.addColorStop(0.4, 'rgba(255, 255, 255, 0.03)');
-        grad.addColorStop(1, 'rgba(0, 0, 0, 0.08)');
+        grad.addColorStop(1, 'rgba(0, 0, 0, 0.1)');
         ctx.fillStyle = grad;
         ctx.fill();
 
         ctx.lineWidth = 3;
-        ctx.strokeStyle = 'rgba(0, 0, 0, 0.12)';
+        ctx.strokeStyle = 'rgba(0, 0, 0, 0.14)';
         ctx.stroke();
 
         const texture = new THREE.CanvasTexture(canvas);
@@ -327,10 +585,158 @@
 
         this.stickerMaterials[faceKey] = new THREE.MeshStandardMaterial({
           map: texture,
-          roughness: 0.22,
-          metalness: 0.05
+          roughness: finishCfg.roughness,
+          metalness: finishCfg.metalness
         });
       }
+    }
+
+    updateMaterials() {
+      this.initMaterials();
+      for (const cubie of this.cubies) {
+        cubie.material = this.coreMaterial;
+        if (cubie.userData && cubie.userData.stickers) {
+          for (const s of cubie.userData.stickers) {
+            s.mesh.material = this.stickerMaterials[s.faceKey];
+          }
+        }
+      }
+      this.saveUserProfile();
+    }
+
+    setEnvironment(envId) {
+      this.currentEnv = envId;
+      if (!this.envGroup) return;
+
+      while (this.envGroup.children.length > 0) {
+        this.envGroup.remove(this.envGroup.children[0]);
+      }
+      this.starField = null;
+
+      const appRoot = document.getElementById('app-root') || document.body;
+      appRoot.classList.remove('env-studio', 'env-cyber', 'env-space', 'env-minimal');
+
+      if (envId === 'cyber') {
+        const grid = new THREE.GridHelper(30, 30, 0x06b6d4, 0x6366f1);
+        grid.position.y = -2.31;
+        this.envGroup.add(grid);
+        appRoot.classList.add('env-cyber');
+      } else if (envId === 'space') {
+        const starGeo = new THREE.BufferGeometry();
+        const positions = new Float32Array(1200 * 3);
+        for (let i = 0; i < 1200 * 3; i += 3) {
+          positions[i] = (Math.random() - 0.5) * 45;
+          positions[i + 1] = (Math.random() - 0.5) * 45;
+          positions[i + 2] = (Math.random() - 0.5) * 45;
+        }
+        starGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        const starMat = new THREE.PointsMaterial({
+          color: 0x94a3b8,
+          size: 0.12,
+          transparent: true,
+          opacity: 0.8
+        });
+        this.starField = new THREE.Points(starGeo, starMat);
+        this.envGroup.add(this.starField);
+        appRoot.classList.add('env-space');
+      } else if (envId === 'minimal') {
+        appRoot.classList.add('env-minimal');
+      } else {
+        appRoot.classList.add('env-studio');
+      }
+
+      this.saveUserProfile();
+    }
+
+    celebrateSolve(isNewPB = false) {
+      this.audio.playCelebrationFanfare();
+      this.confetti?.burst();
+
+      const toast = document.createElement('div');
+      toast.className = 'celebration-toast';
+      toast.innerHTML = isNewPB
+        ? `🎉 <strong>KỶ LỤC MỚI (NEW PB)!</strong>`
+        : `✨ <strong>CUBE SOLVED - CHÚC MỪNG BẠN!</strong>`;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.classList.add('show'), 20);
+      setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 400);
+      }, 3500);
+    }
+
+    toggleFocusMode() {
+      this.isFocusMode = !this.isFocusMode;
+      const root = document.getElementById('app-root') || document.body;
+      root.classList.toggle('focus-mode', this.isFocusMode);
+
+      const btn = document.getElementById('btn-toggle-focus');
+      if (btn) btn.classList.toggle('active', this.isFocusMode);
+    }
+
+    updateUserProfileDisplay() {
+      const avatarEl = document.getElementById('top-user-avatar');
+      const nameEl = document.getElementById('top-user-name');
+      const inputNick = document.getElementById('input-user-nickname');
+
+      if (avatarEl) avatarEl.textContent = this.userProfile.avatar;
+      if (nameEl) nameEl.textContent = this.userProfile.nickname;
+      if (inputNick) inputNick.value = this.userProfile.nickname;
+
+      this.updateUserTitle();
+    }
+
+    updateUserTitle() {
+      const titleEl = document.getElementById('top-user-title');
+      const settingsTitleEl = document.getElementById('settings-user-title');
+      if (!this.speedTimer) return;
+
+      const solves = this.speedTimer.solves || [];
+      const times = solves.map(s => s.time);
+      const best = times.length > 0 ? Math.min(...times) / 1000 : null;
+
+      let title = 'Tập Sự';
+      let badgeClass = 'badge-novice';
+
+      if (solves.length >= 50) {
+        title = 'Cube Grandmaster 👑';
+        badgeClass = 'badge-master';
+      } else if (best && best < 15) {
+        title = 'Lightning (Sub-15) ⚡';
+        badgeClass = 'badge-sub15';
+      } else if (best && best < 30) {
+        title = 'Speed Demon (Sub-30) 🥇';
+        badgeClass = 'badge-sub30';
+      } else if (best && best < 60) {
+        title = 'Sub-60 Solver 🥈';
+        badgeClass = 'badge-sub60';
+      }
+
+      if (titleEl) {
+        titleEl.textContent = title;
+        titleEl.className = `user-title-badge ${badgeClass}`;
+      }
+      if (settingsTitleEl) {
+        settingsTitleEl.textContent = title;
+        settingsTitleEl.className = `user-title-badge ${badgeClass}`;
+      }
+    }
+
+    saveUserProfile() {
+      try {
+        const payload = {
+          nickname: this.userProfile.nickname,
+          avatar: this.userProfile.avatar,
+          theme: this.currentTheme,
+          finish: this.currentFinish,
+          core: this.currentCore,
+          env: this.currentEnv,
+          soundPack: this.audio.soundPack,
+          volume: this.audio.volume,
+          haptics: this.audio.hapticsEnabled
+        };
+        localStorage.setItem('rubik_user_profile', JSON.stringify(payload));
+      } catch (e) {}
     }
 
     // --- Cube Construction ---
@@ -1192,7 +1598,14 @@
     checkSolvedState() {
       const faceletStr = extractFaceletString(this.cubies, THREE);
       if (isCubeSolved(faceletStr)) {
-        this.updateStatus('Cube Solved!', 'ready');
+        if (!this.wasSolved) {
+          this.wasSolved = true;
+          this.updateStatus('Cube Solved!', 'ready');
+          this.celebrateSolve(false);
+          this.updateUserTitle();
+        }
+      } else {
+        this.wasSolved = false;
       }
     }
 
@@ -1284,6 +1697,104 @@
       });
       document.getElementById('btn-top-cheatsheet')?.addEventListener('click', () => {
         this.switchTab('cheatsheet-tab');
+      });
+
+      // Zen Focus Mode
+      document.getElementById('btn-toggle-focus')?.addEventListener('click', () => this.toggleFocusMode());
+      document.getElementById('btn-exit-focus')?.addEventListener('click', () => this.toggleFocusMode());
+
+      // Personalization: Cube Theme Pickers
+      document.querySelectorAll('.theme-card-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.theme-card-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          this.currentTheme = btn.dataset.theme;
+          this.updateMaterials();
+        });
+      });
+
+      // Personalization: Material Finish Chips
+      document.querySelectorAll('.finish-chip-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.finish-chip-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          this.currentFinish = btn.dataset.finish;
+          this.updateMaterials();
+        });
+      });
+
+      // Personalization: Plastic Core Chips
+      document.querySelectorAll('.core-chip-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.core-chip-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          this.currentCore = btn.dataset.core;
+          this.updateMaterials();
+        });
+      });
+
+      // Personalization: 3D Environments
+      document.querySelectorAll('.env-card-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.env-card-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          this.setEnvironment(btn.dataset.env);
+        });
+      });
+
+      // Personalization: Sound Packs
+      document.querySelectorAll('.sound-pack-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.sound-pack-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          this.audio.soundPack = btn.dataset.sound;
+          this.audio.playTurnSound();
+          this.saveUserProfile();
+        });
+      });
+
+      // Volume slider
+      const volSlider = document.getElementById('volume-slider');
+      if (volSlider) {
+        volSlider.value = Math.round(this.audio.volume * 100);
+        volSlider.addEventListener('input', (e) => {
+          this.audio.volume = parseInt(e.target.value, 10) / 100;
+          this.saveUserProfile();
+        });
+      }
+
+      // Haptics toggle
+      const hapticToggle = document.getElementById('haptics-toggle');
+      if (hapticToggle) {
+        hapticToggle.checked = this.audio.hapticsEnabled;
+        hapticToggle.addEventListener('change', (e) => {
+          this.audio.hapticsEnabled = e.target.checked;
+          this.saveUserProfile();
+        });
+      }
+
+      // Avatar picker
+      document.querySelectorAll('.avatar-pick-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.avatar-pick-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          this.userProfile.avatar = btn.dataset.avatar;
+          this.updateUserProfileDisplay();
+          this.saveUserProfile();
+        });
+      });
+
+      // Nickname save
+      document.getElementById('btn-save-nickname')?.addEventListener('click', () => {
+        const input = document.getElementById('input-user-nickname');
+        if (input && input.value.trim()) {
+          this.userProfile.nickname = input.value.trim();
+          this.updateUserProfileDisplay();
+          this.saveUserProfile();
+          const btn = document.getElementById('btn-save-nickname');
+          btn.textContent = 'Đã lưu!';
+          setTimeout(() => { btn.textContent = 'Lưu'; }, 1500);
+        }
       });
     }
 
@@ -1383,6 +1894,8 @@
         if (e.code === 'Space') {
           e.preventDefault();
           this.togglePlayPause();
+        } else if (e.code === 'KeyF' && !e.ctrlKey) {
+          this.toggleFocusMode();
         } else if (e.code === 'ArrowRight') {
           this.stepForward();
         } else if (e.code === 'ArrowLeft') {
@@ -1392,7 +1905,11 @@
         } else if (e.code === 'Enter') {
           this.solve();
         } else if (e.code === 'Escape') {
-          this.resetCube();
+          if (this.isFocusMode) {
+            this.toggleFocusMode();
+          } else {
+            this.resetCube();
+          }
         }
       });
     }
@@ -1400,6 +1917,10 @@
     animate() {
       requestAnimationFrame(() => this.animate());
       if (this.controls) this.controls.update();
+      if (this.starField) {
+        this.starField.rotation.y += 0.0004;
+        this.starField.rotation.x += 0.0001;
+      }
       this.renderer.render(this.scene, this.camera);
     }
   }
@@ -2051,9 +2572,18 @@
         this.statusHint.textContent = `Hoàn thành: ${finalFormatted}! Giữ phím cách để bắt đầu lượt mới.`;
       }
 
-      this.app.audio.playBeep(440, 0.12);
+      const prevBest = this.solves.length > 0 ? Math.min(...this.solves.map(s => s.time)) : Infinity;
+      const isNewPB = finalMs < prevBest && this.solves.length > 0;
+
       this.recordSolve(finalMs);
       this.generateNewScramble();
+
+      if (isNewPB) {
+        this.app.celebrateSolve(true);
+      } else {
+        this.app.audio.playBeep(440, 0.12);
+      }
+      this.app.updateUserTitle();
     }
 
     recordSolve(ms) {

@@ -63,12 +63,29 @@
       </div>
 
       <div class="header-stats">
+        <div id="top-user-pill" class="user-profile-chip" title="Hồ sơ người chơi Speedcubing">
+          <span id="top-user-avatar" class="user-avatar-icon">⚡</span>
+          <span id="top-user-name" class="user-name-text">SpeedCuber_VN</span>
+          <span id="top-user-title" class="user-title-badge badge-novice">Tập Sự</span>
+        </div>
+        <button id="btn-toggle-focus" class="top-nav-chip btn-focus-chip" title="Chế độ tập trung Zen Focus Mode (Phím F)">
+          <span class="btn-icon">⛶</span>
+          <span>Focus</span>
+        </button>
         <div class="stat-pill">
           <span class="stat-name">Turns</span>
           <span id="move-count-display" class="stat-value">0</span>
         </div>
       </div>
     </header>
+
+    <!-- Celebration Confetti Layer -->
+    <canvas id="confetti-canvas" class="confetti-layer"></canvas>
+
+    <!-- Zen Focus Mode Exit Floating Button -->
+    <button id="btn-exit-focus" class="btn-exit-focus" title="Thoát chế độ tập trung (Esc / F)">
+      ✕ Thoát Zen Focus Mode (Phím F hoặc Esc)
+    </button>
 
     <!-- 3D Canvas Viewport -->
     <main id="canvas-container"></main>
@@ -350,51 +367,188 @@
         </div>
       </div>
 
-      <!-- Tab 3: Settings -->
+      <!-- Tab 4: Settings & Personalization -->
       <div id="settings-tab" class="tab-content">
-        <!-- Animation Speed -->
+        <!-- 1. Player Profile & Title -->
+        <div class="section-card profile-card">
+          <div class="section-title">Hồ Sơ Speedcuber</div>
+          <div class="profile-row">
+            <div class="avatar-select-group">
+              <span class="sub-label">Chọn Avatar:</span>
+              <div class="avatar-list">
+                <button class="avatar-pick-btn active" data-avatar="⚡">⚡</button>
+                <button class="avatar-pick-btn" data-avatar="🎲">🎲</button>
+                <button class="avatar-pick-btn" data-avatar="🏆">🏆</button>
+                <button class="avatar-pick-btn" data-avatar="🚀">🚀</button>
+                <button class="avatar-pick-btn" data-avatar="🤖">🤖</button>
+                <button class="avatar-pick-btn" data-avatar="🐱">🐱</button>
+                <button class="avatar-pick-btn" data-avatar="🦊">🦊</button>
+                <button class="avatar-pick-btn" data-avatar="🔥">🔥</button>
+              </div>
+            </div>
+          </div>
+          <div class="nickname-form">
+            <div class="nickname-input-wrap">
+              <label for="input-user-nickname" class="sub-label">Tên hiển thị:</label>
+              <input type="text" id="input-user-nickname" class="custom-input" maxlength="18" placeholder="Nhập tên của bạn...">
+            </div>
+            <button id="btn-save-nickname" class="action-btn btn-primary btn-sm">Lưu</button>
+          </div>
+          <div class="title-status-row">
+            <span class="sub-label">Danh hiệu thi đấu:</span>
+            <span id="settings-user-title" class="user-title-badge badge-novice">Tập Sự (Novice)</span>
+          </div>
+        </div>
+
+        <!-- 2. Cube Themes & Color Scheme -->
         <div class="section-card">
+          <div class="section-title">Chủ Đề Màu Sắc Khối Rubik</div>
+          <div class="theme-selection-grid">
+            <button class="theme-card-btn active" data-theme="classic">
+              <div class="theme-preview">
+                <span style="background: #ffffff;"></span>
+                <span style="background: #ffd500;"></span>
+                <span style="background: #009b48;"></span>
+                <span style="background: #b71234;"></span>
+              </div>
+              <span class="theme-title">WCA Classic</span>
+            </button>
+            <button class="theme-card-btn" data-theme="cyberpunk">
+              <div class="theme-preview">
+                <span style="background: #e0f2fe;"></span>
+                <span style="background: #facc15;"></span>
+                <span style="background: #22c55e;"></span>
+                <span style="background: #f43f5e;"></span>
+              </div>
+              <span class="theme-title">Cyberpunk Neon</span>
+            </button>
+            <button class="theme-card-btn" data-theme="pastel">
+              <div class="theme-preview">
+                <span style="background: #fdfbf7;"></span>
+                <span style="background: #fef08a;"></span>
+                <span style="background: #86efac;"></span>
+                <span style="background: #fca5a5;"></span>
+              </div>
+              <span class="theme-title">Pastel Chill</span>
+            </button>
+            <button class="theme-card-btn" data-theme="carbon">
+              <div class="theme-preview">
+                <span style="background: #f1f5f9;"></span>
+                <span style="background: #eab308;"></span>
+                <span style="background: #10b981;"></span>
+                <span style="background: #ef4444;"></span>
+              </div>
+              <span class="theme-title">Carbon Stealth</span>
+            </button>
+            <button class="theme-card-btn" data-theme="vintage">
+              <div class="theme-preview">
+                <span style="background: #fef3c7;"></span>
+                <span style="background: #d97706;"></span>
+                <span style="background: #059669;"></span>
+                <span style="background: #dc2626;"></span>
+              </div>
+              <span class="theme-title">Vintage 80s</span>
+            </button>
+          </div>
+
+          <!-- Finishes & Core -->
+          <div class="custom-chip-group">
+            <span class="sub-label">Chất liệu bề mặt:</span>
+            <div class="chip-options">
+              <button class="finish-chip-btn active" data-finish="matte">Frosted Matte (Nhám Lì)</button>
+              <button class="finish-chip-btn" data-finish="glossy">Glossy (Bóng)</button>
+              <button class="finish-chip-btn" data-finish="metallic">Chrome (Kim loại)</button>
+            </div>
+          </div>
+          <div class="custom-chip-group">
+            <span class="sub-label">Màu nhựa lõi bên trong:</span>
+            <div class="chip-options">
+              <button class="core-chip-btn active" data-core="black">Nhựa Đen</button>
+              <button class="core-chip-btn" data-core="primary">Trắng Sữa</button>
+              <button class="core-chip-btn" data-core="midnight">Tím Đêm</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. 3D Environments -->
+        <div class="section-card">
+          <div class="section-title">Không Gian &amp; Môi Trường 3D</div>
+          <div class="env-selection-grid">
+            <button class="env-card-btn active" data-env="studio">
+              <span class="env-icon">🎬</span>
+              <span>Studio Tối</span>
+            </button>
+            <button class="env-card-btn" data-env="cyber">
+              <span class="env-icon">🌐</span>
+              <span>Laser Grid</span>
+            </button>
+            <button class="env-card-btn" data-env="space">
+              <span class="env-icon">✨</span>
+              <span>Vũ Trụ Galaxy</span>
+            </button>
+            <button class="env-card-btn" data-env="minimal">
+              <span class="env-icon">🏛️</span>
+              <span>Slate Tối Giản</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 4. Sound FX & Haptics -->
+        <div class="section-card">
+          <div class="section-title">Âm Thanh &amp; Phản Hồi Rung</div>
+          <div class="custom-chip-group">
+            <span class="sub-label">Gói âm thanh xoay:</span>
+            <div class="chip-options">
+              <button class="sound-pack-btn active" data-sound="magnetic">Hút Nam Châm</button>
+              <button class="sound-pack-btn" data-sound="keyboard">Phím Cơ (Thocky)</button>
+              <button class="sound-pack-btn" data-sound="acoustic">Tiếng Gỗ</button>
+              <button class="sound-pack-btn" data-sound="mute">Tắt Tiếng</button>
+            </div>
+          </div>
           <div class="setting-row">
-            <label for="speed-slider">Rotation Speed</label>
+            <label for="volume-slider">Âm Lượng</label>
+            <input type="range" id="volume-slider" min="0" max="100" step="5" value="50" class="custom-range range-sm">
+          </div>
+          <div class="setting-row">
+            <label for="haptics-toggle">Rung Phản Hồi Cảm Ứng (Điện thoại)</label>
+            <input type="checkbox" id="haptics-toggle" checked class="custom-checkbox">
+          </div>
+        </div>
+
+        <!-- 5. Handling & Camera -->
+        <div class="section-card">
+          <div class="section-title">Tốc Độ Xoay &amp; Góc Nhìn</div>
+          <div class="setting-row">
+            <label for="speed-slider">Tốc Độ Xoay Lớp</label>
             <span id="speed-val-display" class="slider-val">250ms</span>
           </div>
           <input type="range" id="speed-slider" min="80" max="600" step="20" value="250" class="custom-range">
           <div class="range-labels">
-            <span>Fast (80ms)</span>
-            <span>Smooth (600ms)</span>
+            <span>Siêu Nhanh (80ms)</span>
+            <span>Mượt Mà (600ms)</span>
+          </div>
+
+          <div class="camera-grid" style="margin-top: 14px;">
+            <button class="camera-preset-btn" data-preset="iso">Góc Isometric</button>
+            <button class="camera-preset-btn" data-preset="front">Mặt Trước (F)</button>
+            <button class="camera-preset-btn" data-preset="top">Mặt Trên (U)</button>
+            <button class="camera-preset-btn" data-preset="right">Mặt Phải (R)</button>
           </div>
         </div>
 
-        <!-- Camera Views -->
+        <!-- 6. Keyboard Shortcuts -->
         <div class="section-card">
-          <div class="section-title">Camera Perspectives</div>
-          <div class="camera-grid">
-            <button class="camera-preset-btn" data-preset="iso">Isometric</button>
-            <button class="camera-preset-btn" data-preset="front">Front (F)</button>
-            <button class="camera-preset-btn" data-preset="top">Top (U)</button>
-            <button class="camera-preset-btn" data-preset="right">Right (R)</button>
-          </div>
-        </div>
-
-        <!-- Audio Toggle -->
-        <div class="section-card">
-          <div class="setting-row">
-            <label for="sound-toggle">Tactile Turn Sound FX</label>
-            <input type="checkbox" id="sound-toggle" checked class="custom-checkbox">
-          </div>
-        </div>
-
-        <!-- Keyboard Shortcuts -->
-        <div class="section-card">
-          <div class="section-title">Keyboard Shortcuts</div>
+          <div class="section-title">Phím Tắt Bàn Phím</div>
           <div class="shortcut-list">
-            <div class="shortcut-item"><kbd>U</kbd> <kbd>D</kbd> <kbd>L</kbd> <kbd>R</kbd> <kbd>F</kbd> <kbd>B</kbd> <span>Turn Face Clockwise</span></div>
-            <div class="shortcut-item"><kbd>Shift</kbd> + <kbd>Face</kbd> <span>Turn Face Prime (Counter-CW)</span></div>
-            <div class="shortcut-item"><kbd>Space</kbd> <span>Play / Pause Auto-Solve</span></div>
-            <div class="shortcut-item"><kbd>&larr;</kbd> <kbd>&rarr;</kbd> <span>Step Prev / Next</span></div>
-            <div class="shortcut-item"><kbd>S</kbd> <span>Random 20 Scramble</span></div>
-            <div class="shortcut-item"><kbd>Enter</kbd> <span>Calculate Solution</span></div>
-            <div class="shortcut-item"><kbd>Esc</kbd> <span>Reset Cube</span></div>
+            <div class="shortcut-item"><kbd>U</kbd> <kbd>D</kbd> <kbd>L</kbd> <kbd>R</kbd> <kbd>F</kbd> <kbd>B</kbd> <span>Xoay mặt cùng chiều kim đồng hồ</span></div>
+            <div class="shortcut-item"><kbd>Shift</kbd> + <kbd>Face</kbd> <span>Xoay ngược chiều (Prime)</span></div>
+            <div class="shortcut-item"><kbd>Shift</kbd> + <kbd>Mũi tên</kbd> <span>Lật toàn bộ khối Rubik 3D</span></div>
+            <div class="shortcut-item"><kbd>F</kbd> <span>Bật / Tắt Zen Focus Mode</span></div>
+            <div class="shortcut-item"><kbd>Space</kbd> <span>Bấm giờ Timer / Play Auto-Solve</span></div>
+            <div class="shortcut-item"><kbd>&larr;</kbd> <kbd>&rarr;</kbd> <span>Lùi / Tiến từng bước giải</span></div>
+            <div class="shortcut-item"><kbd>S</kbd> <span>Xáo ngẫu nhiên 20 bước WCA</span></div>
+            <div class="shortcut-item"><kbd>Enter</kbd> <span>Giải Kociemba</span></div>
+            <div class="shortcut-item"><kbd>Esc</kbd> <span>Đặt lại khối</span></div>
           </div>
         </div>
       </div>
