@@ -113,6 +113,26 @@
         // Ignore
       }
     }
+
+    playBeep(freq = 880, duration = 0.08) {
+      if (!this.enabled) return;
+      try {
+        this.init();
+        if (!this.ctx) return;
+        if (this.ctx.state === 'suspended') this.ctx.resume();
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, now);
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + duration);
+      } catch {}
+    }
   }
 
   class RubikApp {
@@ -170,6 +190,9 @@
 
         // Initialize Camera / Photo Real-Cube Scanner
         this.scanner = new RealCubeScanner(this);
+        // Initialize Speedcubing Competition Timer & Formulas Cheat Sheet
+        this.speedTimer = new SpeedcubingTimer(this);
+        this.cheatSheet = new FormulaCheatSheet(this);
       } catch (err) {
         console.error('RubikApp initialization failed:', err);
       }
@@ -532,6 +555,7 @@
       const turn = this.turnQueue.shift();
 
       let axis, coordKey, coordVal, baseAngle;
+      let isWholeCube = false;
 
       switch (turn.face) {
         case 'U':
@@ -570,6 +594,27 @@
           coordVal = -1;
           baseAngle = Math.PI / 2;
           break;
+        case 'M': // Middle slice between L and R, rotates in direction of L
+          axis = new THREE.Vector3(1, 0, 0);
+          coordKey = 'x';
+          coordVal = 0;
+          baseAngle = Math.PI / 2;
+          break;
+        case 'X': // Whole cube rotation around X axis (follows R)
+          axis = new THREE.Vector3(1, 0, 0);
+          isWholeCube = true;
+          baseAngle = -Math.PI / 2;
+          break;
+        case 'Y': // Whole cube rotation around Y axis (follows U)
+          axis = new THREE.Vector3(0, 1, 0);
+          isWholeCube = true;
+          baseAngle = -Math.PI / 2;
+          break;
+        case 'Z': // Whole cube rotation around Z axis (follows F)
+          axis = new THREE.Vector3(0, 0, 1);
+          isWholeCube = true;
+          baseAngle = -Math.PI / 2;
+          break;
         default:
           console.warn('Unknown turn face:', turn.face);
           this.isRotating = false;
@@ -586,10 +631,15 @@
 
       const layerCubies = [];
       for (const cubie of this.cubies) {
-        const posVal = Math.round(cubie.position[coordKey]);
-        if (posVal === coordVal) {
+        if (isWholeCube) {
           layerCubies.push(cubie);
           this.pivot.attach(cubie);
+        } else {
+          const posVal = Math.round(cubie.position[coordKey]);
+          if (posVal === coordVal) {
+            layerCubies.push(cubie);
+            this.pivot.attach(cubie);
+          }
         }
       }
 
@@ -604,8 +654,10 @@
           this.snapCubieTransform(cubie);
         }
 
-        this.moveCount++;
-        this.updateMoveCounter();
+        if (!isWholeCube) {
+          this.moveCount++;
+          this.updateMoveCounter();
+        }
         this.checkSolvedState();
 
         if (turn.onComplete) turn.onComplete();
@@ -637,8 +689,10 @@
             this.snapCubieTransform(cubie);
           }
 
-          this.moveCount++;
-          this.updateMoveCounter();
+          if (!isWholeCube) {
+            this.moveCount++;
+            this.updateMoveCounter();
+          }
           this.checkSolvedState();
 
           if (turn.onComplete) turn.onComplete();
@@ -652,6 +706,26 @@
     // --- Raycasting & Drag-to-Rotate Interaction ---
     setupInteractions() {
       const el = this.renderer.domElement;
+
+      // Mouse Hover Feedback
+      const onPointerHover = (e) => {
+        if (this.isDraggingFace || this.isRotating) return;
+
+        const rect = el.getBoundingClientRect();
+        this.pointer.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+        this.pointer.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+        this.raycaster.setFromCamera(this.pointer, this.camera);
+
+        const stickerMeshes = [];
+        for (const cubie of this.cubies) {
+          for (const s of cubie.userData.stickers) {
+            stickerMeshes.push(s.mesh);
+          }
+        }
+
+        const intersects = this.raycaster.intersectObjects(stickerMeshes, false);
+        el.style.cursor = intersects.length > 0 ? 'grab' : 'default';
+      };
 
       const onPointerDown = (e) => {
         if (e.button !== undefined && e.button !== 0) return;
@@ -696,23 +770,54 @@
           this.isDraggingFace = true;
           this.dragResolved = false;
 
+          el.style.cursor = 'grabbing';
           if (this.controls) this.controls.enabled = false;
         }
       };
 
       const onPointerMove = (e) => {
-        if (!this.isDraggingFace || this.dragResolved || this.isRotating) return;
+        if (!this.isDraggingFace) {
+          onPointerHover(e);
+          return;
+        }
+
+        if (this.dragResolved || this.isRotating) return;
 
         const dx = e.clientX - this.pointerDownPos.x;
         const dy = e.clientY - this.pointerDownPos.y;
         const dist = Math.hypot(dx, dy);
 
-        if (dist < 14) return;
+        // Lower threshold for fast, responsive drag
+        if (dist < 8) return;
 
         const screenDrag = new THREE.Vector2(dx, -dy).normalize();
         const N = this.dragNormal;
-        let T1, T2;
+        const pos = this.dragCubie.position;
+        const cx = Math.round(pos.x);
+        const cy = Math.round(pos.y);
+        const cz = Math.round(pos.z);
 
+        // Check if user clicked a Center sticker:
+        const isCenterSticker = (Math.abs(cx) + Math.abs(cy) + Math.abs(cz) === 1);
+        if (isCenterSticker) {
+          let turn = null;
+          if (Math.abs(dx) > Math.abs(dy)) {
+            turn = dx > 0 ? "y" : "y'";
+          } else {
+            if (Math.abs(N.y) > 0.8) {
+              turn = dy > 0 ? "z" : "z'";
+            } else {
+              turn = dy > 0 ? "x" : "x'";
+            }
+          }
+          if (turn) {
+            this.queueMove(turn, { duration: 180 });
+            this.dragResolved = true;
+            return;
+          }
+        }
+
+        let T1, T2;
         if (Math.abs(N.y) > 0.9) {
           T1 = new THREE.Vector3(1, 0, 0);
           T2 = new THREE.Vector3(0, 0, 1);
@@ -761,7 +866,7 @@
           rotAxis.negate();
         }
 
-        const turn = this.determineLayerTurn(rotAxis, this.dragCubie);
+        const turn = this.determineLayerTurn(rotAxis, this.dragCubie, N, chosenTangent, chosenSign);
         if (turn) {
           this.queueMove(turn);
           this.dragResolved = true;
@@ -771,6 +876,7 @@
       const onPointerUp = () => {
         this.isDraggingFace = false;
         this.dragResolved = false;
+        el.style.cursor = 'default';
         if (this.controls) this.controls.enabled = true;
       };
 
@@ -780,42 +886,48 @@
       window.addEventListener('pointercancel', onPointerUp);
     }
 
-    determineLayerTurn(rotAxis, cubie) {
+    determineLayerTurn(rotAxis, cubie, normal, tangent, sign) {
       const ax = Math.abs(rotAxis.x);
       const ay = Math.abs(rotAxis.y);
       const az = Math.abs(rotAxis.z);
       const pos = cubie.position;
+      const layerX = Math.round(pos.x);
+      const layerY = Math.round(pos.y);
+      const layerZ = Math.round(pos.z);
 
       if (ay > 0.8) {
         const signY = Math.sign(rotAxis.y);
-        const layerY = Math.round(pos.y);
-
         if (layerY === 1) {
           return signY < 0 ? 'U' : "U'";
         } else if (layerY === -1) {
           return signY > 0 ? 'D' : "D'";
+        } else {
+          // Middle layer dragged horizontally -> rotate whole cube
+          return signY < 0 ? 'y' : "y'";
         }
       }
 
       if (ax > 0.8) {
         const signX = Math.sign(rotAxis.x);
-        const layerX = Math.round(pos.x);
-
         if (layerX === 1) {
           return signX < 0 ? 'R' : "R'";
         } else if (layerX === -1) {
           return signX > 0 ? 'L' : "L'";
+        } else {
+          // Middle layer dragged vertically -> rotate whole cube
+          return signX < 0 ? 'x' : "x'";
         }
       }
 
       if (az > 0.8) {
         const signZ = Math.sign(rotAxis.z);
-        const layerZ = Math.round(pos.z);
-
         if (layerZ === 1) {
           return signZ < 0 ? 'F' : "F'";
         } else if (layerZ === -1) {
           return signZ > 0 ? 'B' : "B'";
+        } else {
+          // Middle layer dragged in Z -> rotate whole cube
+          return signZ < 0 ? 'z' : "z'";
         }
       }
 
@@ -1144,6 +1256,35 @@
           this.audio.enabled = e.target.checked;
         });
       }
+
+      // 3D Cube Orientation D-Pad Controls
+      document.querySelectorAll('.orient-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const action = btn.dataset.orient;
+          if (action === 'reset') {
+            this.setCameraPreset('iso');
+          } else if (action === 'up') {
+            this.queueMove('x', { duration: 180 });
+          } else if (action === 'down') {
+            this.queueMove("x'", { duration: 180 });
+          } else if (action === 'left') {
+            this.queueMove("y'", { duration: 180 });
+          } else if (action === 'right') {
+            this.queueMove('y', { duration: 180 });
+          } else if (action === 'roll') {
+            this.queueMove('z', { duration: 180 });
+          }
+        });
+      });
+
+      // Top Header quick shortcut buttons
+      document.getElementById('btn-top-timer')?.addEventListener('click', () => {
+        this.switchTab('timer-tab');
+      });
+      document.getElementById('btn-top-cheatsheet')?.addEventListener('click', () => {
+        this.switchTab('cheatsheet-tab');
+      });
     }
 
     switchTab(tabId) {
@@ -1214,8 +1355,24 @@
       window.addEventListener('keydown', (e) => {
         if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
 
+        // If Timer is running or timer tab is active, let timer handle Spacebar & keys
+        const isTimerTab = document.getElementById('timer-tab')?.classList.contains('active');
+        if (isTimerTab || (this.speedTimer && this.speedTimer.isTimerActive())) {
+          return;
+        }
+
         const key = e.key.toUpperCase();
         const isShift = e.shiftKey;
+
+        // Arrow keys with Shift: rotate entire 3D cube
+        if (isShift && e.code.startsWith('Arrow')) {
+          e.preventDefault();
+          if (e.code === 'ArrowUp') this.queueMove('x', { duration: 180 });
+          else if (e.code === 'ArrowDown') this.queueMove("x'", { duration: 180 });
+          else if (e.code === 'ArrowLeft') this.queueMove("y'", { duration: 180 });
+          else if (e.code === 'ArrowRight') this.queueMove('y', { duration: 180 });
+          return;
+        }
 
         if (['U', 'D', 'L', 'R', 'F', 'B'].includes(key)) {
           const move = isShift ? `${key}'` : key;
@@ -1612,9 +1769,676 @@
     }
   }
 
+  // ==========================================================================
+  // Speedcubing Competition Timer (WCA StackMat Style)
+  // ==========================================================================
+  class SpeedcubingTimer {
+    constructor(app) {
+      this.app = app;
+      this.state = 'IDLE'; // 'IDLE' | 'HOLDING' | 'READY' | 'RUNNING' | 'STOPPED' | 'INSPECTION'
+      this.startTime = 0;
+      this.elapsedTime = 0;
+      this.timerInterval = null;
+      this.holdTimeout = null;
+      this.inspectionInterval = null;
+      this.inspectionSeconds = 15;
+      this.inspectionEnabled = false;
+      this.currentScramble = generateWCAScramble(20).join(' ');
+
+      // Load solves from localStorage
+      this.solves = [];
+      try {
+        const saved = localStorage.getItem('rubik_speed_solves');
+        if (saved) this.solves = JSON.parse(saved);
+      } catch (e) {
+        console.warn('Failed to load solves from localStorage:', e);
+      }
+
+      this.initUI();
+    }
+
+    isTimerActive() {
+      return ['HOLDING', 'READY', 'RUNNING', 'INSPECTION'].includes(this.state);
+    }
+
+    initUI() {
+      this.clockDisplay = document.getElementById('timer-clock-display');
+      this.statusHint = document.getElementById('timer-status-hint');
+      this.scrambleDisplay = document.getElementById('timer-scramble-display');
+      this.inspectionToggle = document.getElementById('timer-inspection-toggle');
+
+      if (this.scrambleDisplay) {
+        this.scrambleDisplay.textContent = this.currentScramble;
+      }
+
+      // New Scramble button
+      document.getElementById('btn-timer-new-scramble')?.addEventListener('click', () => {
+        this.generateNewScramble();
+      });
+
+      // Send scramble to 3D cube button
+      document.getElementById('btn-timer-apply-3d')?.addEventListener('click', () => {
+        if (this.currentScramble) {
+          this.app.createCube();
+          this.app.queueSequence(this.currentScramble, { duration: 100 });
+          this.app.updateScrambleDisplay(this.currentScramble);
+        }
+      });
+
+      // Inspection toggle
+      this.inspectionToggle?.addEventListener('change', (e) => {
+        this.inspectionEnabled = e.target.checked;
+      });
+
+      // Clear all solves
+      document.getElementById('btn-clear-solves')?.addEventListener('click', () => {
+        if (confirm('Bạn có chắc muốn xoá toàn bộ lịch sử bấm giờ?')) {
+          this.solves = [];
+          this.persistSolves();
+          this.renderStats();
+          this.renderSolvesList();
+        }
+      });
+
+      // Export / copy solves
+      document.getElementById('btn-export-solves')?.addEventListener('click', () => {
+        if (this.solves.length === 0) return;
+        const text = this.solves.map((s, i) => `${i + 1}. ${this.formatTime(s.time)} - Scramble: ${s.scramble}`).join('\n');
+        navigator.clipboard.writeText(text);
+        const btn = document.getElementById('btn-export-solves');
+        if (btn) {
+          const old = btn.textContent;
+          btn.textContent = 'Đã sao chép!';
+          setTimeout(() => { btn.textContent = old; }, 1500);
+        }
+      });
+
+      // Spacebar controls
+      window.addEventListener('keydown', (e) => {
+        if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
+        const isTimerTab = document.getElementById('timer-tab')?.classList.contains('active');
+        if (!isTimerTab && !this.isTimerActive()) return;
+
+        if (this.state === 'RUNNING') {
+          e.preventDefault();
+          this.stopTimer();
+          return;
+        }
+
+        if (e.code === 'Space' && !e.repeat) {
+          e.preventDefault();
+          this.handleHoldStart();
+        }
+      });
+
+      window.addEventListener('keyup', (e) => {
+        if (e.code === 'Space') {
+          e.preventDefault();
+          this.handleHoldRelease();
+        }
+      });
+
+      // Touch pads for mobile / mouse
+      const padLeft = document.getElementById('pad-left');
+      const padRight = document.getElementById('pad-right');
+
+      let padLeftActive = false;
+      let padRightActive = false;
+
+      const checkPads = () => {
+        if (this.state === 'RUNNING') {
+          this.stopTimer();
+          return;
+        }
+        if (padLeftActive && padRightActive) {
+          this.handleHoldStart();
+        } else {
+          this.handleHoldRelease();
+        }
+      };
+
+      const bindPad = (el, setLeft) => {
+        if (!el) return;
+        const activate = (e) => {
+          e.preventDefault();
+          if (setLeft) padLeftActive = true; else padRightActive = true;
+          el.classList.add('active');
+          checkPads();
+        };
+        const deactivate = (e) => {
+          e.preventDefault();
+          if (setLeft) padLeftActive = false; else padRightActive = false;
+          el.classList.remove('active');
+          checkPads();
+        };
+        el.addEventListener('mousedown', activate);
+        el.addEventListener('mouseup', deactivate);
+        el.addEventListener('mouseleave', deactivate);
+        el.addEventListener('touchstart', activate, { passive: false });
+        el.addEventListener('touchend', deactivate, { passive: false });
+      };
+
+      bindPad(padLeft, true);
+      bindPad(padRight, false);
+
+      // Stop on tap anywhere inside timer viewport when running
+      document.querySelector('.timer-viewport')?.addEventListener('click', () => {
+        if (this.state === 'RUNNING') {
+          this.stopTimer();
+        }
+      });
+
+      this.renderStats();
+      this.renderSolvesList();
+    }
+
+    generateNewScramble() {
+      const moves = generateWCAScramble(20);
+      this.currentScramble = moves.join(' ');
+      if (this.scrambleDisplay) {
+        this.scrambleDisplay.textContent = this.currentScramble;
+      }
+    }
+
+    handleHoldStart() {
+      if (this.state === 'RUNNING') {
+        this.stopTimer();
+        return;
+      }
+
+      if (this.inspectionEnabled && this.state !== 'INSPECTION' && this.state !== 'READY') {
+        this.startInspection();
+        return;
+      }
+
+      this.state = 'HOLDING';
+      this.updateClockStyle('holding');
+      if (this.statusHint) this.statusHint.textContent = 'Giữ yên... (Chờ đổi sang xanh lá)';
+
+      clearTimeout(this.holdTimeout);
+      this.holdTimeout = setTimeout(() => {
+        if (this.state === 'HOLDING') {
+          this.state = 'READY';
+          this.updateClockStyle('ready');
+          if (this.statusHint) this.statusHint.textContent = 'SẴN SÀNG! Thả tay để bấm giờ';
+          this.app.audio.playBeep(880, 0.08);
+        }
+      }, 300);
+    }
+
+    handleHoldRelease() {
+      clearTimeout(this.holdTimeout);
+      if (this.state === 'READY') {
+        this.startRunning();
+      } else if (this.state === 'HOLDING') {
+        this.state = this.inspectionEnabled && this.inspectionInterval ? 'INSPECTION' : 'IDLE';
+        this.updateClockStyle(this.state === 'INSPECTION' ? 'inspection' : 'idle');
+        if (this.statusHint) {
+          this.statusHint.textContent = 'Chưa đủ thời gian giữ (cần 0.3s). Thử lại!';
+        }
+      }
+    }
+
+    startInspection() {
+      this.state = 'INSPECTION';
+      this.inspectionSeconds = 15;
+      clearInterval(this.inspectionInterval);
+
+      if (this.clockDisplay) {
+        this.clockDisplay.textContent = `${this.inspectionSeconds}`;
+      }
+      this.updateClockStyle('inspection');
+      if (this.statusHint) {
+        this.statusHint.textContent = 'Thời gian quan sát WCA (15 giây). Giữ phím cách khi sẵn sàng!';
+      }
+
+      this.inspectionInterval = setInterval(() => {
+        this.inspectionSeconds--;
+        if (this.clockDisplay) {
+          this.clockDisplay.textContent = `${this.inspectionSeconds}`;
+        }
+
+        if (this.inspectionSeconds === 8) {
+          this.app.audio.playBeep(520, 0.1);
+          if (this.statusHint) this.statusHint.textContent = '⚠️ Đã qua 8 giây!';
+        } else if (this.inspectionSeconds === 12) {
+          this.app.audio.playBeep(700, 0.15);
+          if (this.statusHint) this.statusHint.textContent = '🚨 Đã qua 12 giây!';
+        } else if (this.inspectionSeconds <= 0) {
+          clearInterval(this.inspectionInterval);
+          this.inspectionInterval = null;
+          if (this.statusHint) this.statusHint.textContent = 'Hết giờ quan sát! Phạt +2s nếu bắt đầu ngay.';
+        }
+      }, 1000);
+    }
+
+    startRunning() {
+      clearInterval(this.inspectionInterval);
+      this.inspectionInterval = null;
+
+      this.state = 'RUNNING';
+      this.startTime = performance.now();
+      this.updateClockStyle('running');
+      if (this.statusHint) this.statusHint.textContent = 'BẤM PHÍM BẤT KỲ HOẶC CHẠM MÀN HÌNH ĐỂ DỪNG';
+
+      this.timerInterval = setInterval(() => {
+        const now = performance.now();
+        const elapsed = now - this.startTime;
+        if (this.clockDisplay) {
+          this.clockDisplay.textContent = this.formatTime(elapsed);
+        }
+      }, 10);
+    }
+
+    stopTimer() {
+      clearInterval(this.timerInterval);
+      this.timerInterval = null;
+      this.state = 'STOPPED';
+
+      const finalMs = performance.now() - this.startTime;
+      let finalFormatted = this.formatTime(finalMs);
+
+      // Check inspection penalties
+      if (this.inspectionEnabled && this.inspectionSeconds < 0 && this.inspectionSeconds >= -2) {
+        finalFormatted += ' (+2)';
+      }
+
+      if (this.clockDisplay) {
+        this.clockDisplay.textContent = finalFormatted;
+      }
+      this.updateClockStyle('stopped');
+      if (this.statusHint) {
+        this.statusHint.textContent = `Hoàn thành: ${finalFormatted}! Giữ phím cách để bắt đầu lượt mới.`;
+      }
+
+      this.app.audio.playBeep(440, 0.12);
+      this.recordSolve(finalMs);
+      this.generateNewScramble();
+    }
+
+    recordSolve(ms) {
+      const solve = {
+        id: Date.now(),
+        time: ms,
+        scramble: this.currentScramble,
+        date: new Date().toLocaleTimeString()
+      };
+      this.solves.unshift(solve);
+      this.persistSolves();
+      this.renderStats();
+      this.renderSolvesList();
+    }
+
+    deleteSolve(id) {
+      this.solves = this.solves.filter(s => s.id !== id);
+      this.persistSolves();
+      this.renderStats();
+      this.renderSolvesList();
+    }
+
+    persistSolves() {
+      try {
+        localStorage.setItem('rubik_speed_solves', JSON.stringify(this.solves));
+      } catch (e) {
+        console.warn('Failed to save solves:', e);
+      }
+    }
+
+    updateClockStyle(stateClass) {
+      if (!this.clockDisplay) return;
+      this.clockDisplay.className = `timer-clock timer-${stateClass}`;
+    }
+
+    formatTime(ms) {
+      if (ms < 0) return '0.00';
+      const totalSec = ms / 1000;
+      if (totalSec < 60) {
+        return totalSec.toFixed(2);
+      }
+      const mins = Math.floor(totalSec / 60);
+      const secs = (totalSec % 60).toFixed(2);
+      return `${mins}:${secs.padStart(5, '0')}`;
+    }
+
+    calcAo(count) {
+      if (this.solves.length < count) return null;
+      const recent = this.solves.slice(0, count).map(s => s.time);
+      recent.sort((a, b) => a - b);
+      // Drop fastest and slowest
+      const trimmed = recent.slice(1, count - 1);
+      const sum = trimmed.reduce((acc, t) => acc + t, 0);
+      return sum / trimmed.length;
+    }
+
+    renderStats() {
+      const times = this.solves.map(s => s.time);
+      const best = times.length > 0 ? Math.min(...times) : null;
+      const worst = times.length > 0 ? Math.max(...times) : null;
+      const ao5 = this.calcAo(5);
+      const ao12 = this.calcAo(12);
+
+      const elPb = document.getElementById('stat-timer-pb');
+      const elWorst = document.getElementById('stat-timer-worst');
+      const elAo5 = document.getElementById('stat-timer-ao5');
+      const elAo12 = document.getElementById('stat-timer-ao12');
+      const elCount = document.getElementById('stat-timer-count');
+
+      if (elPb) elPb.textContent = best ? this.formatTime(best) : '--';
+      if (elWorst) elWorst.textContent = worst ? this.formatTime(worst) : '--';
+      if (elAo5) elAo5.textContent = ao5 ? this.formatTime(ao5) : '--';
+      if (elAo12) elAo12.textContent = ao12 ? this.formatTime(ao12) : '--';
+      if (elCount) elCount.textContent = `${this.solves.length}`;
+    }
+
+    renderSolvesList() {
+      const tbody = document.getElementById('solves-list-tbody');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+
+      if (this.solves.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" class="empty-solves">Chưa có lượt giải nào. Hãy giữ phím cách để bấm giờ!</td></tr>';
+        return;
+      }
+
+      this.solves.forEach((s, idx) => {
+        const row = document.createElement('tr');
+        const num = this.solves.length - idx;
+        row.innerHTML = `
+          <td class="col-num">#${num}</td>
+          <td class="col-time font-mono"><strong>${this.formatTime(s.time)}</strong></td>
+          <td class="col-scramble font-mono" title="${s.scramble}">${s.scramble}</td>
+          <td class="col-del"><button class="btn-del-solve" data-id="${s.id}" title="Xoá">&times;</button></td>
+        `;
+
+        row.querySelector('.btn-del-solve')?.addEventListener('click', (e) => {
+          e.stopPropagation();
+          this.deleteSolve(s.id);
+        });
+
+        tbody.appendChild(row);
+      });
+    }
+  }
+
+  // ==========================================================================
+  // Formula Cheat Sheet (Beginner & CFOP Speedcubing Algorithms)
+  // ==========================================================================
+  class FormulaCheatSheet {
+    constructor(app) {
+      this.app = app;
+      this.activeCategory = 'all';
+
+      this.formulas = [
+        // --- Beginner 7 Steps ---
+        {
+          id: 'beg-1',
+          category: 'beginner',
+          title: 'Bước 1: Hoa Cúc & Dấu Cộng Trắng',
+          subtitle: 'Daisy to White Cross',
+          algs: ['F2'],
+          algString: 'F2 (hoặc đưa cạnh trắng về quanh tâm vàng trước)',
+          desc: 'Tập hợp 4 viên cạnh trắng về quanh tâm vàng, sau đó xoay tầng U khớp tâm màu rồi xoay F2 đưa xuống mặt đáy trắng.'
+        },
+        {
+          id: 'beg-2',
+          category: 'beginner',
+          title: 'Bước 2: Hoàn thành tầng 1 (Sexy Move)',
+          subtitle: 'First Layer Corners',
+          algs: ["R", "U", "R'", "U'"],
+          algString: "R U R' U'",
+          desc: 'Đưa viên góc trắng lên phía trên vị trí cần đến, lặp lại công thức 1 đến 5 lần cho đến khi viên góc vào đúng vị trí.'
+        },
+        {
+          id: 'beg-3r',
+          category: 'beginner',
+          title: 'Bước 3: Tầng 2 - Đưa Cạnh Sang Phải',
+          subtitle: 'Second Layer Right',
+          algs: ["U", "R", "U'", "R'", "U'", "F'", "U", "F"],
+          algString: "U R U' R' U' F' U F",
+          desc: 'Khi viên cạnh ở tầng 3 trùng màu tâm mặt trước và cần đưa sang bên phải tầng 2.'
+        },
+        {
+          id: 'beg-3l',
+          category: 'beginner',
+          title: 'Bước 3: Tầng 2 - Đưa Cạnh Sang Trái',
+          subtitle: 'Second Layer Left',
+          algs: ["U'", "L'", "U", "L", "U", "F", "U'", "F'"],
+          algString: "U' L' U L U F U' F'",
+          desc: 'Khi viên cạnh ở tầng 3 trùng màu tâm mặt trước và cần đưa sang bên trái tầng 2.'
+        },
+        {
+          id: 'beg-4',
+          category: 'beginner',
+          title: 'Bước 4: Tạo Dấu Cộng Vàng',
+          subtitle: 'Yellow Cross (FRUR\'U\'F\')',
+          algs: ["F", "R", "U", "R'", "U'", "F'"],
+          algString: "F R U R' U' F'",
+          desc: 'Áp dụng cho Chữ L ngược (hướng 9h-12h), Đường ngang hoặc Dấu chấm để tạo dấu cộng vàng.'
+        },
+        {
+          id: 'beg-5',
+          category: 'beginner',
+          title: 'Bước 5: Hoán vị 4 cạnh vàng (Sune)',
+          subtitle: 'Permute Edges (Sune)',
+          algs: ["R", "U", "R'", "U", "R", "U2", "R'"],
+          algString: "R U R' U R U2 R'",
+          desc: 'Đổi chỗ các viên cạnh vàng sao cho trùng màu với 4 tâm xung quanh.'
+        },
+        {
+          id: 'beg-6',
+          category: 'beginner',
+          title: 'Bước 6: Định vị 4 góc vàng (Niklas)',
+          subtitle: 'Position Yellow Corners',
+          algs: ["U", "R", "U'", "L'", "U", "R'", "U'", "L"],
+          algString: "U R U' L' U R' U' L",
+          desc: 'Đưa 4 viên góc vàng về đúng vị trí (chưa cần đúng hướng lật).'
+        },
+        {
+          id: 'beg-7',
+          category: 'beginner',
+          title: 'Bước 7: Lật đúng hướng góc vàng',
+          subtitle: 'Orient Corners (R\' D\' R D)',
+          algs: ["R'", "D'", "R", "D"],
+          algString: "R' D' R D (lặp lại đến khi mặt vàng hướng lên)",
+          desc: 'Giữ cố định khối, lặp lại R\' D\' R D đến khi góc vàng hướng lên trên, sau đó chỉ xoay U để đưa góc tiếp theo vào vị trí trên bên phải.'
+        },
+
+        // --- CFOP: 2-Look OLL ---
+        {
+          id: 'oll-sune',
+          category: 'oll',
+          title: 'OLL: Sune (Con Cá 1)',
+          subtitle: '1 góc vàng hướng lên, góc trước mặt hướng phải',
+          algs: ["R", "U", "R'", "U", "R", "U2", "R'"],
+          algString: "R U R' U R U2 R'",
+          desc: 'Công thức Sune kinh điển, finger-trick cực nhanh.'
+        },
+        {
+          id: 'oll-antisune',
+          category: 'oll',
+          title: 'OLL: Anti-Sune (Con Cá 2)',
+          subtitle: '1 góc vàng hướng lên, góc trước mặt hướng thẳng',
+          algs: ["R", "U2", "R'", "U'", "R", "U'", "R'"],
+          algString: "R U2 R' U' R U' R'",
+          desc: 'Nghịch đảo của Sune, giải quyết con cá quay hướng ngược lại.'
+        },
+        {
+          id: 'oll-h',
+          category: 'oll',
+          title: 'OLL: Chữ H (2 Cặp Đèn Đối Xứng)',
+          subtitle: 'Không góc vàng nào hướng lên, 2 cặp đối nhau',
+          algs: ["R", "U", "R'", "U", "R", "U'", "R'", "U", "R", "U2", "R'"],
+          algString: "R U R' U R U' R' U R U2 R'",
+          desc: 'Hai cặp đèn pha đối diện nhau ở mặt trước và mặt sau.'
+        },
+        {
+          id: 'oll-pi',
+          category: 'oll',
+          title: 'OLL: Chữ Pi',
+          subtitle: '1 cặp đèn pha + 2 góc ngược chiều nhau',
+          algs: ["R", "U2", "R2", "U'", "R2", "U'", "R2", "U2", "R"],
+          algString: "R U2 R2 U' R2 U' R2 U2 R",
+          desc: 'Để cặp đèn pha sang bên trái và thực hiện chuỗi xoay.'
+        },
+        {
+          id: 'oll-u',
+          category: 'oll',
+          title: 'OLL: Headlights (Đèn Pha U)',
+          subtitle: '2 góc vàng hướng lên, 2 góc còn lại hướng về trước',
+          algs: ["R2", "D", "R'", "U2", "R", "D'", "R'", "U2", "R'"],
+          algString: "R2 D R' U2 R D' R' U2 R'",
+          desc: 'Hai góc vàng liền kề hướng lên, hai góc còn lại tạo thành 2 đèn pha chiếu về trước.'
+        },
+        {
+          id: 'oll-t',
+          category: 'oll',
+          title: 'OLL: Chameleon (T)',
+          subtitle: '2 góc vàng hướng lên, 2 góc còn lại hướng ra 2 bên',
+          algs: ["F", "R", "U", "R'", "U'", "F'"],
+          algString: "F R U R' U' F'",
+          desc: 'Dạng chữ T, áp dụng công thức để hoàn thành toàn bộ mặt vàng.'
+        },
+
+        // --- CFOP: 2-Look & Full PLL ---
+        {
+          id: 'pll-t',
+          category: 'pll',
+          title: 'PLL: T-Perm',
+          subtitle: 'Hoán vị 2 góc kề nhau + 2 cạnh đối xứng',
+          algs: ["R", "U", "R'", "U'", "R'", "F", "R2", "U'", "R'", "U'", "R", "U", "R'", "F'"],
+          algString: "R U R' U' R' F R2 U' R' U' R U R' F'",
+          desc: 'Công thức PLL thông dụng và quan trọng nhất, finger-trick cực nhanh.'
+        },
+        {
+          id: 'pll-y',
+          category: 'pll',
+          title: 'PLL: Y-Perm',
+          subtitle: 'Hoán vị 2 góc chéo nhau + 2 cạnh',
+          algs: ["F", "R", "U'", "R'", "U'", "R", "U", "R'", "F'", "R", "U", "R'", "U'", "R'", "F", "R", "F'"],
+          algString: "F R U' R' U' R U R' F' R U R' U' R' F R F'",
+          desc: 'Giải quyết toàn bộ các trường hợp hoán vị 2 góc chéo.'
+        },
+        {
+          id: 'pll-ua',
+          category: 'pll',
+          title: 'PLL: Ua-Perm',
+          subtitle: 'Hoán vị 3 cạnh theo chiều kim đồng hồ',
+          algs: ["R", "U'", "R", "U", "R", "U", "R", "U'", "R'", "U'", "R2"],
+          algString: "R U' R U R U R U' R' U' R2",
+          desc: 'Mặt đã giải xong để ở phía sau, 3 cạnh còn lại xoay theo chiều kim đồng hồ.'
+        },
+        {
+          id: 'pll-ub',
+          category: 'pll',
+          title: 'PLL: Ub-Perm',
+          subtitle: 'Hoán vị 3 cạnh ngược chiều kim đồng hồ',
+          algs: ["R2", "U", "R", "U", "R'", "U'", "R'", "U'", "R'", "U", "R'"],
+          algString: "R2 U R U R' U' R' U' R' U R'",
+          desc: 'Mặt đã giải xong để ở phía sau, 3 cạnh còn lại xoay ngược chiều kim đồng hồ.'
+        },
+        {
+          id: 'pll-h',
+          category: 'pll',
+          title: 'PLL: H-Perm',
+          subtitle: 'Hoán vị chéo 4 cạnh đối diện nhau',
+          algs: ["M2", "U", "M2", "U2", "M2", "U", "M2"],
+          algString: "M2 U M2 U2 M2 U M2",
+          desc: '4 viên cạnh đối xứng đổi chỗ cho nhau (Trước - Sau, Trái - Phải).'
+        },
+        {
+          id: 'pll-z',
+          category: 'pll',
+          title: 'PLL: Z-Perm',
+          subtitle: 'Hoán vị 2 cặp cạnh kề nhau',
+          algs: ["M2", "U", "M2", "U", "M'", "U2", "M2", "U2", "M'"],
+          algString: "M2 U M2 U M' U2 M2 U2 M'",
+          desc: 'Hai cặp cạnh liền kề đổi chỗ cho nhau (Trước - Phải, Sau - Trái).'
+        }
+      ];
+
+      this.initUI();
+    }
+
+    initUI() {
+      // Filter buttons
+      document.querySelectorAll('.cheat-filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.cheat-filter-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          this.activeCategory = btn.dataset.category;
+          this.renderFormulas();
+        });
+      });
+
+      this.renderFormulas();
+    }
+
+    renderFormulas() {
+      const container = document.getElementById('cheat-sheet-list');
+      if (!container) return;
+      container.innerHTML = '';
+
+      const filtered = this.activeCategory === 'all'
+        ? this.formulas
+        : this.formulas.filter(f => f.category === this.activeCategory);
+
+      filtered.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'formula-card';
+
+        // Format tokens
+        const tokensHtml = item.algs
+          .map(tok => `<span class="alg-token">${tok}</span>`)
+          .join(' ');
+
+        card.innerHTML = `
+          <div class="formula-card-header">
+            <div>
+              <div class="formula-title">${item.title}</div>
+              <div class="formula-subtitle">${item.subtitle}</div>
+            </div>
+            <span class="formula-category-badge badge-${item.category}">${item.category.toUpperCase()}</span>
+          </div>
+          <div class="formula-code-box">
+            ${tokensHtml}
+          </div>
+          <p class="formula-desc">${item.desc}</p>
+          <div class="formula-actions">
+            <button class="btn-try-3d action-btn btn-secondary" title="Xem trên khối 3D">
+              <span class="btn-icon">▶</span>
+              <span>Thử trên 3D</span>
+            </button>
+            <button class="btn-copy-alg btn-outline" title="Sao chép công thức">
+              <span class="btn-icon">📋</span>
+              <span>Copy</span>
+            </button>
+          </div>
+        `;
+
+        // "Try on 3D" button
+        card.querySelector('.btn-try-3d')?.addEventListener('click', () => {
+          this.app.queueSequence(item.algs, { duration: 200 });
+        });
+
+        // "Copy" button
+        card.querySelector('.btn-copy-alg')?.addEventListener('click', (e) => {
+          navigator.clipboard.writeText(item.algs.join(' '));
+          const btn = e.currentTarget;
+          const origText = btn.innerHTML;
+          btn.innerHTML = '<span>Đã chép!</span>';
+          setTimeout(() => { btn.innerHTML = origText; }, 1500);
+        });
+
+        container.appendChild(card);
+      });
+    }
+  }
+
   // Expose to global scope
   global.RubikApp = RubikApp;
   global.RealCubeScanner = RealCubeScanner;
+  global.SpeedcubingTimer = SpeedcubingTimer;
+  global.FormulaCheatSheet = FormulaCheatSheet;
   global.AudioFeedback = AudioFeedback;
   global.CONFIG = CONFIG;
 

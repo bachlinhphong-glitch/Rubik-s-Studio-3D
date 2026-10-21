@@ -1515,6 +1515,569 @@ kbd {
   }
 }
 
+/* --- Top Nav Quick Chip Buttons --- */
+.top-nav-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(30, 41, 59, 0.75);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-main);
+  padding: 6px 12px;
+  border-radius: var(--radius-full);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(8px);
+}
+
+.top-nav-chip:hover {
+  background: rgba(51, 65, 85, 0.9);
+  border-color: rgba(255, 255, 255, 0.25);
+  transform: translateY(-1px);
+}
+
+/* --- 3D Cube Orientation D-Pad Controls --- */
+.cube-orient-pad {
+  position: absolute;
+  bottom: 24px;
+  left: 24px;
+  z-index: 15;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  background: rgba(15, 23, 42, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-lg);
+  padding: 8px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+  user-select: none;
+}
+
+.orient-pad-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.orient-btn {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(30, 41, 59, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: var(--text-main);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.orient-btn:hover {
+  background: var(--primary);
+  border-color: #818cf8;
+  color: #ffffff;
+  transform: scale(1.08);
+  box-shadow: 0 0 12px rgba(99, 102, 241, 0.5);
+}
+
+.orient-btn:active {
+  transform: scale(0.95);
+}
+
+.orient-reset {
+  color: #38bdf8;
+}
+
+/* ==========================================================================
+   Speedcubing Competition Timer (Stackmat) Styling
+   ========================================================================== */
+
+.timer-scramble-card {
+  padding: 12px 14px;
+  background: rgba(15, 23, 42, 0.8);
+}
+
+.timer-scramble-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.timer-scramble-btns {
+  display: flex;
+  gap: 6px;
+}
+
+.ctrl-btn-sm {
+  padding: 4px 8px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  background: rgba(30, 41, 59, 0.8);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-main);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.ctrl-btn-sm:hover {
+  background: rgba(51, 65, 85, 1);
+  color: #ffffff;
+}
+
+.ctrl-btn-sm.ctrl-btn-highlight {
+  background: rgba(99, 102, 241, 0.3);
+  border-color: var(--primary);
+  color: #c7d2fe;
+}
+
+.ctrl-btn-sm.ctrl-btn-highlight:hover {
+  background: var(--primary);
+  color: #ffffff;
+}
+
+.scramble-box {
+  background: #020617;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 0.82rem;
+  color: #e2e8f0;
+  word-break: break-word;
+  line-height: 1.4;
+  letter-spacing: 0.03em;
+}
+
+.timer-main-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: rgba(15, 23, 42, 0.85);
+}
+
+.timer-viewport {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+  background: #020617;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-md);
+  position: relative;
+  min-height: 170px;
+  cursor: pointer;
+}
+
+.timer-hint {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+  text-align: center;
+  transition: color 0.2s ease;
+}
+
+.timer-clock {
+  font-size: 3.4rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  font-family: var(--font-mono);
+  transition: all 0.15s ease;
+  line-height: 1;
+}
+
+.timer-idle {
+  color: #f8fafc;
+}
+
+.timer-holding {
+  color: #ef4444;
+  text-shadow: 0 0 20px rgba(239, 68, 68, 0.5);
+  transform: scale(0.96);
+}
+
+.timer-ready {
+  color: #22c55e;
+  text-shadow: 0 0 25px rgba(34, 197, 94, 0.7);
+  transform: scale(1.04);
+}
+
+.timer-running {
+  color: #38bdf8;
+  text-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+}
+
+.timer-stopped {
+  color: #10b981;
+  text-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+}
+
+.timer-inspection {
+  color: #f97316;
+  text-shadow: 0 0 20px rgba(249, 115, 22, 0.6);
+  font-size: 4rem;
+}
+
+/* Dual Touch Pads for Mobile & Touchscreens */
+.dual-touch-pads {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  width: 100%;
+  margin-top: 14px;
+}
+
+.touch-pad {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 14px 8px;
+  background: rgba(30, 41, 59, 0.6);
+  border: 2px dashed rgba(255, 255, 255, 0.15);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.touch-pad:hover {
+  background: rgba(51, 65, 85, 0.8);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.touch-pad.active {
+  background: rgba(99, 102, 241, 0.25);
+  border-color: var(--primary);
+  color: #ffffff;
+}
+
+.pad-icon {
+  font-size: 1.4rem;
+}
+
+.pad-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.timer-options-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.timer-toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+/* Timer Stats Grid */
+.timer-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+}
+
+.stat-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 4px;
+  background: rgba(15, 23, 42, 0.75);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+}
+
+.stat-card .stat-lbl {
+  font-size: 0.68rem;
+  color: var(--text-dim);
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.stat-card .stat-val {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-top: 2px;
+}
+
+/* Solves History Table */
+.solves-table-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.ctrl-btn-xs {
+  padding: 2px 6px;
+  font-size: 0.68rem;
+  border-radius: 4px;
+  background: rgba(30, 41, 59, 0.7);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.ctrl-btn-xs:hover {
+  background: rgba(51, 65, 85, 1);
+  color: #ffffff;
+}
+
+.btn-danger-text:hover {
+  color: #f87171;
+  border-color: rgba(248, 113, 113, 0.4);
+}
+
+.solves-table-wrapper {
+  max-height: 180px;
+  overflow-y: auto;
+  border-radius: var(--radius-sm);
+  background: #020617;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.solves-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.78rem;
+}
+
+.solves-table th {
+  padding: 6px 10px;
+  background: rgba(15, 23, 42, 0.95);
+  color: var(--text-dim);
+  text-align: left;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  position: sticky;
+  top: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.solves-table td {
+  padding: 6px 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  color: var(--text-muted);
+}
+
+.solves-table tr:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.col-num {
+  width: 34px;
+  color: var(--text-dim);
+}
+
+.col-time {
+  color: #38bdf8;
+}
+
+.col-scramble {
+  max-width: 130px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.72rem;
+  color: var(--text-dim);
+}
+
+.col-del {
+  width: 28px;
+  text-align: center;
+}
+
+.btn-del-solve {
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0 4px;
+}
+
+.btn-del-solve:hover {
+  color: #f87171;
+}
+
+.empty-solves {
+  text-align: center;
+  padding: 16px;
+  color: var(--text-dim);
+  font-size: 0.75rem;
+}
+
+/* ==========================================================================
+   Formula Cheat Sheet (Beginner & CFOP Algorithms) Styling
+   ========================================================================== */
+
+.cheat-filter-bar {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.cheat-filter-btn {
+  padding: 6px 12px;
+  background: rgba(30, 41, 59, 0.7);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-full);
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.cheat-filter-btn:hover {
+  background: rgba(51, 65, 85, 0.9);
+  color: #ffffff;
+}
+
+.cheat-filter-btn.active {
+  background: var(--primary);
+  border-color: #818cf8;
+  color: #ffffff;
+  box-shadow: 0 0 10px rgba(99, 102, 241, 0.4);
+}
+
+.cheat-sheet-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 480px;
+  overflow-y: auto;
+  padding-right: 2px;
+}
+
+.formula-card {
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+
+.formula-card:hover {
+  border-color: rgba(99, 102, 241, 0.4);
+  background: rgba(20, 30, 55, 0.9);
+}
+
+.formula-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.formula-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.formula-subtitle {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+
+.formula-category-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: var(--radius-full);
+  letter-spacing: 0.05em;
+}
+
+.badge-beginner {
+  background: rgba(16, 185, 129, 0.2);
+  color: #6ee7b7;
+  border: 1px solid rgba(16, 185, 129, 0.4);
+}
+
+.badge-oll {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fcd34d;
+  border: 1px solid rgba(245, 158, 11, 0.4);
+}
+
+.badge-pll {
+  background: rgba(99, 102, 241, 0.2);
+  color: #c7d2fe;
+  border: 1px solid rgba(99, 102, 241, 0.4);
+}
+
+.formula-code-box {
+  background: #020617;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.alg-token {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(30, 41, 59, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #38bdf8;
+}
+
+.formula-desc {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  line-height: 1.35;
+}
+
+.formula-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.formula-actions .btn-try-3d {
+  flex: 2;
+  height: 32px;
+  font-size: 0.78rem;
+  padding: 0 10px;
+}
+
+.formula-actions .btn-copy-alg {
+  flex: 1;
+  height: 32px;
+  font-size: 0.78rem;
+  padding: 0 8px;
+}
+
 /* --- Responsive Adjustments --- */
 @media (max-width: 900px) {
   .timeline-container {
@@ -1532,11 +2095,26 @@ kbd {
     max-height: 40vh;
   }
 
+  .cube-orient-pad {
+    bottom: 16px;
+    left: 16px;
+    padding: 6px;
+  }
+
+  .orient-btn {
+    width: 32px;
+    height: 32px;
+  }
+
   .top-nav {
     padding: 0 16px;
   }
 
   .scramble-bar {
+    display: none;
+  }
+
+  .top-nav-chip span:not(.btn-icon) {
     display: none;
   }
 }
