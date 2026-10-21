@@ -1,29 +1,31 @@
 /**
- * main.js - 3D Rubik's Cube Engine, Raycasting Interaction, and Playback Controller
- *
- * Runs seamlessly in any browser directly via file:// or http://.
+ * main.js - 3D Rubik's Cube Engine, Raycasting Interaction, Step-by-Step Playback,
+ * and AI Camera/Photo Color Scanner for Real Physical Cubes.
  */
 
 (function(global) {
   'use strict';
 
-  // Retrieve dependencies from global scope
+  // Dependencies
   const THREE = global.THREE;
   if (!THREE) {
-    console.error('Three.js is not loaded! Make sure three.min.js is included before main.js.');
+    console.error('Three.js is not loaded! Make sure three.min.js is included.');
     return;
   }
 
   const OrbitControls = THREE.OrbitControls || (global.THREE && global.THREE.OrbitControls);
   const Solver = global.RubikSolver;
   if (!Solver) {
-    console.error('RubikSolver is not loaded! Make sure solver.js is included before main.js.');
+    console.error('RubikSolver is not loaded! Make sure solver.js is included.');
     return;
   }
 
   const {
     COLOR_SCHEME,
     FACELET_GRID,
+    SOLVED_FACELETS,
+    sampleFaceletColors,
+    validateFaceletCounts,
     parseMove,
     invertMove,
     generateWCAScramble,
@@ -64,7 +66,6 @@
         }
 
         const now = this.ctx.currentTime;
-        // Synthesize a crisp mechanical plastic cube click
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
         const filter = this.ctx.createBiquadFilter();
@@ -87,7 +88,7 @@
         osc.start(now);
         osc.stop(now + 0.045);
       } catch {
-        // AudioContext not allowed or not supported; gracefully ignore
+        // Ignore
       }
     }
 
@@ -116,7 +117,7 @@
 
   class RubikApp {
     constructor() {
-      this.container = document.getElementById('canvas-container');
+      this.container = document.getElementById('canvas-container') || document.body;
       this.cubies = [];
       this.audio = new AudioFeedback();
 
@@ -156,7 +157,7 @@
       this.playbackSpeed = CONFIG.defaultPlaybackSpeed;
       this.lastScrambleStr = '';
 
-      // Initialize
+      // Initialize Core Engine
       try {
         this.initScene();
         this.initMaterials();
@@ -166,9 +167,11 @@
         this.setupKeyboardShortcuts();
         this.animate();
         this.updateStatus('Solved', 'ready');
+
+        // Initialize Camera / Photo Real-Cube Scanner
+        this.scanner = new RealCubeScanner(this);
       } catch (err) {
         console.error('RubikApp initialization failed:', err);
-        global.__init_error = err.message + '\n' + (err.stack || '');
       }
     }
 
@@ -176,8 +179,8 @@
     initScene() {
       this.scene = new THREE.Scene();
 
-      const width = this.container.clientWidth || window.innerWidth;
-      const height = this.container.clientHeight || window.innerHeight;
+      const width = this.container.clientWidth || window.innerWidth || 800;
+      const height = this.container.clientHeight || window.innerHeight || 600;
 
       this.camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 100);
       this.camera.position.set(4.6, 4.2, 5.8);
@@ -186,7 +189,6 @@
       this.renderer.setSize(width, height);
       this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
 
-      // Tone mapping
       if (THREE.ACESFilmicToneMapping) {
         this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
         this.renderer.toneMappingExposure = 1.15;
@@ -199,7 +201,6 @@
 
       this.container.appendChild(this.renderer.domElement);
 
-      // OrbitControls
       if (OrbitControls) {
         this.controls = new OrbitControls(this.camera, this.renderer.domElement);
         this.controls.enableDamping = true;
@@ -207,11 +208,8 @@
         this.controls.minDistance = 3.5;
         this.controls.maxDistance = 14;
         this.controls.target.set(0, 0, 0);
-      } else {
-        console.warn('OrbitControls is not available.');
       }
 
-      // Lighting
       const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
       this.scene.add(ambientLight);
 
@@ -232,7 +230,6 @@
       dirLight3.position.set(-5, 6, 4);
       this.scene.add(dirLight3);
 
-      // Soft Contact Shadow Plane underneath
       const shadowGeo = new THREE.PlaneGeometry(10, 10);
       const shadowMat = new THREE.ShadowMaterial({ opacity: 0.25 });
       const shadowPlane = new THREE.Mesh(shadowGeo, shadowMat);
@@ -241,17 +238,15 @@
       shadowPlane.receiveShadow = true;
       this.scene.add(shadowPlane);
 
-      // Rotation pivot group
       this.pivot = new THREE.Group();
       this.scene.add(this.pivot);
 
-      // Window Resize Handler
       window.addEventListener('resize', () => this.onWindowResize());
     }
 
     onWindowResize() {
-      const width = this.container.clientWidth || window.innerWidth;
-      const height = this.container.clientHeight || window.innerHeight;
+      const width = this.container.clientWidth || window.innerWidth || 800;
+      const height = this.container.clientHeight || window.innerHeight || 600;
       this.camera.aspect = width / height;
       this.camera.updateProjectionMatrix();
       this.renderer.setSize(width, height);
@@ -259,25 +254,21 @@
 
     // --- Material & Vinyl Sticker Generation ---
     initMaterials() {
-      // Matte dark core plastic
       this.coreMaterial = new THREE.MeshStandardMaterial({
         color: 0x141416,
         roughness: 0.5,
         metalness: 0.1
       });
 
-      // Create canvas textures for rounded speedcube stickers
       for (const [faceKey, scheme] of Object.entries(COLOR_SCHEME)) {
         const canvas = document.createElement('canvas');
         canvas.width = 256;
         canvas.height = 256;
         const ctx = canvas.getContext('2d');
 
-        // Base black outline
         ctx.fillStyle = '#0a0a0c';
         ctx.fillRect(0, 0, 256, 256);
 
-        // Rounded sticker face
         const margin = 12;
         const w = 256 - margin * 2;
         const h = 256 - margin * 2;
@@ -287,13 +278,11 @@
         if (ctx.roundRect) {
           ctx.roundRect(margin, margin, w, h, radius);
         } else {
-          // Fallback if roundRect not supported
           ctx.rect(margin, margin, w, h);
         }
         ctx.fillStyle = scheme.css;
         ctx.fill();
 
-        // Gloss gradient highlight
         const grad = ctx.createLinearGradient(margin, margin, margin + w, margin + h);
         grad.addColorStop(0, 'rgba(255, 255, 255, 0.16)');
         grad.addColorStop(0.4, 'rgba(255, 255, 255, 0.03)');
@@ -301,7 +290,6 @@
         ctx.fillStyle = grad;
         ctx.fill();
 
-        // Inner border line
         ctx.lineWidth = 3;
         ctx.strokeStyle = 'rgba(0, 0, 0, 0.12)';
         ctx.stroke();
@@ -331,12 +319,9 @@
 
       const size = CONFIG.cubieSize;
       const boxGeo = new THREE.BoxGeometry(size, size, size);
-
-      // Sticker geometry
       const stickerSize = size * 0.88;
       const stickerGeo = new THREE.PlaneGeometry(stickerSize, stickerSize);
 
-      // Build 26 cubies (excluding hidden center 0,0,0)
       for (let x = -1; x <= 1; x++) {
         for (let y = -1; y <= 1; y++) {
           for (let z = -1; z <= 1; z++) {
@@ -346,7 +331,6 @@
             cubie.position.set(x, y, z);
             cubie.castShadow = true;
 
-            // Black plastic core
             const coreMesh = new THREE.Mesh(boxGeo, this.coreMaterial);
             coreMesh.castShadow = true;
             coreMesh.receiveShadow = true;
@@ -355,7 +339,6 @@
             const stickers = [];
             const offset = size / 2 + 0.003;
 
-            // Attach stickers for outer faces
             // +Y -> U (White)
             if (y === 1) {
               const sm = new THREE.Mesh(stickerGeo, this.stickerMaterials.U);
@@ -421,6 +404,57 @@
           }
         }
       }
+    }
+
+    /**
+     * Applies an arbitrary scanned 54-facelet string onto the 3D cube model.
+     * Recolor each outer sticker to match the scanned physical cube!
+     */
+    applyFaceletStringToCube(faceletString) {
+      if (!faceletString || faceletString.length !== 54) return false;
+
+      // 1. Reset cube transforms to solved integer coordinates
+      this.stopPlayback();
+      this.turnQueue = [];
+      this.isRotating = false;
+
+      for (const cubie of this.cubies) {
+        cubie.position.copy(cubie.userData.initialPos);
+        cubie.quaternion.identity();
+        cubie.updateMatrix();
+        cubie.updateMatrixWorld(true);
+      }
+
+      // 2. Map each facelet onto its corresponding outer sticker
+      for (let i = 0; i < FACELET_GRID.length; i++) {
+        const slot = FACELET_GRID[i];
+        const [sx, sy, sz] = slot.pos;
+        const [nx, ny, nz] = slot.normal;
+        const targetColor = faceletString[i];
+
+        const cubie = this.cubies.find(c => {
+          return c.position.x === sx && c.position.y === sy && c.position.z === sz;
+        });
+
+        if (cubie && cubie.userData.stickers) {
+          const sticker = cubie.userData.stickers.find(s => {
+            return s.localNormal.x === nx && s.localNormal.y === ny && s.localNormal.z === nz;
+          });
+
+          if (sticker && this.stickerMaterials[targetColor]) {
+            sticker.face = targetColor;
+            sticker.mesh.material = this.stickerMaterials[targetColor];
+          }
+        }
+      }
+
+      this.moveCount = 0;
+      this.updateMoveCounter();
+      this.updateStatus('Physical Cube Loaded', 'busy');
+
+      // 3. Immediately solve the custom scanned cube!
+      this.solve();
+      return true;
     }
 
     // --- Layer Rotation & Queue Management ---
@@ -561,7 +595,6 @@
 
       const duration = turn.duration;
 
-      // Instant execution if duration <= 0
       if (duration <= 0) {
         this.pivot.quaternion.setFromAxisAngle(axis, targetAngle);
         this.pivot.updateMatrixWorld(true);
@@ -575,10 +608,7 @@
         this.updateMoveCounter();
         this.checkSolvedState();
 
-        if (turn.onComplete) {
-          turn.onComplete();
-        }
-
+        if (turn.onComplete) turn.onComplete();
         this.processNextTurn();
         return;
       }
@@ -611,10 +641,7 @@
           this.updateMoveCounter();
           this.checkSolvedState();
 
-          if (turn.onComplete) {
-            turn.onComplete();
-          }
-
+          if (turn.onComplete) turn.onComplete();
           this.processNextTurn();
         }
       };
@@ -800,6 +827,9 @@
     scramble() {
       if (this.isRotating) return;
       this.stopPlayback();
+
+      // Reset to original solved materials first
+      this.createCube();
 
       const moves = generateWCAScramble(20);
       this.lastScrambleStr = moves.join(' ');
@@ -1056,7 +1086,6 @@
 
     // --- UI and HUD Binding ---
     setupHUD() {
-      // Tab switching
       const tabBtns = document.querySelectorAll('.tab-btn');
       tabBtns.forEach(btn => {
         btn.addEventListener('click', () => {
@@ -1065,17 +1094,14 @@
         });
       });
 
-      // Primary Buttons
       document.getElementById('btn-scramble')?.addEventListener('click', () => this.scramble());
       document.getElementById('btn-solve')?.addEventListener('click', () => this.solve());
       document.getElementById('btn-reset')?.addEventListener('click', () => this.resetCube());
 
-      // Playback Buttons
       document.getElementById('btn-play-pause')?.addEventListener('click', () => this.togglePlayPause());
       document.getElementById('btn-step-prev')?.addEventListener('click', () => this.stepBackward());
       document.getElementById('btn-step-next')?.addEventListener('click', () => this.stepForward());
 
-      // Speed Slider
       const speedSlider = document.getElementById('speed-slider');
       const speedValDisplay = document.getElementById('speed-val-display');
       if (speedSlider) {
@@ -1087,7 +1113,6 @@
         });
       }
 
-      // Manual Face Buttons
       const manualBtns = document.querySelectorAll('.manual-turn-btn');
       manualBtns.forEach(btn => {
         btn.addEventListener('click', () => {
@@ -1096,7 +1121,6 @@
         });
       });
 
-      // Copy Solution Button
       document.getElementById('btn-copy-solution')?.addEventListener('click', () => {
         if (this.solutionMoves.length > 0) {
           navigator.clipboard.writeText(this.solutionMoves.join(' '));
@@ -1107,7 +1131,6 @@
         }
       });
 
-      // Camera preset buttons
       document.querySelectorAll('.camera-preset-btn').forEach(btn => {
         btn.addEventListener('click', () => {
           const preset = btn.dataset.preset;
@@ -1115,7 +1138,6 @@
         });
       });
 
-      // Sound toggle
       const soundToggle = document.getElementById('sound-toggle');
       if (soundToggle) {
         soundToggle.addEventListener('change', (e) => {
@@ -1218,7 +1240,6 @@
       });
     }
 
-    // --- Animation Loop ---
     animate() {
       requestAnimationFrame(() => this.animate());
       if (this.controls) this.controls.update();
@@ -1226,12 +1247,377 @@
     }
   }
 
+  // --- Real Physical Cube Scanner & 2D Net Controller ---
+  class RealCubeScanner {
+    constructor(app) {
+      this.app = app;
+      this.modal = document.getElementById('scanner-modal');
+      this.video = document.getElementById('scanner-video');
+      this.canvas = document.getElementById('scanner-canvas');
+      this.stream = null;
+
+      // Face order in 54-facelet string: U(0-8), R(9-17), F(18-26), D(27-35), L(36-44), B(45-53)
+      this.faceOrder = ['U', 'R', 'F', 'D', 'L', 'B'];
+      this.currentFace = 'U';
+      this.activeBrushColor = 'U';
+
+      // 54 facelet state array (initialized to solved state)
+      this.facelets = SOLVED_FACELETS.split('');
+
+      this.initUI();
+    }
+
+    initUI() {
+      // Open / Close Modal
+      document.getElementById('btn-open-scanner')?.addEventListener('click', () => this.open());
+      document.getElementById('btn-top-scanner')?.addEventListener('click', () => this.open());
+      document.getElementById('btn-close-scanner')?.addEventListener('click', () => this.close());
+      document.querySelector('.scanner-backdrop')?.addEventListener('click', () => this.close());
+
+      // Scanner Mode Switching (Camera vs Manual Net)
+      document.querySelectorAll('.scanner-tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const mode = btn.dataset.scanMode;
+          this.switchMode(mode);
+        });
+      });
+
+      // Face Selection Pills in Camera View
+      document.querySelectorAll('.face-pill').forEach(btn => {
+        btn.addEventListener('click', () => {
+          this.setCurrentFace(btn.dataset.face);
+        });
+      });
+
+      // Camera Controls
+      document.getElementById('btn-start-camera')?.addEventListener('click', () => this.toggleCamera());
+      document.getElementById('btn-capture-face')?.addEventListener('click', () => this.captureAndDetect());
+
+      // Photo Upload
+      const fileInput = document.getElementById('camera-file-input');
+      fileInput?.addEventListener('change', (e) => this.handlePhotoUpload(e));
+
+      // Color Palette Buttons
+      document.querySelectorAll('.palette-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.palette-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          this.activeBrushColor = btn.dataset.color;
+        });
+      });
+
+      // Reset Colors
+      document.getElementById('btn-reset-scan')?.addEventListener('click', () => {
+        this.facelets = SOLVED_FACELETS.split('');
+        this.render2DNet();
+        this.renderDetectedMiniGrid();
+        this.validateState();
+      });
+
+      // Apply & Solve
+      document.getElementById('btn-apply-scan-solve')?.addEventListener('click', () => {
+        const stateStr = this.facelets.join('');
+        this.app.applyFaceletStringToCube(stateStr);
+        this.close();
+      });
+
+      this.render2DNet();
+      this.renderDetectedMiniGrid();
+      this.validateState();
+    }
+
+    open() {
+      this.modal?.classList.remove('hidden');
+      this.render2DNet();
+      this.renderDetectedMiniGrid();
+      this.validateState();
+    }
+
+    close() {
+      this.stopCamera();
+      this.modal?.classList.add('hidden');
+    }
+
+    switchMode(mode) {
+      document.querySelectorAll('.scanner-tab-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.scanMode === mode);
+      });
+      document.querySelectorAll('.scan-view').forEach(view => {
+        view.classList.toggle('active', view.id === `scan-view-${mode}`);
+      });
+    }
+
+    setCurrentFace(face) {
+      this.currentFace = face;
+      document.querySelectorAll('.face-pill').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.face === face);
+      });
+
+      const centerNameEl = document.getElementById('current-face-center-name');
+      if (centerNameEl) {
+        centerNameEl.textContent = COLOR_SCHEME[face].name;
+        centerNameEl.style.color = COLOR_SCHEME[face].css;
+      }
+
+      const indicator = document.getElementById('center-color-indicator');
+      if (indicator) {
+        indicator.style.backgroundColor = COLOR_SCHEME[face].css;
+      }
+
+      this.renderDetectedMiniGrid();
+    }
+
+    // --- Camera Handling ---
+    async toggleCamera() {
+      if (this.stream) {
+        this.stopCamera();
+      } else {
+        await this.startCamera();
+      }
+    }
+
+    async startCamera() {
+      const btn = document.getElementById('btn-start-camera');
+      const captureBtn = document.getElementById('btn-capture-face');
+      const loading = document.getElementById('camera-loading');
+
+      try {
+        loading?.classList.remove('hidden');
+        this.stream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            facingMode: 'environment',
+            width: { ideal: 720 },
+            height: { ideal: 720 }
+          }
+        });
+
+        this.video.srcObject = this.stream;
+        await this.video.play();
+
+        loading?.classList.add('hidden');
+        if (btn) btn.innerHTML = '<span>Stop Camera</span>';
+        if (captureBtn) captureBtn.disabled = false;
+      } catch (err) {
+        loading?.classList.add('hidden');
+        alert('Could not access camera: ' + err.message + '\nYou can also click "Upload Photo" to use a saved picture!');
+      }
+    }
+
+    stopCamera() {
+      if (this.stream) {
+        this.stream.getTracks().forEach(track => track.stop());
+        this.stream = null;
+      }
+      if (this.video) this.video.srcObject = null;
+
+      const btn = document.getElementById('btn-start-camera');
+      const captureBtn = document.getElementById('btn-capture-face');
+      if (btn) btn.innerHTML = '<span>Start Camera</span>';
+      if (captureBtn) captureBtn.disabled = true;
+    }
+
+    captureAndDetect() {
+      if (!this.video || !this.video.videoWidth) return;
+
+      const size = Math.min(this.video.videoWidth, this.video.videoHeight);
+      const startX = (this.video.videoWidth - size) / 2;
+      const startY = (this.video.videoHeight - size) / 2;
+
+      // Sample 9 facelets
+      const detected = sampleFaceletColors(this.video, startX, startY, size);
+      this.applyDetectedToFace(this.currentFace, detected);
+      this.advanceToNextFace();
+    }
+
+    handlePhotoUpload(event) {
+      const file = event.target.files?.[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const size = Math.min(img.width, img.height);
+          const startX = (img.width - size) / 2;
+          const startY = (img.height - size) / 2;
+
+          const detected = sampleFaceletColors(img, startX, startY, size);
+          this.applyDetectedToFace(this.currentFace, detected);
+          this.advanceToNextFace();
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    applyDetectedToFace(face, detectedList) {
+      const faceOffsetMap = { U: 0, R: 9, F: 18, D: 27, L: 36, B: 45 };
+      const offset = faceOffsetMap[face];
+
+      detectedList.forEach((sample, i) => {
+        // Keep the center facelet locked to its face definition
+        if (i === 4) {
+          this.facelets[offset + 4] = face;
+        } else {
+          this.facelets[offset + i] = sample.colorKey;
+        }
+      });
+
+      this.render2DNet();
+      this.renderDetectedMiniGrid();
+      this.validateState();
+    }
+
+    advanceToNextFace() {
+      const sequence = ['U', 'L', 'F', 'R', 'B', 'D'];
+      const currentIdx = sequence.indexOf(this.currentFace);
+      if (currentIdx < sequence.length - 1) {
+        this.setCurrentFace(sequence[currentIdx + 1]);
+      }
+    }
+
+    renderDetectedMiniGrid() {
+      const grid = document.getElementById('detected-mini-grid');
+      if (!grid) return;
+      grid.innerHTML = '';
+
+      const faceOffsetMap = { U: 0, R: 9, F: 18, D: 27, L: 36, B: 45 };
+      const offset = faceOffsetMap[this.currentFace];
+
+      for (let i = 0; i < 9; i++) {
+        const faceletIdx = offset + i;
+        const colorKey = this.facelets[faceletIdx];
+        const tile = document.createElement('div');
+        tile.className = `mini-tile color-${colorKey}`;
+        tile.style.backgroundColor = COLOR_SCHEME[colorKey].css;
+        if (i === 4) tile.classList.add('center-tile');
+
+        tile.addEventListener('click', () => {
+          if (i !== 4) {
+            this.facelets[faceletIdx] = this.activeBrushColor;
+            this.renderDetectedMiniGrid();
+            this.render2DNet();
+            this.validateState();
+          }
+        });
+
+        grid.appendChild(tile);
+      }
+    }
+
+    // --- 2D Interactive Cube Net ---
+    render2DNet() {
+      const netContainer = document.getElementById('cube-net-grid');
+      if (!netContainer) return;
+      netContainer.innerHTML = '';
+
+      // Unfolded net layout:
+      // Row 0: .  U  .  .
+      // Row 1: L  F  R  B
+      // Row 2: .  D  .  .
+      const netLayout = [
+        [null, 'U', null, null],
+        ['L',  'F', 'R',  'B'],
+        [null, 'D', null, null]
+      ];
+
+      const faceOffsetMap = { U: 0, R: 9, F: 18, D: 27, L: 36, B: 45 };
+
+      netLayout.forEach(row => {
+        row.forEach(faceKey => {
+          const faceBox = document.createElement('div');
+          faceBox.className = 'net-face-slot';
+
+          if (faceKey) {
+            faceBox.classList.add(`face-${faceKey}`);
+            const faceHeader = document.createElement('div');
+            faceHeader.className = 'net-face-header';
+            faceHeader.textContent = `${faceKey} (${COLOR_SCHEME[faceKey].name})`;
+            faceBox.appendChild(faceHeader);
+
+            const grid3x3 = document.createElement('div');
+            grid3x3.className = 'net-3x3-grid';
+
+            const offset = faceOffsetMap[faceKey];
+
+            for (let i = 0; i < 9; i++) {
+              const faceletIdx = offset + i;
+              const colorKey = this.facelets[faceletIdx];
+              const cell = document.createElement('div');
+              cell.className = `net-tile color-${colorKey} ${i === 4 ? 'is-center' : ''}`;
+              cell.style.backgroundColor = COLOR_SCHEME[colorKey].css;
+
+              cell.addEventListener('click', () => {
+                if (i !== 4) { // Centers are fixed
+                  this.facelets[faceletIdx] = this.activeBrushColor;
+                  this.render2DNet();
+                  this.renderDetectedMiniGrid();
+                  this.validateState();
+                }
+              });
+
+              grid3x3.appendChild(cell);
+            }
+            faceBox.appendChild(grid3x3);
+          } else {
+            faceBox.classList.add('empty-slot');
+          }
+          netContainer.appendChild(faceBox);
+        });
+      });
+    }
+
+    validateState() {
+      const stateStr = this.facelets.join('');
+      const validation = validateFaceletCounts(stateStr);
+
+      // Update palette badges
+      for (const [key, cnt] of Object.entries(validation.counts)) {
+        const badge = document.getElementById(`count-${key}`);
+        if (badge) {
+          badge.textContent = `${cnt}/9`;
+          badge.classList.toggle('valid', cnt === 9);
+        }
+      }
+
+      const statusEl = document.getElementById('scanner-status-text');
+      const applyBtn = document.getElementById('btn-apply-scan-solve');
+
+      if (!validation.isValid) {
+        if (statusEl) {
+          statusEl.textContent = `Need exactly 9 of each color. Currently: ${validation.message}`;
+          statusEl.className = 'status-msg status-warning';
+        }
+        if (applyBtn) applyBtn.disabled = true;
+        return;
+      }
+
+      // Check solvability via min2phase
+      if (window.min2phase) {
+        const sol = window.min2phase.solve(stateStr);
+        if (sol && !sol.startsWith('Error')) {
+          if (statusEl) {
+            statusEl.textContent = `Valid state! Solvable in ${sol.trim().split(/\s+/).length} moves.`;
+            statusEl.className = 'status-msg status-success';
+          }
+          if (applyBtn) applyBtn.disabled = false;
+        } else {
+          if (statusEl) {
+            statusEl.textContent = `Parity issue (${sol}). Please check corner or edge orientations.`;
+            statusEl.className = 'status-msg status-error';
+          }
+          if (applyBtn) applyBtn.disabled = true;
+        }
+      }
+    }
+  }
+
   // Expose to global scope
   global.RubikApp = RubikApp;
+  global.RealCubeScanner = RealCubeScanner;
   global.AudioFeedback = AudioFeedback;
   global.CONFIG = CONFIG;
 
-  // Bootstrap application on DOM ready or immediately if already loaded
   function initApp() {
     if (!global.rubikAppInstance) {
       global.rubikAppInstance = new RubikApp();

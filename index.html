@@ -48,6 +48,10 @@
           <span class="scramble-label">Scramble:</span>
           <span id="scramble-text" class="scramble-code">Solved</span>
         </div>
+        <button id="btn-top-scanner" class="top-scanner-btn" title="Quét khối Rubik thật">
+          <span class="btn-icon">📷</span>
+          <span>Scan Real Cube</span>
+        </button>
       </div>
 
       <div class="header-stats">
@@ -118,6 +122,10 @@
           <button id="btn-reset" class="action-btn btn-secondary" title="Reset to Solved State">
             <span class="btn-icon">↺</span>
             <span>Reset</span>
+          </button>
+          <button id="btn-open-scanner" class="action-btn btn-scanner" title="Scan or Upload Real Physical Cube">
+            <span class="btn-icon">📷</span>
+            <span>Scan Real Cube</span>
           </button>
         </div>
 
@@ -243,6 +251,174 @@
         </div>
       </div>
     </aside>
+
+    <!-- Real Cube Camera / Photo Scanner & Net Editor Modal -->
+    <div id="scanner-modal" class="scanner-modal hidden" role="dialog" aria-modal="true" aria-labelledby="scanner-modal-title">
+      <div class="scanner-backdrop"></div>
+      <div class="scanner-dialog glassmorphism">
+        <!-- Modal Header -->
+        <div class="scanner-header">
+          <div class="scanner-title-group">
+            <div class="scanner-badge-icon">📷</div>
+            <div>
+              <h2 id="scanner-modal-title">Real Cube Scanner & AI Solver</h2>
+              <p class="scanner-subtitle">Quét 6 mặt Rubik thật bằng camera/ảnh chụp hoặc chỉnh sửa màu trực tiếp để tìm lời giải</p>
+            </div>
+          </div>
+          <button id="btn-close-scanner" class="btn-close-modal" aria-label="Close modal">&times;</button>
+        </div>
+
+        <!-- Mode Navigation Tabs -->
+        <div class="scanner-mode-tabs">
+          <button class="scanner-tab-btn active" data-scan-mode="camera">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+            <span>Camera &amp; Tải Ảnh Quét</span>
+          </button>
+          <button class="scanner-tab-btn" data-scan-mode="net">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="3" y1="15" x2="21" y2="15"></line><line x1="9" y1="3" x2="9" y2="21"></line><line x1="15" y1="3" x2="15" y2="21"></line></svg>
+            <span>Chỉnh Sửa Bản Đồ 2D (Net)</span>
+          </button>
+        </div>
+
+        <!-- Mode 1: Camera & Photo Scanning View -->
+        <div id="scan-view-camera" class="scan-view active">
+          <!-- Step: Choose Face -->
+          <div class="face-selection-bar">
+            <span class="face-bar-label">Mặt đang quét:</span>
+            <div class="face-pills-group">
+              <button class="face-pill active" data-face="U">U (Trắng)</button>
+              <button class="face-pill" data-face="L">L (Cam)</button>
+              <button class="face-pill" data-face="F">F (Xanh lá)</button>
+              <button class="face-pill" data-face="R">R (Đỏ)</button>
+              <button class="face-pill" data-face="B">B (Xanh dương)</button>
+              <button class="face-pill" data-face="D">D (Vàng)</button>
+            </div>
+          </div>
+
+          <!-- Alignment Instruction -->
+          <div class="scan-instruction">
+            <span id="center-color-indicator" class="center-indicator" style="background-color: #ffffff;"></span>
+            <span>Hướng tâm khối Rubik vào ô giữa khớp với màu: <strong id="current-face-center-name" style="color: #ffffff;">White</strong></span>
+          </div>
+
+          <!-- Video Viewport & 3x3 Overlay Grid -->
+          <div class="camera-viewport-wrapper">
+            <video id="scanner-video" playsinline autoplay muted></video>
+            <canvas id="scanner-canvas" style="display:none;"></canvas>
+
+            <div class="viewfinder-overlay">
+              <div class="viewfinder-box">
+                <div class="vf-cell" data-idx="0"></div>
+                <div class="vf-cell" data-idx="1"></div>
+                <div class="vf-cell" data-idx="2"></div>
+                <div class="vf-cell" data-idx="3"></div>
+                <div class="vf-cell center-guide" data-idx="4">
+                  <div class="center-target-dot"></div>
+                </div>
+                <div class="vf-cell" data-idx="5"></div>
+                <div class="vf-cell" data-idx="6"></div>
+                <div class="vf-cell" data-idx="7"></div>
+                <div class="vf-cell" data-idx="8"></div>
+              </div>
+            </div>
+
+            <div id="camera-loading" class="camera-loading hidden">
+              <div class="scanner-spinner"></div>
+              <span>Đang kết nối camera...</span>
+            </div>
+          </div>
+
+          <!-- Camera Controls -->
+          <div class="scanner-camera-actions">
+            <button id="btn-start-camera" class="action-btn btn-secondary">
+              <span class="btn-icon">📹</span>
+              <span>Bật Camera</span>
+            </button>
+            <button id="btn-capture-face" class="action-btn btn-primary" disabled>
+              <span class="btn-icon">📸</span>
+              <span>Quét Màu Mặt Này</span>
+            </button>
+            <label class="action-btn btn-outline file-upload-btn" title="Tải ảnh mặt Rubik">
+              <span class="btn-icon">📁</span>
+              <span>Tải Ảnh Lên</span>
+              <input type="file" id="camera-file-input" accept="image/*" style="display:none;">
+            </label>
+          </div>
+
+          <!-- Detected Mini Grid of Active Face -->
+          <div class="mini-grid-container">
+            <div class="mini-grid-title">Màu 9 ô nhận diện được (bấm ô bất kỳ để sửa màu nếu webcam nhận nhầm):</div>
+            <div id="detected-mini-grid" class="detected-mini-grid"></div>
+          </div>
+        </div>
+
+        <!-- Mode 2: 2D Net Editor View -->
+        <div id="scan-view-net" class="scan-view">
+          <div class="net-instructions">
+            <span>💡 Chọn màu ở bảng bút vẽ bên dưới, sau đó bấm vào bất kỳ ô nào trên sơ đồ để tô màu:</span>
+          </div>
+          <div class="cube-net-wrapper">
+            <div id="cube-net-grid" class="cube-net-grid"></div>
+          </div>
+        </div>
+
+        <!-- Bottom Color Palette & Validation Footer -->
+        <div class="scanner-footer">
+          <div class="palette-container">
+            <span class="palette-label">Bút vẽ màu:</span>
+            <div class="palette-grid">
+              <button class="palette-btn active" data-color="U">
+                <span class="palette-swatch swatch-white"></span>
+                <span class="palette-name">Trắng (U)</span>
+                <span id="count-U" class="count-badge">9/9</span>
+              </button>
+              <button class="palette-btn" data-color="R">
+                <span class="palette-swatch swatch-red"></span>
+                <span class="palette-name">Đỏ (R)</span>
+                <span id="count-R" class="count-badge">9/9</span>
+              </button>
+              <button class="palette-btn" data-color="F">
+                <span class="palette-swatch swatch-green"></span>
+                <span class="palette-name">Xanh lá (F)</span>
+                <span id="count-F" class="count-badge">9/9</span>
+              </button>
+              <button class="palette-btn" data-color="D">
+                <span class="palette-swatch swatch-yellow"></span>
+                <span class="palette-name">Vàng (D)</span>
+                <span id="count-D" class="count-badge">9/9</span>
+              </button>
+              <button class="palette-btn" data-color="L">
+                <span class="palette-swatch swatch-orange"></span>
+                <span class="palette-name">Cam (L)</span>
+                <span id="count-L" class="count-badge">9/9</span>
+              </button>
+              <button class="palette-btn" data-color="B">
+                <span class="palette-swatch swatch-blue"></span>
+                <span class="palette-name">Xanh dương (B)</span>
+                <span id="count-B" class="count-badge">9/9</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Status Message -->
+          <div id="scanner-status-text" class="status-msg status-success">
+            Trạng thái hợp lệ! Có thể giải ngay.
+          </div>
+
+          <!-- Final Actions -->
+          <div class="scanner-dialog-actions">
+            <button id="btn-reset-scan" class="action-btn btn-secondary">
+              <span class="btn-icon">↺</span>
+              <span>Đặt lại Rubik Chuẩn</span>
+            </button>
+            <button id="btn-apply-scan-solve" class="action-btn btn-accent" disabled>
+              <span class="btn-icon">⚡</span>
+              <span>Nạp vào 3D &amp; Giải Rubik Ngay!</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Application Logic (with cache-buster) -->

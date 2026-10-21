@@ -6,6 +6,12 @@ An interactive, production-ready 3D Rubik's Cube web application built with **Th
 
 ## Features
 
+- **Real Physical Cube Scanner & AI Solver (Camera & Photos)**:
+  - 📷 **Live Webcam / Camera Scanning**: Position each face inside the 3x3 viewfinder to automatically capture and recognize sticker colors.
+  - 📁 **Photo Upload Support**: Upload photos of your physical Rubik's cube faces directly from your phone or PC.
+  - 🎨 **HSV Color Classifier**: Intelligent color segmentation accounting for ambient shadows, lighting glare, and reflections.
+  - ✏️ **2D Interactive Cube Net Editor**: Click any tile or use the color palette to manually inspect or correct colors before solving.
+  - ⚡ **Seamless 3D Sync & Auto-Solve**: Instantly maps your real-life cube state onto the interactive 3D model, runs the Kociemba solver, and provides step-by-step 3D visual guidance to solve your real cube.
 - **Physically-Modeled 3D Rubik's Cube (Three.js)**:
   - 26 individual cubies with rounded vinyl speedcube stickers and dark plastic cores.
   - Standard WCA Western Color Scheme:

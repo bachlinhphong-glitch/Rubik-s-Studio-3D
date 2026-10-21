@@ -1,9 +1,11 @@
 /**
- * solver.js - Cube State Extraction & Kociemba Two-Phase Solver Integration
+ * solver.js - Cube State Extraction, Color Classification & Kociemba Two-Phase Solver Integration
  *
  * Provides:
  * - WCA-compliant random scramble generator (20-25 moves)
  * - 54-facelet state extraction from 3D cubie positions & orientations
+ * - Real-cube computer vision color classification (RGB -> HSV -> Rubik Face)
+ * - Grid pixel sampling for camera/photo captures
  * - Kociemba Two-Phase algorithm execution via min2phase
  * - Solution parsing, move inversion, and validation
  */
@@ -75,6 +77,158 @@
     L: { name: 'Orange', hex: 0xff5800, css: '#ff5800' }
   };
 
+  const SOLVED_FACELETS = 'UUUUUUUUURRRRRRRRRFFFFFFFFFDDDDDDDDDLLLLLLLLLBBBBBBBBB';
+
+  /**
+   * Converts RGB [0, 255] to HSV { h: [0, 360], s: [0, 1], v: [0, 1] }
+   */
+  function rgbToHsv(r, g, b) {
+    r /= 255; g /= 255; b /= 255;
+    const max = Math.max(r, g, b), min = Math.min(r, g, b);
+    let h, s, v = max;
+    const d = max - min;
+    s = max === 0 ? 0 : d / max;
+    if (max === min) {
+      h = 0;
+    } else {
+      switch (max) {
+        case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+        case g: h = (b - r) / d + 2; break;
+        case b: h = (r - g) / d + 4; break;
+      }
+      h /= 6;
+    }
+    return { h: h * 360, s, v };
+  }
+
+  /**
+   * Classifies an average RGB color to a Rubik's cube face notation (U, D, F, B, R, L)
+   * using robust Hue-Saturation-Value (HSV) thresholding.
+   */
+  function classifyColorHSV(r, g, b) {
+    const { h, s, v } = rgbToHsv(r, g, b);
+
+    // 1. White: Low saturation or high brightness with low color tint
+    if (s < 0.22 && v > 0.38) {
+      return 'U'; // White
+    }
+
+    // 2. Yellow: Hue ~ 42 to 75 deg, decent saturation
+    if (h >= 42 && h <= 75) {
+      return 'D'; // Yellow
+    }
+
+    // 3. Green: Hue ~ 76 to 165 deg
+    if (h > 75 && h <= 165) {
+      return 'F'; // Green
+    }
+
+    // 4. Blue: Hue ~ 166 to 265 deg
+    if (h > 165 && h <= 265) {
+      return 'B'; // Blue
+    }
+
+    // 5. Orange: Hue ~ 15 to 41 deg
+    if (h > 15 && h < 42) {
+      return 'L'; // Orange
+    }
+
+    // 6. Red: Hue 0 to 15 deg or 266 to 360 deg
+    return 'R'; // Red
+  }
+
+  /**
+   * Samples 9 average colors from a 3x3 square region of a canvas or video element.
+   * 
+   * @param {HTMLCanvasElement|HTMLVideoElement|HTMLImageElement} source
+   * @param {number} startX Crop start X
+   * @param {number} startY Crop start Y
+   * @param {number} size Crop box size
+   * @returns {Array<{ r: number, g: number, b: number, colorKey: string }>} 9 sampled colors
+   */
+  function sampleFaceletColors(source, startX, startY, size) {
+    const tempCanvas = document.createElement('canvas');
+    tempCanvas.width = size;
+    tempCanvas.height = size;
+    const ctx = tempCanvas.getContext('2d');
+    ctx.drawImage(source, startX, startY, size, size, 0, 0, size, size);
+
+    const imgData = ctx.getImageData(0, 0, size, size);
+    const data = imgData.data;
+
+    const cellSize = size / 3;
+    const sampleRadius = Math.floor(cellSize * 0.25); // Sample central 50% of each cell to avoid sticker borders
+    const results = [];
+
+    for (let row = 0; row < 3; row++) {
+      for (let col = 0; col < 3; col++) {
+        const centerX = Math.floor((col + 0.5) * cellSize);
+        const centerY = Math.floor((row + 0.5) * cellSize);
+
+        let sumR = 0, sumG = 0, sumB = 0, count = 0;
+
+        for (let dy = -sampleRadius; dy <= sampleRadius; dy++) {
+          for (let dx = -sampleRadius; dx <= sampleRadius; dx++) {
+            const px = centerX + dx;
+            const py = centerY + dy;
+            if (px >= 0 && px < size && py >= 0 && py < size) {
+              const idx = (py * size + px) * 4;
+              sumR += data[idx];
+              sumG += data[idx + 1];
+              sumB += data[idx + 2];
+              count++;
+            }
+          }
+        }
+
+        const avgR = Math.round(sumR / count);
+        const avgG = Math.round(sumG / count);
+        const avgB = Math.round(sumB / count);
+        const colorKey = classifyColorHSV(avgR, avgG, avgB);
+
+        results.push({
+          r: avgR,
+          g: avgG,
+          b: avgB,
+          colorKey,
+          hex: COLOR_SCHEME[colorKey].css
+        });
+      }
+    }
+
+    return results;
+  }
+
+  /**
+   * Validates color counts of a 54-facelet string.
+   * Each color must appear exactly 9 times.
+   */
+  function validateFaceletCounts(faceletStr) {
+    const counts = { U: 0, R: 0, F: 0, D: 0, L: 0, B: 0 };
+    for (let i = 0; i < faceletStr.length; i++) {
+      const c = faceletStr[i];
+      if (counts[c] !== undefined) {
+        counts[c]++;
+      }
+    }
+
+    const missingOrExtra = [];
+    let isCountValid = true;
+
+    for (const [key, cnt] of Object.entries(counts)) {
+      if (cnt !== 9) {
+        isCountValid = false;
+        missingOrExtra.push(`${COLOR_SCHEME[key].name}: ${cnt}/9`);
+      }
+    }
+
+    return {
+      isValid: isCountValid && faceletStr.length === 54,
+      counts,
+      message: isCountValid ? 'All 6 colors have exactly 9 stickers.' : missingOrExtra.join(', ')
+    };
+  }
+
   /**
    * Parses a single move token (e.g., "R", "U'", "F2") into its components.
    */
@@ -90,7 +244,6 @@
 
   /**
    * Computes the inverse of a move string.
-   * e.g. "R" -> "R'", "U'" -> "U", "F2" -> "F2"
    */
   function invertMove(moveStr) {
     const parsed = parseMove(moveStr);
@@ -102,7 +255,6 @@
 
   /**
    * Inverts an entire sequence of moves.
-   * e.g. "R U R'" -> "R U' R'"
    */
   function invertSequence(moves) {
     const tokens = Array.isArray(moves) ? moves : moves.trim().split(/\s+/);
@@ -114,7 +266,6 @@
 
   /**
    * Generates a valid 20-move WCA compliant random scramble.
-   * Avoids redundant moves on the same face or parallel axis.
    */
   function generateWCAScramble(length = 20) {
     const faces = ['U', 'D', 'R', 'L', 'F', 'B'];
@@ -135,7 +286,6 @@
 
       if (face === lastFace) continue;
 
-      // Avoid sequences like R L R or U D U
       if (secondLastFace && axisMap[lastFace] === axis && axisMap[secondLastFace] === axis) {
         continue;
       }
@@ -152,10 +302,6 @@
 
   /**
    * Extracts the 54-facelet string from the active 3D cube model.
-   * 
-   * @param {Array} cubies Array of THREE.Object3D representing individual cubies.
-   * @param {THREE} THREE reference to Three.js library
-   * @returns {string} 54-character string of faces (e.g., "UUUUUUUUURRRRRRRRR...")
    */
   function extractFaceletString(cubies, THREE) {
     const tempNormal = new THREE.Vector3();
@@ -165,7 +311,6 @@
       const [sx, sy, sz] = slot.pos;
       const [nx, ny, nz] = slot.normal;
 
-      // Find the cubie at slot position
       const cubie = cubies.find(c => {
         const cx = Math.round(c.position.x);
         const cy = Math.round(c.position.y);
@@ -179,7 +324,6 @@
         continue;
       }
 
-      // Identify which sticker currently points towards slot.normal
       let matchedColor = '?';
       let maxDot = -Infinity;
 
@@ -202,20 +346,15 @@
    * Checks whether the cube state is completely solved.
    */
   function isCubeSolved(faceletString) {
-    const solved = 'UUUUUUUUURRRRRRRRRFFFFFFFFFDDDDDDDDDLLLLLLLLLBBBBBBBBB';
-    return faceletString === solved;
+    return faceletString === SOLVED_FACELETS;
   }
 
   /**
    * Solves the current cube state using min2phase Kociemba Two-Phase algorithm.
-   * 
-   * @param {string} faceletString 54-character state string
-   * @returns {Promise<{ success: boolean, moves: string[], raw: string, error?: string, solveTimeMs: number }>}
    */
   async function solveCube(faceletString) {
     const startTime = performance.now();
 
-    // Basic validation
     if (!faceletString || faceletString.length !== 54 || faceletString.includes('?')) {
       return {
         success: false,
@@ -226,7 +365,6 @@
       };
     }
 
-    // Check if already solved
     if (isCubeSolved(faceletString)) {
       return {
         success: true,
@@ -237,7 +375,6 @@
       };
     }
 
-    // Ensure min2phase is loaded
     const solverInstance = (typeof window !== 'undefined' && window.min2phase) ? window.min2phase : null;
 
     if (!solverInstance) {
@@ -287,6 +424,11 @@
   const RubikSolver = {
     FACELET_GRID,
     COLOR_SCHEME,
+    SOLVED_FACELETS,
+    rgbToHsv,
+    classifyColorHSV,
+    sampleFaceletColors,
+    validateFaceletCounts,
     parseMove,
     invertMove,
     invertSequence,
