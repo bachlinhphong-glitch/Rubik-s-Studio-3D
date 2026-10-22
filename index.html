@@ -30,83 +30,132 @@
   <div id="app-root">
     <!-- Top Header HUD -->
     <header class="top-nav">
-      <div class="brand">
-        <div class="brand-cube-icon">
-          <div class="cube-face f-top"></div>
-          <div class="cube-face f-left"></div>
-          <div class="cube-face f-right"></div>
+      <!-- Left: Brand & Cube Selector & Solved Status -->
+      <div class="nav-section-left">
+        <div class="brand brand-clickable" id="brand-cube-selector" data-i18n-title="brandTitleTooltip" title="Bấm vào đây để chọn loại Rubik (2x2, 3x3, 4x4, Mirror Blocks, GAN, MoYu...)">
+          <div class="brand-cube-icon">
+            <div class="cube-face f-top"></div>
+            <div class="cube-face f-left"></div>
+            <div class="cube-face f-right"></div>
+          </div>
+          <div class="brand-info">
+            <div class="brand-title-wrap">
+              <h1>Rubik's Studio 3D</h1>
+              <span class="cube-select-badge" id="cube-select-badge">
+                <span id="current-cube-name-badge">3x3x3</span>
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg>
+              </span>
+            </div>
+            <span class="subtext" id="brand-subtext" data-i18n="brandSubtext">Kociemba Two-Phase & Trợ lý AI</span>
+          </div>
         </div>
-        <div class="brand-info">
-          <h1>Rubik's Studio 3D</h1>
-          <span class="subtext">Kociemba Two-Phase &amp; AI Coach</span>
-        </div>
+
+        <div id="status-badge" class="status-badge status-ready" data-i18n="statusSolved">ĐÃ GIẢI</div>
       </div>
 
-      <div class="header-center">
-        <div id="status-badge" class="status-badge status-ready">Solved</div>
-        <div class="scramble-bar" title="Current Scramble (Bấm để copy)">
-          <span class="scramble-label">Scramble:</span>
-          <span id="scramble-text" class="scramble-code">Solved</span>
-        </div>
-        <button id="btn-top-coach" class="top-nav-chip btn-coach-glow" title="Mở Trợ Lý AI Rubik - Soi khối &amp; Gợi ý nước đi">
+      <!-- Center: Main App Nav Tools with Clean Professional SVG Icons (No ugly AI emojis) -->
+      <nav class="nav-section-center" aria-label="Điều hướng chính">
+        <button id="btn-top-coach" class="top-nav-chip btn-coach-glow" data-i18n-title="coachTitle" title="Trợ Lý AI Rubik - Soi khối & Gợi ý nước đi">
           <span class="pulse-ring"></span>
-          <span class="btn-icon">🤖</span>
-          <span>Trợ Lý AI</span>
+          <svg class="nav-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/>
+          </svg>
+          <span data-i18n="navCoach">Trợ Lý AI</span>
         </button>
-        <button id="btn-top-masterclass" class="top-nav-chip" title="Video &amp; Kinh nghiệm từ tuyển thủ thế giới">
-          <span class="btn-icon">🎥</span>
-          <span>Tuyển Thủ</span>
-        </button>
-        <button id="btn-top-timer" class="top-nav-chip" title="Bấm giờ thi đấu Speedcubing WCA">
-          <span class="btn-icon">⏱️</span>
-          <span>Timer</span>
-        </button>
-        <button id="btn-top-cheatsheet" class="top-nav-chip" title="Bảng công thức giải CFOP &amp; Cơ bản">
-          <span class="btn-icon">📖</span>
-          <span>Công Thức</span>
-        </button>
-        <button id="btn-top-scanner" class="top-scanner-btn" title="Quét khối Rubik thật">
-          <span class="btn-icon">📷</span>
-          <span>Quét 3D</span>
-        </button>
-      </div>
 
-      <div class="header-stats">
-        <div id="top-user-pill" class="user-profile-chip" title="Hồ sơ người chơi Speedcubing">
-          <span id="top-user-avatar" class="user-avatar-icon">⚡</span>
-          <span id="top-user-name" class="user-name-text">SpeedCuber_VN</span>
-          <span id="top-user-title" class="user-title-badge badge-novice">Tập Sự</span>
-        </div>
-        <button id="btn-toggle-focus" class="top-nav-chip btn-focus-chip" title="Chế độ tập trung Zen Focus Mode (Phím F)">
-          <span class="btn-icon">⛶</span>
-          <span>Focus</span>
+        <button id="btn-top-masterclass" class="top-nav-chip" data-i18n-title="masterclassTitle" title="Kinh nghiệm từ các kỷ lục gia thế giới">
+          <svg class="nav-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 9H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h2"/>
+            <path d="M18 9h2a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-2"/>
+            <path d="M4 22h16"/>
+            <path d="M10 14.66V17c0 .55-.45 1-1 1H7c-.55 0-1 .45-1 1v1c0 .55.45 1 1 1h10c.55 0 1-.45 1-1v-1c0-.55-.45-1-1-1h-2c-.55 0-1-.45-1-1v-2.34"/>
+            <path d="M6 4h12v5a6 6 0 0 1-12 0V4Z"/>
+          </svg>
+          <span data-i18n="navMasterclass">Tuyển Thủ</span>
         </button>
-        <div class="stat-pill" title="Tổng số lượt xoay mặt">
-          <span class="stat-name">Turns</span>
+
+        <button id="btn-top-timer" class="top-nav-chip" data-i18n-title="timerTitle" title="Bấm giờ thi đấu Speedcubing WCA">
+          <svg class="nav-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="13" r="8"/>
+            <path d="M12 9v4l2.5 2.5"/>
+            <path d="M10 2h4"/>
+            <path d="m19 5-1.5 1.5"/>
+          </svg>
+          <span data-i18n="navTimer">Bấm Giờ</span>
+        </button>
+
+        <button id="btn-top-cheatsheet" class="top-nav-chip" data-i18n-title="formulaTitle" title="Bảng công thức giải CFOP & Cơ bản">
+          <svg class="nav-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+            <path d="M8 7h8"/>
+            <path d="M8 11h6"/>
+          </svg>
+          <span data-i18n="navFormulas">Công Thức</span>
+        </button>
+
+        <button id="btn-top-scanner" class="top-scanner-btn" data-i18n-title="scannerTitle" title="Quét khối Rubik thật bằng camera">
+          <svg class="nav-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+            <circle cx="12" cy="13" r="4"/>
+          </svg>
+          <span data-i18n="navScanner">Quét 3D</span>
+        </button>
+      </nav>
+
+      <!-- Right: Utility Controls (Language, Zen Focus, Turns, Profile) -->
+      <div class="nav-section-right">
+        <!-- Language Switcher Toggle (VI / EN) -->
+        <button id="btn-lang-toggle" class="lang-toggle-btn" title="Chuyển ngôn ngữ / Switch Language (VI / EN)">
+          <svg class="nav-svg-icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M2 12h20"/>
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+          </svg>
+          <span id="lang-current-code" class="lang-code-text">VI</span>
+        </button>
+
+        <!-- Zen Focus Mode -->
+        <button id="btn-toggle-focus" class="top-nav-chip btn-focus-chip" data-i18n-title="focusTitle" title="Chế độ tập trung Zen Focus (Phím F)">
+          <svg class="nav-svg-icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+          </svg>
+          <span data-i18n="navFocus">Tập Trung</span>
+        </button>
+
+        <!-- Compact Turn Counter -->
+        <div class="stat-pill" data-i18n-title="turnsTitle" title="Tổng số lượt xoay mặt">
+          <span class="stat-name" data-i18n="statTurns">Nước</span>
           <span id="move-count-display" class="stat-value">0</span>
         </div>
+
+        <!-- Compact User Profile Button -->
+        <button id="top-user-pill" class="user-avatar-btn" data-i18n-title="profileTitle" title="Hồ sơ Speedcuber & Tùy biến">
+          <span id="top-user-avatar" class="user-avatar-icon">⚡</span>
+          <span id="top-user-name" class="user-name-text">SpeedCuber</span>
+        </button>
       </div>
     </header>
-
-    <!-- Floating AI Coach Launcher Orb (Góc trái màn hình) -->
-    <button id="btn-floating-coach" class="floating-coach-orb" title="Mở Trợ Lý AI Rubik">
-      <span class="coach-pulse-ping"></span>
-      <span class="coach-avatar-emoji">🤖</span>
-      <span class="coach-orb-text">Trợ Lý AI</span>
-    </button>
 
     <!-- AI Rubik Coach Left-Side Drawer -->
     <aside id="ai-coach-drawer" class="ai-coach-drawer hidden" role="dialog" aria-labelledby="ai-coach-title">
       <div class="coach-drawer-header">
         <div class="coach-brand">
-          <div class="coach-icon-halo">🤖</div>
+          <div class="coach-icon-halo">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/>
+            </svg>
+          </div>
           <div>
-            <h2 id="ai-coach-title">Trợ Lý AI Rubik</h2>
-            <p class="coach-status-sub">Huấn luyện viên giải Rubik 3D thông minh</p>
+            <h2 id="ai-coach-title" data-i18n="coachTitle">Trợ Lý AI Rubik</h2>
+            <p class="coach-status-sub" data-i18n="coachSubtitle">Huấn luyện viên giải Rubik 3D thông minh</p>
           </div>
         </div>
         <div class="coach-header-actions">
-          <button id="btn-refresh-coach" class="ctrl-btn-xs" title="Phân tích lại khối 3D">🔄 Quét Lại</button>
+          <button id="btn-refresh-coach" class="ctrl-btn-xs" title="Phân tích lại khối 3D">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.3"/></svg>
+            <span>Quét Lại</span>
+          </button>
           <button id="btn-close-coach" class="btn-close-coach" aria-label="Đóng Trợ Lý AI">&times;</button>
         </div>
       </div>
@@ -253,47 +302,47 @@
       <div class="timeline-header">
         <div class="timeline-title">
           <span class="pulse-dot"></span>
-          <span>Solution Steps</span>
-          <span id="solution-move-count" class="badge">0 moves</span>
+          <span data-i18n="solutionTitle">Các Bước Giải Tối Ưu</span>
+          <span id="solution-move-count" class="badge">0 <span data-i18n="statTurns">nước</span></span>
         </div>
         <div class="timeline-actions">
-          <span id="playback-step-display" class="step-counter">No active solution</span>
+          <span id="playback-step-display" class="step-counter" data-i18n="noSolutionText">Chưa có lời giải</span>
         </div>
       </div>
       <div class="timeline-scroll-wrapper">
         <div id="solution-timeline" class="solution-timeline">
-          <div class="empty-timeline">Click "Solve Cube" to calculate the optimal solution steps.</div>
+          <div class="empty-timeline" data-i18n="emptyTimelineText">Bấm "Giải Bằng AI" để tính toán các bước giải tối ưu nhất.</div>
         </div>
       </div>
     </section>
 
     <!-- Floating HUD Control Panel -->
-    <aside class="control-panel glassmorphism">
+    <aside class="control-panel glassmorphism" id="control-panel">
       <!-- Tabs Navigation -->
       <nav class="panel-tabs">
-        <button class="tab-btn active" data-tab="controls-tab" title="Bảng điều khiển">
+        <button class="tab-btn active" data-tab="controls-tab" data-i18n-title="tabControls" title="Bảng điều khiển">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"></rect><circle cx="6" cy="12" r="2"></circle><path d="M14 9l3 3-3 3"></path></svg>
-          Controls
+          <span data-i18n="tabControls">Điều Khiển</span>
         </button>
-        <button class="tab-btn" data-tab="timer-tab" title="Bấm giờ thi đấu Speedcubing WCA">
+        <button class="tab-btn" data-tab="timer-tab" data-i18n-title="tabTimer" title="Bấm giờ thi đấu Speedcubing WCA">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-          Timer
+          <span data-i18n="tabTimer">Bấm Giờ</span>
         </button>
-        <button class="tab-btn" data-tab="cheatsheet-tab" title="Bảng công thức giải CFOP &amp; Cơ bản">
+        <button class="tab-btn" data-tab="cheatsheet-tab" data-i18n-title="tabFormulas" title="Bảng công thức giải CFOP &amp; Cơ bản">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
-          Formulas
+          <span data-i18n="tabFormulas">Công Thức</span>
         </button>
-        <button class="tab-btn" data-tab="masterclass-tab" title="Video &amp; Tuyển thủ thế giới">
+        <button class="tab-btn" data-tab="masterclass-tab" data-i18n-title="tabMasterclass" title="Video &amp; Tuyển thủ thế giới">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>
-          Tuyển Thủ
+          <span data-i18n="tabMasterclass">Tuyển Thủ</span>
         </button>
-        <button class="tab-btn" data-tab="solution-tab" title="Lời giải tối ưu Kociemba">
+        <button class="tab-btn" data-tab="solution-tab" data-i18n-title="tabSolution" title="Lời giải tối ưu Kociemba">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
-          Solve
+          <span data-i18n="tabSolution">Lời Giải</span>
         </button>
-        <button class="tab-btn" data-tab="settings-tab" title="Cài đặt">
+        <button class="tab-btn" data-tab="settings-tab" data-i18n-title="tabCustom" title="Tùy biến khôi &amp; Cài đặt">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle></svg>
-          Settings
+          <span data-i18n="tabCustom">Tùy Biến</span>
         </button>
       </nav>
 
@@ -301,37 +350,37 @@
       <div id="controls-tab" class="tab-content active">
         <!-- Primary Action Group -->
         <div class="action-grid">
-          <button id="btn-scramble" class="action-btn btn-primary" title="Scramble 20 WCA moves">
-            <span class="btn-icon">🎲</span>
-            <span>Scramble</span>
+          <button id="btn-scramble" class="action-btn btn-primary" data-i18n-title="btnScramble" title="Xáo 20 bước ngẫu nhiên theo chuẩn WCA">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="8" cy="8" r="1.5" fill="currentColor"/><circle cx="16" cy="8" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/><circle cx="8" cy="16" r="1.5" fill="currentColor"/><circle cx="16" cy="16" r="1.5" fill="currentColor"/></svg>
+            <span data-i18n="btnScramble">Xáo Khối</span>
           </button>
-          <button id="btn-solve" class="action-btn btn-accent" title="Solve with Kociemba 2-Phase Engine">
-            <span class="btn-icon">⚡</span>
-            <span>Solve Cube</span>
+          <button id="btn-solve" class="action-btn btn-accent" data-i18n-title="btnSolve" title="Giải khối tự động bằng thuật toán Kociemba Two-Phase">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+            <span data-i18n="btnSolve">Giải Bằng AI</span>
           </button>
-          <button id="btn-reset" class="action-btn btn-secondary" title="Reset to Solved State">
-            <span class="btn-icon">↺</span>
-            <span>Reset</span>
+          <button id="btn-reset" class="action-btn btn-secondary" data-i18n-title="btnReset" title="Đặt lại trạng thái khối đã giải">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+            <span data-i18n="btnReset">Đặt Lại</span>
           </button>
-          <button id="btn-open-scanner" class="action-btn btn-scanner" title="Scan or Upload Real Physical Cube">
-            <span class="btn-icon">📷</span>
-            <span>Scan Real Cube</span>
+          <button id="btn-open-scanner" class="action-btn btn-scanner" data-i18n-title="btnScan" title="Quét khối Rubik thật từ camera hoặc tải ảnh lên">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            <span data-i18n="btnScan">Quét Khối Thật</span>
           </button>
         </div>
 
         <!-- Playback Controller -->
         <div class="section-card playback-card">
-          <div class="section-title">Step-by-Step Playback</div>
+          <div class="section-title" data-i18n="playbackTitle">Xem Từng Bước Giải</div>
           <div class="playback-btn-group">
-            <button id="btn-step-prev" class="ctrl-btn" title="Previous Step (Undo)" disabled>
+            <button id="btn-step-prev" class="ctrl-btn" data-i18n-title="btnPrev" title="Bước Trước" disabled>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="19 20 9 12 19 4 19 20"></polygon><line x1="5" y1="19" x2="5" y2="5" stroke="currentColor" stroke-width="2"></line></svg>
-              <span>Prev</span>
+              <span data-i18n="btnPrev">Lùi</span>
             </button>
-            <button id="btn-play-pause" class="ctrl-btn ctrl-btn-highlight" title="Play or Pause Solution" disabled>
-              <span class="icon">▶</span> Play
+            <button id="btn-play-pause" class="ctrl-btn ctrl-btn-highlight" data-i18n-title="btnPlay" title="Tự động chạy lời giải" disabled>
+              <span class="icon">▶</span> <span id="play-pause-btn-text" data-i18n="btnPlay">Phát</span>
             </button>
-            <button id="btn-step-next" class="ctrl-btn" title="Next Step" disabled>
-              <span>Next</span>
+            <button id="btn-step-next" class="ctrl-btn" data-i18n-title="btnNext" title="Bước Kế Tiếp" disabled>
+              <span data-i18n="btnNext">Tiến</span>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 4 15 12 5 20 5 4"></polygon><line x1="19" y1="5" x2="19" y2="19" stroke="currentColor" stroke-width="2"></line></svg>
             </button>
           </div>
@@ -340,8 +389,8 @@
         <!-- Manual Face Turns -->
         <div class="section-card">
           <div class="section-header-compact">
-            <span class="section-title">Manual Face Turns</span>
-            <span class="keyboard-badge">Or press U, D, L, R, F, B</span>
+            <span class="section-title" data-i18n="manualTurnsTitle">Xoay Thủ Công</span>
+            <span class="keyboard-badge" data-i18n="manualTurnsHint">Hoặc bấm U, D, L, R, F, B</span>
           </div>
           <div class="manual-turns-grid">
             <button class="manual-turn-btn c-white" data-move="U">U</button>
@@ -365,10 +414,16 @@
         <!-- Scramble Bar -->
         <div class="section-card timer-scramble-card">
           <div class="timer-scramble-header">
-            <span class="section-title">WCA Scramble</span>
+            <span class="section-title" data-i18n="timerScrambleTitle">Chuỗi Xáo WCA</span>
             <div class="timer-scramble-btns">
-              <button id="btn-timer-new-scramble" class="ctrl-btn-sm" title="Tạo scramble mới">🎲 Mới</button>
-              <button id="btn-timer-apply-3d" class="ctrl-btn-sm ctrl-btn-highlight" title="Xoay khối 3D theo scramble">▶ Xoay 3D</button>
+              <button id="btn-timer-new-scramble" class="ctrl-btn-sm" title="Tạo chuỗi xáo mới">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.3"/></svg>
+                <span data-i18n="btnNewScramble">Đổi Mới</span>
+              </button>
+              <button id="btn-timer-apply-3d" class="ctrl-btn-sm ctrl-btn-highlight" title="Xoay khối 3D theo chuỗi xáo">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                <span data-i18n="btnApply3D">Nạp Vào 3D</span>
+              </button>
             </div>
           </div>
           <div class="scramble-box">
@@ -379,17 +434,17 @@
         <!-- Big Digital Timer Display & Touch Pads -->
         <div class="section-card timer-main-card">
           <div class="timer-viewport">
-            <div id="timer-status-hint" class="timer-hint">Giữ Spacebar hoặc 2 tay lên Pad để bắt đầu</div>
+            <div id="timer-status-hint" class="timer-hint" data-i18n="timerIdleHint">Chạm hoặc Giữ Phím Cách (Space) để sẵn sàng</div>
             <div id="timer-clock-display" class="timer-clock timer-idle font-mono">0.00</div>
             
             <!-- Dual Touch Pads for Mobile/Mouse -->
             <div class="dual-touch-pads">
-              <div id="pad-left" class="touch-pad" title="Tay Trái (Left Hand)">
-                <span class="pad-icon">🖐️</span>
+              <div id="pad-left" class="touch-pad" title="Tay Trái">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v6M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8M6 14a4 4 0 0 0 8 0v-4a2 2 0 0 1 4 0v4a8 8 0 0 1-16 0"/></svg>
                 <span class="pad-label">LEFT</span>
               </div>
-              <div id="pad-right" class="touch-pad" title="Tay Phải (Right Hand)">
-                <span class="pad-icon">🖐️</span>
+              <div id="pad-right" class="touch-pad" title="Tay Phải">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="transform: scaleX(-1);"><path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v6M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8M6 14a4 4 0 0 0 8 0v-4a2 2 0 0 1 4 0v4a8 8 0 0 1-16 0"/></svg>
                 <span class="pad-label">RIGHT</span>
               </div>
             </div>
@@ -950,10 +1005,222 @@
         </div>
       </div>
     </div>
+
+    <!-- Cube Selector & Type Switcher Modal (Mở khi bấm vào chữ Rubik's Studio 3D) -->
+    <div id="cube-selector-modal" class="scanner-modal hidden" role="dialog" aria-modal="true" aria-labelledby="cube-modal-title">
+      <div class="scanner-backdrop" id="cube-selector-backdrop"></div>
+      <div class="cube-selector-dialog glassmorphism">
+        <!-- Modal Header -->
+        <div class="cube-selector-header">
+          <div class="cs-header-title">
+            <div class="cs-icon-halo">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21 16-9 5-9-5V8l9-5 9 5v8Z"/><path d="m3.27 6.96 8.73 4.99 8.73-4.99"/><path d="M12 22.08V12"/></svg>
+            </div>
+            <div>
+              <h3 id="cube-modal-title">Chọn Khối Rubik &amp; Speedcube</h3>
+              <p class="cs-subtitle">Tùy biến thể loại (2x2, 3x3, 4x4, Mirror) hoặc chọn 6 siêu phẩm flagship thế giới</p>
+            </div>
+          </div>
+          <button id="btn-close-cube-selector" class="btn-close-modal" aria-label="Đóng">&times;</button>
+        </div>
+
+        <div class="cube-selector-content">
+          <!-- Section 1: Kích thước & Biến thể Rubik -->
+          <div class="cs-section">
+            <div class="cs-section-header">
+              <span class="cs-sec-title">KÍCH THƯỚC &amp; BIẾN THỂ (CUBE FORMATS)</span>
+              <span class="cs-sec-tag">Đa Dạng</span>
+            </div>
+            <div class="cs-types-grid">
+              <!-- 3x3 Standard -->
+              <button class="cs-type-card active" data-type="3x3">
+                <div class="cs-card-top">
+                  <span class="cs-type-icon">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M15 3v18M3 9h18M3 15h18"/></svg>
+                  </span>
+                  <span class="cs-card-badge badge-primary">WCA Chuẩn</span>
+                </div>
+                <div class="cs-type-name">3x3x3 Tiêu Chuẩn</div>
+                <div class="cs-type-desc">Khối thi đấu kinh điển WCA. Hỗ trợ giải tự động Kociemba và gợi ý từng bước CFOP.</div>
+              </button>
+
+              <!-- 2x2 Pocket Cube -->
+              <button class="cs-type-card" data-type="2x2">
+                <div class="cs-card-top">
+                  <span class="cs-type-icon">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M12 4v16M4 12h16"/></svg>
+                  </span>
+                  <span class="cs-card-badge badge-speed">Tốc Độ Mini</span>
+                </div>
+                <div class="cs-type-name">2x2x2 Pocket Cube</div>
+                <div class="cs-type-desc">Gồm 8 viên góc nhỏ gọn, xoay siêu tốc, hoàn hảo cho luyện phản xạ ngón tay và người mới.</div>
+              </button>
+
+              <!-- Mirror Blocks 3x3 -->
+              <button class="cs-type-card" data-type="mirror">
+                <div class="cs-card-top">
+                  <span class="cs-type-icon">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m21 16-9 5-9-5V8l9-5 9 5v8Z"/><circle cx="12" cy="12" r="3.5"/></svg>
+                  </span>
+                  <span class="cs-card-badge badge-mirror">Gương Bạc Chrome</span>
+                </div>
+                <div class="cs-type-name">Mirror Blocks 3x3</div>
+                <div class="cs-type-desc">Các khối lệch kích thước độc đáo, biến dạng không gian 3D khi xáo, mạ bạc gương phản chiếu.</div>
+              </button>
+
+              <!-- 4x4 Rubik's Revenge -->
+              <button class="cs-type-card" data-type="4x4">
+                <div class="cs-card-top">
+                  <span class="cs-type-icon">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7.5 3v18M12 3v18M16.5 3v18M3 7.5h18M3 12h18M3 16.5h18"/></svg>
+                  </span>
+                  <span class="cs-card-badge badge-challenge">Nâng Cao 4 Tầng</span>
+                </div>
+                <div class="cs-type-name">4x4x4 Rubik's Revenge</div>
+                <div class="cs-type-desc">Khối 4 tầng với 56 viên cubie, thử thách giải tâm di động và ghép cặp cạnh nâng cao cho try-hard.</div>
+              </button>
+            </div>
+          </div>
+
+          <!-- Section 2: Bộ Sưu Tập 6 Siêu Phẩm Speedcube Thế Giới -->
+          <div class="cs-section">
+            <div class="cs-section-header">
+              <span class="cs-sec-title">BỘ SƯU TẬP 6 SIÊU PHẨM SPEEDCUBE (FLAGSHIPS)</span>
+              <span class="cs-sec-tag">Pro Brands</span>
+            </div>
+            <div class="cs-speedcubes-grid">
+              <!-- GAN 14 -->
+              <button class="cs-speedcube-card active" data-cube="gan14">
+                <div class="cs-sc-header">
+                  <span class="cs-brand-lbl">GAN CUBE</span>
+                  <span class="cs-flag-pill" style="color: #a5b4fc; background: rgba(99, 102, 241, 0.2);">Flagship 2024</span>
+                </div>
+                <div class="cs-sc-name">GAN 14 MagLev Pro UV</div>
+                <div class="theme-preview">
+                  <span style="background: #ffffff;"></span>
+                  <span style="background: #ffd500;"></span>
+                  <span style="background: #009b48;"></span>
+                  <span style="background: #b71234;"></span>
+                </div>
+                <div class="cs-sc-info">Lõi Primary trắng sữa, bề mặt UV chống xước, nam châm MagLev bay bổng.</div>
+              </button>
+
+              <!-- MoYu WRM V9 -->
+              <button class="cs-speedcube-card" data-cube="moyu_v9">
+                <div class="cs-sc-header">
+                  <span class="cs-brand-lbl">MoYu Culture</span>
+                  <span class="cs-flag-pill" style="color: #fca5a5; background: rgba(239, 68, 68, 0.2);">WR 3.13s (Max Park)</span>
+                </div>
+                <div class="cs-sc-name">MoYu WeiLong V9 Ball-Core</div>
+                <div class="theme-preview">
+                  <span style="background: #ffffff;"></span>
+                  <span style="background: #ffe600;"></span>
+                  <span style="background: #00b84c;"></span>
+                  <span style="background: #d81232;"></span>
+                </div>
+                <div class="cs-sc-info">Lõi Cyan Ball-Core xanh ngọc, bóng gương phản quang Nano-UV cực nhạy.</div>
+              </button>
+
+              <!-- Carbon 3D -->
+              <button class="cs-speedcube-card" data-cube="carbon_3d">
+                <div class="cs-sc-header">
+                  <span class="cs-brand-lbl">HyperMod</span>
+                  <span class="cs-flag-pill" style="color: #6ee7b7; background: rgba(16, 185, 129, 0.2);">Carbon Tech</span>
+                </div>
+                <div class="cs-sc-name">Carbon Fiber 3D Stealth</div>
+                <div class="theme-preview">
+                  <span style="background: #f1f5f9;"></span>
+                  <span style="background: #eab308;"></span>
+                  <span style="background: #10b981;"></span>
+                  <span style="background: #ef4444;"></span>
+                </div>
+                <div class="cs-sc-info">Lõi đen nhám bọc sticker sợi Carbon dệt 3D chìm nổi thể thao hầm hố.</div>
+              </button>
+
+              <!-- QiYi Macaron -->
+              <button class="cs-speedcube-card" data-cube="qiyi_macaron">
+                <div class="cs-sc-header">
+                  <span class="cs-brand-lbl">QiYi MoFangGe</span>
+                  <span class="cs-flag-pill" style="color: #fbcfe8; background: rgba(244, 114, 182, 0.2);">Lo-Fi Chill</span>
+                </div>
+                <div class="cs-sc-name">QiYi Warrior Macaron Pastel</div>
+                <div class="theme-preview">
+                  <span style="background: #fdfbf7;"></span>
+                  <span style="background: #fef08a;"></span>
+                  <span style="background: #86efac;"></span>
+                  <span style="background: #fca5a5;"></span>
+                </div>
+                <div class="cs-sc-info">Màu phấn pastel dịu mắt, bề mặt nhám lì Lo-Fi chống bám mồ hôi tay.</div>
+              </button>
+
+              <!-- Crystal Jelly -->
+              <button class="cs-speedcube-card" data-cube="crystal_phantom">
+                <div class="cs-sc-header">
+                  <span class="cs-brand-lbl">X-Cube Lab</span>
+                  <span class="cs-flag-pill" style="color: #a5f3fc; background: rgba(6, 182, 212, 0.2);">Limited Ice</span>
+                </div>
+                <div class="cs-sc-name">Crystal Jelly Phantom Limited</div>
+                <div class="theme-preview">
+                  <span style="background: #e0f2fe;"></span>
+                  <span style="background: #facc15;"></span>
+                  <span style="background: #22c55e;"></span>
+                  <span style="background: #f43f5e;"></span>
+                </div>
+                <div class="cs-sc-info">Pha lê tuyết trong suốt băng giá, tán xạ ánh sáng neon 3D lung linh.</div>
+              </button>
+
+              <!-- Vintage 1980 -->
+              <button class="cs-speedcube-card" data-cube="vintage_1980">
+                <div class="cs-sc-header">
+                  <span class="cs-brand-lbl">Ideal Toy (1980)</span>
+                  <span class="cs-flag-pill" style="color: #fde68a; background: rgba(217, 119, 6, 0.2);">Huyền Thoại 1980</span>
+                </div>
+                <div class="cs-sc-name">Vintage 1980s Erno Rubik Original</div>
+                <div class="theme-preview">
+                  <span style="background: #fef3c7;"></span>
+                  <span style="background: #d97706;"></span>
+                  <span style="background: #059669;"></span>
+                  <span style="background: #dc2626;"></span>
+                </div>
+                <div class="cs-sc-info">Khối Rubik 1980 nguyên bản của Ernő Rubik với viền đen dày và decal bóng.</div>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Bottom Navigation Bar (Hiển thị mượt mà trên mobile & tablet) -->
+    <nav class="mobile-bottom-nav" aria-label="Điều hướng di động">
+      <button class="mob-nav-btn active" data-tab="controls-tab" title="Bảng Điều Khiển">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"></rect><circle cx="6" cy="12" r="2"></circle><path d="M14 9l3 3-3 3"></path></svg>
+        <span data-i18n="tabControls">Điều Khiển</span>
+      </button>
+
+      <button class="mob-nav-btn" id="btn-mob-coach" title="Trợ Lý AI Rubik">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/></svg>
+        <span data-i18n="navCoach">Trợ Lý AI</span>
+      </button>
+
+      <button class="mob-nav-btn" data-tab="timer-tab" title="Bấm Giờ Thi Đấu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5"/><path d="M10 2h4"/></svg>
+        <span data-i18n="navTimer">Bấm Giờ</span>
+      </button>
+
+      <button class="mob-nav-btn" data-tab="cheatsheet-tab" title="Công Thức CFOP">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        <span data-i18n="navFormulas">Công Thức</span>
+      </button>
+
+      <button class="mob-nav-btn" id="btn-mob-scanner" title="Quét Khối Thật 3D">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        <span data-i18n="navScanner">Quét 3D</span>
+      </button>
+    </nav>
   </div>
 
   <!-- Application Logic (with cache-buster) -->
-  <script src="solver.js?v=3"></script>
-  <script src="main.js?v=3"></script>
+  <script src="solver.js?v=4"></script>
+  <script src="main.js?v=4"></script>
 </body>
 </html>

@@ -43,6 +43,132 @@
     defaultPlaybackSpeed: 300 // ms
   };
 
+  // --- Multi-Language Localization Catalog (Bilingual Engine) ---
+  const I18N = {
+    vi: {
+      title: "Rubik's Studio 3D - Khối Rubik 3D & Bộ Giải Kociemba Hai Giai Đoạn",
+      brandTitleTooltip: "Bấm vào đây để chọn loại Rubik khác (2x2, 3x3, 4x4, Mirror Blocks, GAN, MoYu...)",
+      brandSubtext: "Kociemba Two-Phase & Trợ lý AI",
+      statusSolved: "ĐÃ GIẢI",
+      statusBusy: "ĐANG XỬ LÝ...",
+      statusScrambled: "ĐÃ XÁO",
+      statusError: "LỖI",
+      scrambleLabel: "Chuỗi xáo:",
+      coachTitle: "Trợ Lý AI Rubik - Soi khối & Gợi ý nước đi",
+      navCoach: "Trợ Lý AI",
+      masterclassTitle: "Kinh nghiệm từ các kỷ lục gia thế giới",
+      navMasterclass: "Tuyển Thủ",
+      timerTitle: "Bấm giờ thi đấu Speedcubing WCA",
+      navTimer: "Bấm Giờ",
+      formulaTitle: "Bảng công thức giải CFOP & Cơ bản",
+      navFormulas: "Công Thức",
+      scannerTitle: "Quét khối Rubik thật bằng camera",
+      navScanner: "Quét 3D",
+      focusTitle: "Chế độ tập trung Zen Focus (Phím F)",
+      navFocus: "Tập Trung",
+      turnsTitle: "Tổng số lượt xoay mặt",
+      statTurns: "Nước",
+      profileTitle: "Hồ sơ Speedcuber & Tùy biến",
+      solutionTitle: "Các Bước Giải Tối Ưu",
+      noSolutionText: "Chưa có lời giải",
+      emptyTimelineText: "Bấm \"Giải Bằng AI\" để tính toán các bước giải tối ưu nhất.",
+      tabControls: "Điều Khiển",
+      tabTimer: "Bấm Giờ",
+      tabFormulas: "Công Thức",
+      tabMasterclass: "Tuyển Thủ",
+      tabSolution: "Lời Giải",
+      tabCustom: "Tùy Biến",
+      btnScramble: "Xáo Khối",
+      btnSolve: "Giải Bằng AI",
+      btnReset: "Đặt Lại",
+      btnScan: "Quét Khối Thật",
+      playbackTitle: "Xem Từng Bước Giải",
+      btnPrev: "Lùi",
+      btnPlay: "Phát",
+      btnPause: "Tạm Dừng",
+      btnNext: "Tiến",
+      manualTurnsTitle: "Xoay Thủ Công",
+      manualTurnsHint: "Hoặc bấm U, D, L, R, F, B",
+      timerScrambleTitle: "Chuỗi Xáo WCA",
+      btnNewScramble: "Đổi Mới",
+      btnApply3D: "Nạp Vào 3D",
+      timerIdleHint: "Chạm hoặc Giữ Phím Cách (Space) để sẵn sàng",
+      type3x3: "3x3x3 Tiêu Chuẩn",
+      type2x2: "2x2x2 Pocket Cube",
+      typeMirror: "Mirror Blocks 3x3",
+      type4x4: "4x4x4 Rubik's Revenge",
+      type3x3Badge: "WCA Chuẩn",
+      type2x2Badge: "Tốc Độ Mini",
+      typeMirrorBadge: "Gương Bạc Chrome",
+      type4x4Badge: "Nâng Cao 4 Tầng",
+      type3x3Desc: "Khối thi đấu kinh điển WCA. Hỗ trợ giải tự động Kociemba và gợi ý từng bước CFOP.",
+      type2x2Desc: "Gồm 8 viên góc nhỏ gọn, xoay siêu tốc, hoàn hảo cho luyện phản xạ ngón tay và người mới.",
+      typeMirrorDesc: "Các khối lệch kích thước độc đáo, biến dạng không gian 3D khi xáo, mạ bạc gương phản chiếu.",
+      type4x4Desc: "Khối 4 tầng với 56 viên cubie, thử thách giải tâm di động và ghép cặp cạnh nâng cao cho try-hard."
+    },
+    en: {
+      title: "Rubik's Studio 3D - Interactive 3D Cube & Two-Phase Kociemba Solver",
+      brandTitleTooltip: "Click here to choose another Cube (2x2, 3x3, 4x4, Mirror Blocks, GAN, MoYu...)",
+      brandSubtext: "Kociemba Two-Phase & AI Coach",
+      statusSolved: "SOLVED",
+      statusBusy: "SOLVING...",
+      statusScrambled: "SCRAMBLED",
+      statusError: "ERROR",
+      scrambleLabel: "Scramble:",
+      coachTitle: "Rubik AI Coach - Diagnostics & Move Hints",
+      navCoach: "AI Coach",
+      masterclassTitle: "World Champions Masterclass & Tips",
+      navMasterclass: "Masterclass",
+      timerTitle: "Speedcubing WCA Competition Timer",
+      navTimer: "Timer",
+      formulaTitle: "Algorithms Cheat Sheet (CFOP & Beginner)",
+      navFormulas: "Algorithms",
+      scannerTitle: "Scan real physical cube with camera",
+      navScanner: "3D Scan",
+      focusTitle: "Zen Focus Mode (Key F)",
+      navFocus: "Focus",
+      turnsTitle: "Total face turns made",
+      statTurns: "Moves",
+      profileTitle: "Speedcuber Profile & Customization",
+      solutionTitle: "Optimal Solution Steps",
+      noSolutionText: "No active solution",
+      emptyTimelineText: "Click \"AI Solve\" to calculate the optimal solution steps.",
+      tabControls: "Controls",
+      tabTimer: "Timer",
+      tabFormulas: "Algorithms",
+      tabMasterclass: "Masterclass",
+      tabSolution: "Solution",
+      tabCustom: "Customize",
+      btnScramble: "Scramble",
+      btnSolve: "AI Solve",
+      btnReset: "Reset",
+      btnScan: "Scan Real Cube",
+      playbackTitle: "Step-by-Step Playback",
+      btnPrev: "Prev",
+      btnPlay: "Play",
+      btnPause: "Pause",
+      btnNext: "Next",
+      manualTurnsTitle: "Manual Turns",
+      manualTurnsHint: "Or press U, D, L, R, F, B",
+      timerScrambleTitle: "WCA Scramble",
+      btnNewScramble: "New",
+      btnApply3D: "Send to 3D",
+      timerIdleHint: "Touch or Hold Spacebar to prepare",
+      type3x3: "3x3x3 Standard",
+      type2x2: "2x2x2 Pocket Cube",
+      typeMirror: "Mirror Blocks 3x3",
+      type4x4: "4x4x4 Rubik's Revenge",
+      type3x3Badge: "WCA Standard",
+      type2x2Badge: "Speed Mini",
+      typeMirrorBadge: "Silver Chrome",
+      type4x4Badge: "4-Layer Revenge",
+      type3x3Desc: "Classic WCA competition cube. Full support for Kociemba Two-Phase AI Solver and CFOP coaching.",
+      type2x2Desc: "8 corner cubies, ultra-fast turning, perfect for finger dexterity and beginners.",
+      typeMirrorDesc: "Unique asymmetric blocks that transform into crazy 3D shapes when scrambled, brushed chrome finish.",
+      type4x4Desc: "4-layer cube with 56 cubies, mobile center pieces and edge pairing challenge for try-hards."
+    }
+  };
+
   // --- Personalization Schemes & Themes ---
   const THEMES = {
     classic: {
@@ -443,6 +569,18 @@
       this.envGroup = null;
       this.starField = null;
 
+      // Cube Format ('3x3' | '2x2' | 'mirror' | '4x4')
+      this.cubeType = '3x3';
+
+      // Multi-language state ('vi' | 'en')
+      this.currentLang = 'vi';
+      try {
+        const savedLang = localStorage.getItem('rubik_language');
+        if (savedLang && ['vi', 'en'].includes(savedLang)) {
+          this.currentLang = savedLang;
+        }
+      } catch (e) {}
+
       // Personalization Preferences (loaded from localStorage)
       this.currentIconicCube = 'gan14';
       this.centerLogo = 'GAN';
@@ -515,9 +653,10 @@
         this.createCube();
         this.setupInteractions();
         this.setupHUD();
+        this.setLanguage(this.currentLang);
         this.setupKeyboardShortcuts();
         this.animate();
-        this.updateStatus('Solved', 'ready');
+        this.updateStatus(I18N[this.currentLang].statusSolved, 'ready');
 
         // Initialize Camera / Photo Real-Cube Scanner
         this.scanner = new RealCubeScanner(this);
@@ -749,6 +888,9 @@
       document.querySelectorAll('.speedcube-card-btn').forEach(b => {
         b.classList.toggle('active', b.dataset.cube === cube.id);
       });
+      document.querySelectorAll('.cs-speedcube-card').forEach(b => {
+        b.classList.toggle('active', b.dataset.cube === cube.id);
+      });
       document.querySelectorAll('.finish-chip-btn').forEach(b => {
         b.classList.toggle('active', b.dataset.finish === cube.finish);
       });
@@ -769,7 +911,7 @@
         cubie.material = this.coreMaterial;
         if (cubie.userData && cubie.userData.stickers) {
           for (const s of cubie.userData.stickers) {
-            s.mesh.material = this.stickerMaterials[s.faceKey];
+            s.mesh.material = this.stickerMaterials[s.faceKey || s.face];
           }
         }
       }
@@ -918,6 +1060,18 @@
       }
       this.cubies = [];
 
+      if (this.cubeType === '2x2') {
+        this.create2x2Cube();
+      } else if (this.cubeType === 'mirror') {
+        this.createMirrorCube();
+      } else if (this.cubeType === '4x4') {
+        this.create4x4Cube();
+      } else {
+        this.create3x3Cube();
+      }
+    }
+
+    create3x3Cube() {
       const size = CONFIG.cubieSize;
       const boxGeo = new THREE.BoxGeometry(size, size, size);
       const stickerSize = size * 0.88;
@@ -947,7 +1101,7 @@
               sm.rotation.x = -Math.PI / 2;
               sm.userData = { face: 'U', isSticker: true };
               cubie.add(sm);
-              stickers.push({ face: 'U', localNormal: new THREE.Vector3(0, 1, 0), mesh: sm });
+              stickers.push({ face: 'U', faceKey: 'U', localNormal: new THREE.Vector3(0, 1, 0), mesh: sm });
             }
             // -Y -> D (Yellow)
             if (y === -1) {
@@ -956,7 +1110,7 @@
               sm.rotation.x = Math.PI / 2;
               sm.userData = { face: 'D', isSticker: true };
               cubie.add(sm);
-              stickers.push({ face: 'D', localNormal: new THREE.Vector3(0, -1, 0), mesh: sm });
+              stickers.push({ face: 'D', faceKey: 'D', localNormal: new THREE.Vector3(0, -1, 0), mesh: sm });
             }
             // +X -> R (Red)
             if (x === 1) {
@@ -965,7 +1119,7 @@
               sm.rotation.y = Math.PI / 2;
               sm.userData = { face: 'R', isSticker: true };
               cubie.add(sm);
-              stickers.push({ face: 'R', localNormal: new THREE.Vector3(1, 0, 0), mesh: sm });
+              stickers.push({ face: 'R', faceKey: 'R', localNormal: new THREE.Vector3(1, 0, 0), mesh: sm });
             }
             // -X -> L (Orange)
             if (x === -1) {
@@ -974,7 +1128,7 @@
               sm.rotation.y = -Math.PI / 2;
               sm.userData = { face: 'L', isSticker: true };
               cubie.add(sm);
-              stickers.push({ face: 'L', localNormal: new THREE.Vector3(-1, 0, 0), mesh: sm });
+              stickers.push({ face: 'L', faceKey: 'L', localNormal: new THREE.Vector3(-1, 0, 0), mesh: sm });
             }
             // +Z -> F (Green)
             if (z === 1) {
@@ -982,7 +1136,7 @@
               sm.position.set(0, 0, offset);
               sm.userData = { face: 'F', isSticker: true };
               cubie.add(sm);
-              stickers.push({ face: 'F', localNormal: new THREE.Vector3(0, 0, 1), mesh: sm });
+              stickers.push({ face: 'F', faceKey: 'F', localNormal: new THREE.Vector3(0, 0, 1), mesh: sm });
             }
             // -Z -> B (Blue)
             if (z === -1) {
@@ -991,7 +1145,278 @@
               sm.rotation.y = Math.PI;
               sm.userData = { face: 'B', isSticker: true };
               cubie.add(sm);
-              stickers.push({ face: 'B', localNormal: new THREE.Vector3(0, 0, -1), mesh: sm });
+              stickers.push({ face: 'B', faceKey: 'B', localNormal: new THREE.Vector3(0, 0, -1), mesh: sm });
+            }
+
+            cubie.userData = {
+              initialPos: new THREE.Vector3(x, y, z),
+              stickers,
+              isCubie: true
+            };
+
+            this.scene.add(cubie);
+            this.cubies.push(cubie);
+          }
+        }
+      }
+    }
+
+    create2x2Cube() {
+      const size = 0.96;
+      const boxGeo = new THREE.BoxGeometry(size, size, size);
+      const stickerSize = size * 0.88;
+      const stickerGeo = new THREE.PlaneGeometry(stickerSize, stickerSize);
+      const offset = size / 2 + 0.003;
+      const coords = [-0.5, 0.5];
+
+      for (const x of coords) {
+        for (const y of coords) {
+          for (const z of coords) {
+            const cubie = new THREE.Group();
+            cubie.position.set(x, y, z);
+            cubie.castShadow = true;
+
+            const coreMesh = new THREE.Mesh(boxGeo, this.coreMaterial);
+            coreMesh.castShadow = true;
+            coreMesh.receiveShadow = true;
+            cubie.add(coreMesh);
+
+            const stickers = [];
+
+            if (y > 0) {
+              const sm = new THREE.Mesh(stickerGeo, this.stickerMaterials.U);
+              sm.position.set(0, offset, 0);
+              sm.rotation.x = -Math.PI / 2;
+              sm.userData = { face: 'U', isSticker: true };
+              cubie.add(sm);
+              stickers.push({ face: 'U', faceKey: 'U', localNormal: new THREE.Vector3(0, 1, 0), mesh: sm });
+            } else {
+              const sm = new THREE.Mesh(stickerGeo, this.stickerMaterials.D);
+              sm.position.set(0, -offset, 0);
+              sm.rotation.x = Math.PI / 2;
+              sm.userData = { face: 'D', isSticker: true };
+              cubie.add(sm);
+              stickers.push({ face: 'D', faceKey: 'D', localNormal: new THREE.Vector3(0, -1, 0), mesh: sm });
+            }
+
+            if (x > 0) {
+              const sm = new THREE.Mesh(stickerGeo, this.stickerMaterials.R);
+              sm.position.set(offset, 0, 0);
+              sm.rotation.y = Math.PI / 2;
+              sm.userData = { face: 'R', isSticker: true };
+              cubie.add(sm);
+              stickers.push({ face: 'R', faceKey: 'R', localNormal: new THREE.Vector3(1, 0, 0), mesh: sm });
+            } else {
+              const sm = new THREE.Mesh(stickerGeo, this.stickerMaterials.L);
+              sm.position.set(-offset, 0, 0);
+              sm.rotation.y = -Math.PI / 2;
+              sm.userData = { face: 'L', isSticker: true };
+              cubie.add(sm);
+              stickers.push({ face: 'L', faceKey: 'L', localNormal: new THREE.Vector3(-1, 0, 0), mesh: sm });
+            }
+
+            if (z > 0) {
+              const sm = new THREE.Mesh(stickerGeo, this.stickerMaterials.F);
+              sm.position.set(0, 0, offset);
+              sm.userData = { face: 'F', isSticker: true };
+              cubie.add(sm);
+              stickers.push({ face: 'F', faceKey: 'F', localNormal: new THREE.Vector3(0, 0, 1), mesh: sm });
+            } else {
+              const sm = new THREE.Mesh(stickerGeo, this.stickerMaterials.B);
+              sm.position.set(0, 0, -offset);
+              sm.rotation.y = Math.PI;
+              sm.userData = { face: 'B', isSticker: true };
+              cubie.add(sm);
+              stickers.push({ face: 'B', faceKey: 'B', localNormal: new THREE.Vector3(0, 0, -1), mesh: sm });
+            }
+
+            cubie.userData = {
+              initialPos: new THREE.Vector3(x, y, z),
+              stickers,
+              isCubie: true
+            };
+
+            this.scene.add(cubie);
+            this.cubies.push(cubie);
+          }
+        }
+      }
+    }
+
+    createMirrorCube() {
+      const mirrorMat = new THREE.MeshStandardMaterial({
+        color: 0xdde5ed,
+        metalness: 0.94,
+        roughness: 0.15
+      });
+
+      const wArr = [0.65, 0.96, 1.28];
+      const hArr = [0.56, 0.96, 1.38];
+      const dArr = [0.72, 0.96, 1.22];
+      const c = [-1.15, 0, 1.15];
+
+      for (let ix = -1; ix <= 1; ix++) {
+        for (let iy = -1; iy <= 1; iy++) {
+          for (let iz = -1; iz <= 1; iz++) {
+            if (ix === 0 && iy === 0 && iz === 0) continue;
+
+            const w = wArr[ix + 1] * 0.96;
+            const h = hArr[iy + 1] * 0.96;
+            const d = dArr[iz + 1] * 0.96;
+
+            const cubie = new THREE.Group();
+            cubie.position.set(c[ix + 1], c[iy + 1], c[iz + 1]);
+            cubie.castShadow = true;
+
+            const boxGeo = new THREE.BoxGeometry(w, h, d);
+            const coreMesh = new THREE.Mesh(boxGeo, mirrorMat);
+            coreMesh.castShadow = true;
+            coreMesh.receiveShadow = true;
+            cubie.add(coreMesh);
+
+            const stickers = [];
+
+            if (iy === 1) {
+              const sGeo = new THREE.PlaneGeometry(w * 0.90, d * 0.90);
+              const sm = new THREE.Mesh(sGeo, mirrorMat);
+              sm.position.set(0, h / 2 + 0.003, 0);
+              sm.rotation.x = -Math.PI / 2;
+              sm.userData = { face: 'U', isSticker: true };
+              cubie.add(sm);
+              stickers.push({ face: 'U', faceKey: 'U', localNormal: new THREE.Vector3(0, 1, 0), mesh: sm });
+            }
+            if (iy === -1) {
+              const sGeo = new THREE.PlaneGeometry(w * 0.90, d * 0.90);
+              const sm = new THREE.Mesh(sGeo, mirrorMat);
+              sm.position.set(0, -h / 2 - 0.003, 0);
+              sm.rotation.x = Math.PI / 2;
+              sm.userData = { face: 'D', isSticker: true };
+              cubie.add(sm);
+              stickers.push({ face: 'D', faceKey: 'D', localNormal: new THREE.Vector3(0, -1, 0), mesh: sm });
+            }
+            if (ix === 1) {
+              const sGeo = new THREE.PlaneGeometry(d * 0.90, h * 0.90);
+              const sm = new THREE.Mesh(sGeo, mirrorMat);
+              sm.position.set(w / 2 + 0.003, 0, 0);
+              sm.rotation.y = Math.PI / 2;
+              sm.userData = { face: 'R', isSticker: true };
+              cubie.add(sm);
+              stickers.push({ face: 'R', faceKey: 'R', localNormal: new THREE.Vector3(1, 0, 0), mesh: sm });
+            }
+            if (ix === -1) {
+              const sGeo = new THREE.PlaneGeometry(d * 0.90, h * 0.90);
+              const sm = new THREE.Mesh(sGeo, mirrorMat);
+              sm.position.set(-w / 2 - 0.003, 0, 0);
+              sm.rotation.y = -Math.PI / 2;
+              sm.userData = { face: 'L', isSticker: true };
+              cubie.add(sm);
+              stickers.push({ face: 'L', faceKey: 'L', localNormal: new THREE.Vector3(-1, 0, 0), mesh: sm });
+            }
+            if (iz === 1) {
+              const sGeo = new THREE.PlaneGeometry(w * 0.90, h * 0.90);
+              const sm = new THREE.Mesh(sGeo, mirrorMat);
+              sm.position.set(0, 0, d / 2 + 0.003);
+              sm.userData = { face: 'F', isSticker: true };
+              cubie.add(sm);
+              stickers.push({ face: 'F', faceKey: 'F', localNormal: new THREE.Vector3(0, 0, 1), mesh: sm });
+            }
+            if (iz === -1) {
+              const sGeo = new THREE.PlaneGeometry(w * 0.90, h * 0.90);
+              const sm = new THREE.Mesh(sGeo, mirrorMat);
+              sm.position.set(0, 0, -d / 2 - 0.003);
+              sm.rotation.y = Math.PI;
+              sm.userData = { face: 'B', isSticker: true };
+              cubie.add(sm);
+              stickers.push({ face: 'B', faceKey: 'B', localNormal: new THREE.Vector3(0, 0, -1), mesh: sm });
+            }
+
+            cubie.userData = {
+              initialPos: new THREE.Vector3(c[ix + 1], c[iy + 1], c[iz + 1]),
+              stickers,
+              isCubie: true
+            };
+
+            this.scene.add(cubie);
+            this.cubies.push(cubie);
+          }
+        }
+      }
+    }
+
+    create4x4Cube() {
+      const step = 0.72;
+      const coords = [-1.5 * step, -0.5 * step, 0.5 * step, 1.5 * step];
+      const size = 0.68;
+      const boxGeo = new THREE.BoxGeometry(size, size, size);
+      const stickerSize = size * 0.88;
+      const stickerGeo = new THREE.PlaneGeometry(stickerSize, stickerSize);
+      const offset = size / 2 + 0.003;
+      const outerThresh = step;
+
+      for (const x of coords) {
+        for (const y of coords) {
+          for (const z of coords) {
+            if (Math.abs(x) < outerThresh && Math.abs(y) < outerThresh && Math.abs(z) < outerThresh) {
+              continue;
+            }
+
+            const cubie = new THREE.Group();
+            cubie.position.set(x, y, z);
+            cubie.castShadow = true;
+
+            const coreMesh = new THREE.Mesh(boxGeo, this.coreMaterial);
+            coreMesh.castShadow = true;
+            coreMesh.receiveShadow = true;
+            cubie.add(coreMesh);
+
+            const stickers = [];
+
+            if (y > outerThresh) {
+              const sm = new THREE.Mesh(stickerGeo, this.stickerMaterials.U);
+              sm.position.set(0, offset, 0);
+              sm.rotation.x = -Math.PI / 2;
+              sm.userData = { face: 'U', isSticker: true };
+              cubie.add(sm);
+              stickers.push({ face: 'U', faceKey: 'U', localNormal: new THREE.Vector3(0, 1, 0), mesh: sm });
+            }
+            if (y < -outerThresh) {
+              const sm = new THREE.Mesh(stickerGeo, this.stickerMaterials.D);
+              sm.position.set(0, -offset, 0);
+              sm.rotation.x = Math.PI / 2;
+              sm.userData = { face: 'D', isSticker: true };
+              cubie.add(sm);
+              stickers.push({ face: 'D', faceKey: 'D', localNormal: new THREE.Vector3(0, -1, 0), mesh: sm });
+            }
+            if (x > outerThresh) {
+              const sm = new THREE.Mesh(stickerGeo, this.stickerMaterials.R);
+              sm.position.set(offset, 0, 0);
+              sm.rotation.y = Math.PI / 2;
+              sm.userData = { face: 'R', isSticker: true };
+              cubie.add(sm);
+              stickers.push({ face: 'R', faceKey: 'R', localNormal: new THREE.Vector3(1, 0, 0), mesh: sm });
+            }
+            if (x < -outerThresh) {
+              const sm = new THREE.Mesh(stickerGeo, this.stickerMaterials.L);
+              sm.position.set(-offset, 0, 0);
+              sm.rotation.y = -Math.PI / 2;
+              sm.userData = { face: 'L', isSticker: true };
+              cubie.add(sm);
+              stickers.push({ face: 'L', faceKey: 'L', localNormal: new THREE.Vector3(-1, 0, 0), mesh: sm });
+            }
+            if (z > outerThresh) {
+              const sm = new THREE.Mesh(stickerGeo, this.stickerMaterials.F);
+              sm.position.set(0, 0, offset);
+              sm.userData = { face: 'F', isSticker: true };
+              cubie.add(sm);
+              stickers.push({ face: 'F', faceKey: 'F', localNormal: new THREE.Vector3(0, 0, 1), mesh: sm });
+            }
+            if (z < -outerThresh) {
+              const sm = new THREE.Mesh(stickerGeo, this.stickerMaterials.B);
+              sm.position.set(0, 0, -offset);
+              sm.rotation.y = Math.PI;
+              sm.userData = { face: 'B', isSticker: true };
+              cubie.add(sm);
+              stickers.push({ face: 'B', faceKey: 'B', localNormal: new THREE.Vector3(0, 0, -1), mesh: sm });
             }
 
             cubie.userData = {
@@ -1090,9 +1515,30 @@
     }
 
     snapCubieTransform(cubie) {
-      cubie.position.x = Math.round(cubie.position.x);
-      cubie.position.y = Math.round(cubie.position.y);
-      cubie.position.z = Math.round(cubie.position.z);
+      if (this.cubeType === '2x2') {
+        cubie.position.x = cubie.position.x > 0 ? 0.5 : -0.5;
+        cubie.position.y = cubie.position.y > 0 ? 0.5 : -0.5;
+        cubie.position.z = cubie.position.z > 0 ? 0.5 : -0.5;
+      } else if (this.cubeType === 'mirror') {
+        const snapM = (v) => (v > 0.4 ? 1.15 : (v < -0.4 ? -1.15 : 0));
+        cubie.position.x = snapM(cubie.position.x);
+        cubie.position.y = snapM(cubie.position.y);
+        cubie.position.z = snapM(cubie.position.z);
+      } else if (this.cubeType === '4x4') {
+        const snap4 = (v) => {
+          if (v > 0.72) return 1.08;
+          if (v > 0) return 0.36;
+          if (v > -0.72) return -0.36;
+          return -1.08;
+        };
+        cubie.position.x = snap4(cubie.position.x);
+        cubie.position.y = snap4(cubie.position.y);
+        cubie.position.z = snap4(cubie.position.z);
+      } else {
+        cubie.position.x = Math.round(cubie.position.x);
+        cubie.position.y = Math.round(cubie.position.y);
+        cubie.position.z = Math.round(cubie.position.z);
+      }
 
       cubie.updateMatrix();
       const m = cubie.matrix.elements;
@@ -1207,14 +1653,24 @@
       this.pivot.position.set(0, 0, 0);
       this.pivot.updateMatrixWorld(true);
 
+      const threshold = this.cubeType === '4x4' ? 0.72 : 0.2;
+      const isPositive = (v) => v > threshold;
+      const isNegative = (v) => v < -threshold;
+      const isMiddle = (v) => Math.abs(v) <= threshold;
+
       const layerCubies = [];
       for (const cubie of this.cubies) {
         if (isWholeCube) {
           layerCubies.push(cubie);
           this.pivot.attach(cubie);
         } else {
-          const posVal = Math.round(cubie.position[coordKey]);
-          if (posVal === coordVal) {
+          const posVal = cubie.position[coordKey];
+          let matches = false;
+          if (coordVal === 1) matches = isPositive(posVal);
+          else if (coordVal === -1) matches = isNegative(posVal);
+          else if (coordVal === 0) matches = isMiddle(posVal);
+
+          if (matches) {
             layerCubies.push(cubie);
             this.pivot.attach(cubie);
           }
@@ -1469,15 +1925,13 @@
       const ay = Math.abs(rotAxis.y);
       const az = Math.abs(rotAxis.z);
       const pos = cubie.position;
-      const layerX = Math.round(pos.x);
-      const layerY = Math.round(pos.y);
-      const layerZ = Math.round(pos.z);
+      const threshold = this.cubeType === '4x4' ? 0.72 : 0.2;
 
       if (ay > 0.8) {
         const signY = Math.sign(rotAxis.y);
-        if (layerY === 1) {
+        if (pos.y > threshold) {
           return signY < 0 ? 'U' : "U'";
-        } else if (layerY === -1) {
+        } else if (pos.y < -threshold) {
           return signY > 0 ? 'D' : "D'";
         } else {
           // Middle layer dragged horizontally -> rotate whole cube
@@ -1487,9 +1941,9 @@
 
       if (ax > 0.8) {
         const signX = Math.sign(rotAxis.x);
-        if (layerX === 1) {
+        if (pos.x > threshold) {
           return signX < 0 ? 'R' : "R'";
-        } else if (layerX === -1) {
+        } else if (pos.x < -threshold) {
           return signX > 0 ? 'L' : "L'";
         } else {
           // Middle layer dragged vertically -> rotate whole cube
@@ -1499,9 +1953,9 @@
 
       if (az > 0.8) {
         const signZ = Math.sign(rotAxis.z);
-        if (layerZ === 1) {
+        if (pos.z > threshold) {
           return signZ < 0 ? 'F' : "F'";
-        } else if (layerZ === -1) {
+        } else if (pos.z < -threshold) {
           return signZ > 0 ? 'B' : "B'";
         } else {
           // Middle layer dragged in Z -> rotate whole cube
@@ -1552,6 +2006,14 @@
 
     async solve() {
       if (this.isRotating) return;
+
+      if (this.cubeType !== '3x3') {
+        const msg = this.currentLang === 'vi'
+          ? 'Bộ giải Kociemba Two-Phase được thiết kế chuẩn quốc tế cho khối 3x3x3.\n\nBạn có thể nhấp vào tên Rubik ở góc trên để chuyển về khối 3x3x3 bất kỳ lúc nào!'
+          : 'The two-phase Kociemba solver is designed specifically for 3x3x3 cubes.\n\nYou can click the cube title in the top header to switch back to 3x3x3!';
+        alert(msg);
+        return;
+      }
 
       this.updateStatus('Calculating Solution...', 'busy');
       const faceletStr = extractFaceletString(this.cubies, THREE);
@@ -1768,11 +2230,13 @@
     }
 
     checkSolvedState() {
+      if (this.cubeType !== '3x3') return;
       const faceletStr = extractFaceletString(this.cubies, THREE);
       if (isCubeSolved(faceletStr)) {
         if (!this.wasSolved) {
           this.wasSolved = true;
-          this.updateStatus('Cube Solved!', 'ready');
+          const dict = I18N[this.currentLang] || I18N.vi;
+          this.updateStatus(dict.statusSolved, 'ready');
           this.celebrateSolve(false);
           this.updateUserTitle();
         }
@@ -2001,10 +2465,166 @@
           setTimeout(() => { btn.textContent = 'Lưu'; }, 1500);
         }
       });
+
+      // Language Switcher Toggle
+      document.getElementById('btn-lang-toggle')?.addEventListener('click', () => {
+        const nextLang = this.currentLang === 'vi' ? 'en' : 'vi';
+        this.setLanguage(nextLang);
+      });
+
+      // Brand Click to open Cube Selector Modal
+      const brandBtn = document.getElementById('brand-cube-selector');
+      const cubeModal = document.getElementById('cube-selector-modal');
+      const cubeBackdrop = document.getElementById('cube-selector-backdrop');
+      const btnCloseCube = document.getElementById('btn-close-cube-selector');
+
+      const openCubeModal = () => {
+        if (cubeModal) cubeModal.classList.remove('hidden');
+      };
+      const closeCubeModal = () => {
+        if (cubeModal) cubeModal.classList.add('hidden');
+      };
+
+      if (brandBtn) brandBtn.addEventListener('click', openCubeModal);
+      if (btnCloseCube) btnCloseCube.addEventListener('click', closeCubeModal);
+      if (cubeBackdrop) cubeBackdrop.addEventListener('click', closeCubeModal);
+
+      // Cube format cards in selector modal (2x2, 3x3, mirror, 4x4)
+      document.querySelectorAll('.cs-type-card').forEach(card => {
+        card.addEventListener('click', () => {
+          this.setCubeType(card.dataset.type);
+          closeCubeModal();
+        });
+      });
+
+      // Speedcube cards in selector modal
+      document.querySelectorAll('.cs-speedcube-card').forEach(card => {
+        card.addEventListener('click', () => {
+          document.querySelectorAll('.cs-speedcube-card').forEach(c => c.classList.remove('active'));
+          card.classList.add('active');
+          if (this.cubeType !== '3x3') {
+            this.setCubeType('3x3');
+          }
+          this.applyIconicSpeedcube(card.dataset.cube);
+          closeCubeModal();
+        });
+      });
+
+      // User profile button in top nav opens settings tab
+      document.getElementById('top-user-pill')?.addEventListener('click', () => {
+        this.switchTab('settings-tab');
+      });
+
+      // Mobile Bottom Nav buttons
+      document.querySelectorAll('.mob-nav-btn[data-tab]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          this.switchTab(btn.dataset.tab);
+        });
+      });
+      document.getElementById('btn-mob-coach')?.addEventListener('click', () => {
+        if (this.aiCoach) this.aiCoach.toggle();
+      });
+      document.getElementById('btn-mob-scanner')?.addEventListener('click', () => {
+        if (this.scanner) this.scanner.open();
+      });
+    }
+
+    setLanguage(lang) {
+      if (!['vi', 'en'].includes(lang)) lang = 'vi';
+      this.currentLang = lang;
+      try {
+        localStorage.setItem('rubik_language', lang);
+      } catch (e) {}
+
+      const dict = I18N[lang];
+      if (!dict) return;
+
+      document.title = dict.title;
+
+      const codeEl = document.getElementById('lang-current-code');
+      if (codeEl) codeEl.textContent = lang.toUpperCase();
+
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.dataset.i18n;
+        if (dict[key]) el.textContent = dict[key];
+      });
+
+      document.querySelectorAll('[data-i18n-title]').forEach(el => {
+        const key = el.dataset.i18nTitle;
+        if (dict[key]) el.setAttribute('title', dict[key]);
+      });
+
+      if (this.wasSolved) {
+        this.updateStatus(dict.statusSolved, 'ready');
+      }
+
+      this.updateBrandSubtext();
+    }
+
+    updateBrandSubtext() {
+      const sub = document.getElementById('brand-subtext');
+      if (!sub) return;
+      const lang = this.currentLang;
+      if (this.cubeType === '2x2') {
+        sub.textContent = lang === 'vi' ? 'Khối Bỏ Túi • 8 Viên Góc' : 'Pocket Cube • 8 Corners';
+      } else if (this.cubeType === 'mirror') {
+        sub.textContent = lang === 'vi' ? 'Gương Bạc Chrome Phản Chiếu' : 'Brushed Silver Chrome';
+      } else if (this.cubeType === '4x4') {
+        sub.textContent = lang === 'vi' ? "Khối 4 Tầng • 56 Viên Cubie" : "Rubik's Revenge • 56 Cubies";
+      } else {
+        const cubeInfo = ICONIC_CUBES[this.currentIconicCube];
+        const cubeName = cubeInfo ? cubeInfo.name : 'GAN 14';
+        sub.textContent = `${cubeName} • ${I18N[lang].brandSubtext}`;
+      }
+    }
+
+    setCubeType(type) {
+      if (!['3x3', '2x2', 'mirror', '4x4'].includes(type)) type = '3x3';
+      this.cubeType = type;
+
+      const badge = document.getElementById('current-cube-name-badge');
+      const badgeNames = {
+        '3x3': '3x3x3',
+        '2x2': '2x2x2',
+        'mirror': 'Mirror 3x3',
+        '4x4': '4x4x4'
+      };
+      if (badge) badge.textContent = badgeNames[type];
+
+      document.querySelectorAll('.cs-type-card').forEach(c => {
+        c.classList.toggle('active', c.dataset.type === type);
+      });
+
+      this.stopPlayback();
+      this.turnQueue = [];
+      this.isRotating = false;
+      this.moveCount = 0;
+      this.updateMoveCounter();
+      this.createCube();
+      this.updateBrandSubtext();
+
+      const dict = I18N[this.currentLang];
+      this.updateStatus(`${badgeNames[type]} ${dict.statusSolved}`, 'ready');
+      this.clearSolutionUI();
+
+      if (this.controls) {
+        if (type === '4x4') {
+          this.camera.position.set(5.5, 4.8, 6.8);
+        } else if (type === '2x2') {
+          this.camera.position.set(3.8, 3.4, 4.8);
+        } else {
+          this.camera.position.set(4.6, 4.2, 5.8);
+        }
+        this.camera.lookAt(0, 0, 0);
+        this.controls.target.set(0, 0, 0);
+      }
     }
 
     switchTab(tabId) {
       document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.tab === tabId);
+      });
+      document.querySelectorAll('.mob-nav-btn[data-tab]').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.tab === tabId);
       });
       document.querySelectorAll('.tab-content').forEach(content => {
@@ -2052,7 +2672,14 @@
     updateStatus(text, type = 'ready') {
       const el = document.getElementById('status-badge');
       if (el) {
-        el.textContent = text;
+        const dict = I18N[this.currentLang] || I18N.vi;
+        let localized = text;
+        if (text === 'Solved') localized = dict.statusSolved;
+        else if (text === 'Scrambling...') localized = dict.statusBusy;
+        else if (text === 'Scrambled') localized = dict.statusScrambled;
+        else if (text.startsWith('Solver Error:')) localized = dict.statusError;
+        else if (text === 'Calculating Solution...') localized = dict.statusBusy;
+        el.textContent = localized;
         el.className = `status-badge status-${type}`;
       }
     }
@@ -3443,6 +4070,23 @@
     }
 
     analyze() {
+      if (this.app.cubeType !== '3x3') {
+        const stageBadge = document.getElementById('coach-stage-badge');
+        const stageDesc = document.getElementById('coach-stage-desc');
+        const isVi = this.app.currentLang === 'vi';
+        if (stageBadge) {
+          stageBadge.textContent = isVi ? `KHỐI ${this.app.cubeType.toUpperCase()}` : `${this.app.cubeType.toUpperCase()} CUBE`;
+          stageBadge.className = 'stage-badge badge-ready';
+        }
+        if (stageDesc) {
+          stageDesc.innerHTML = isVi
+            ? `Bạn đang luyện tập khối <strong>${this.app.cubeType.toUpperCase()}</strong>. Hãy tự do luyện tập xoay, hoặc nhấp vào tiêu đề để chuyển về khối 3x3x3 nhận phân tích CFOP nhé!`
+            : `You are currently training on the <strong>${this.app.cubeType.toUpperCase()}</strong> cube. Feel free to practice, or click the title to switch to 3x3x3 for full CFOP diagnostics!`;
+        }
+        this.updateHintDisplay([], isVi ? 'Chế độ luyện tập tự do' : 'Free practice mode', 'ready');
+        return;
+      }
+
       let faceletStr = '';
       try {
         faceletStr = extractFaceletString(this.app.cubies, THREE);
