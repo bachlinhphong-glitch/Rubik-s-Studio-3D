@@ -105,15 +105,24 @@
 
       <!-- Right: Utility Controls (Language, Zen Focus, Turns, Profile) -->
       <div class="nav-section-right">
-        <!-- Language Switcher Toggle (VI / EN) -->
-        <button id="btn-lang-toggle" class="lang-toggle-btn" title="Chuyển ngôn ngữ / Switch Language (VI / EN)">
-          <svg class="nav-svg-icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="10"/>
-            <path d="M2 12h20"/>
-            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-          </svg>
-          <span id="lang-current-code" class="lang-code-text">VI</span>
-        </button>
+        <!-- Multi-Language Dropdown (VI, EN, JA, ES, FR - Completely Separated) -->
+        <div class="lang-dropdown-wrapper">
+          <button id="btn-lang-toggle" class="lang-toggle-btn" type="button" title="Chọn ngôn ngữ">
+            <svg class="nav-svg-icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M2 12h20"/>
+              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+            </svg>
+            <span id="lang-current-code" class="lang-code-text">VI</span>
+          </button>
+          <div id="lang-dropdown-menu" class="lang-dropdown-menu hidden">
+            <button class="lang-item-btn" data-lang="vi">🇻🇳 Tiếng Việt</button>
+            <button class="lang-item-btn" data-lang="en">🇺🇸 English</button>
+            <button class="lang-item-btn" data-lang="ja">🇯🇵 日本語</button>
+            <button class="lang-item-btn" data-lang="es">🇪🇸 Español</button>
+            <button class="lang-item-btn" data-lang="fr">🇫🇷 Français</button>
+          </div>
+        </div>
 
         <!-- Zen Focus Mode -->
         <button id="btn-toggle-focus" class="top-nav-chip btn-focus-chip" data-i18n-title="focusTitle" title="Chế độ tập trung Zen Focus (Phím F)">
@@ -131,7 +140,7 @@
 
         <!-- Compact User Profile Button -->
         <button id="top-user-pill" class="user-avatar-btn" data-i18n-title="profileTitle" title="Hồ sơ Speedcuber & Tùy biến">
-          <span id="top-user-avatar" class="user-avatar-icon">⚡</span>
+          <span id="top-user-avatar" class="user-avatar-icon">👤</span>
           <span id="top-user-name" class="user-name-text">SpeedCuber</span>
         </button>
       </div>
@@ -214,12 +223,10 @@
           </div>
 
           <div class="coach-hint-actions">
-            <button id="btn-coach-demo-step" class="action-btn-coach btn-coach-demo" title="AI tự động xoay demo các nước này trên khối 3D">
-              <span class="btn-icon">⚡</span>
-              <span>AI Xoay Demo Trên 3D</span>
+            <button id="btn-coach-demo-step" class="action-btn-coach btn-coach-demo" title="Tự động xoay thử trên khối 3D">
+              <span>Xoay Thử 3D</span>
             </button>
-            <button id="btn-coach-auto-solve" class="action-btn-coach btn-coach-solve" title="Để AI tự giải toàn bộ khối từ đây">
-              <span class="btn-icon">▶</span>
+            <button id="btn-coach-auto-solve" class="action-btn-coach btn-coach-solve" title="Để AI tự giải toàn bộ khối">
               <span>AI Giải Toàn Bộ</span>
             </button>
           </div>
@@ -230,7 +237,7 @@
           <span class="chips-label">Hỏi nhanh AI:</span>
           <div class="chips-list">
             <button class="coach-prompt-chip" data-prompt="state">🔍 Soi khối hiện tại</button>
-            <button class="coach-prompt-chip" data-prompt="sexy">⚡ Sexy Move là gì?</button>
+            <button class="coach-prompt-chip" data-prompt="sexy">Sexy Move là gì?</button>
             <button class="coach-prompt-chip" data-prompt="oll">🟡 Kẹt ở mặt vàng (OLL)</button>
             <button class="coach-prompt-chip" data-prompt="sub30">🏎️ Làm sao đạt Sub-30?</button>
             <button class="coach-prompt-chip" data-prompt="tperm">🔄 Cách xoay T-Perm nhanh</button>
@@ -318,33 +325,37 @@
 
     <!-- Floating HUD Control Panel -->
     <aside class="control-panel glassmorphism" id="control-panel">
-      <!-- Tabs Navigation -->
-      <nav class="panel-tabs">
-        <button class="tab-btn active" data-tab="controls-tab" data-i18n-title="tabControls" title="Bảng điều khiển">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"></rect><circle cx="6" cy="12" r="2"></circle><path d="M14 9l3 3-3 3"></path></svg>
-          <span data-i18n="tabControls">Điều Khiển</span>
-        </button>
-        <button class="tab-btn" data-tab="timer-tab" data-i18n-title="tabTimer" title="Bấm giờ thi đấu Speedcubing WCA">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-          <span data-i18n="tabTimer">Bấm Giờ</span>
-        </button>
-        <button class="tab-btn" data-tab="cheatsheet-tab" data-i18n-title="tabFormulas" title="Bảng công thức giải CFOP &amp; Cơ bản">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
-          <span data-i18n="tabFormulas">Công Thức</span>
-        </button>
-        <button class="tab-btn" data-tab="masterclass-tab" data-i18n-title="tabMasterclass" title="Video &amp; Tuyển thủ thế giới">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>
-          <span data-i18n="tabMasterclass">Tuyển Thủ</span>
-        </button>
-        <button class="tab-btn" data-tab="solution-tab" data-i18n-title="tabSolution" title="Lời giải tối ưu Kociemba">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
-          <span data-i18n="tabSolution">Lời Giải</span>
-        </button>
-        <button class="tab-btn" data-tab="settings-tab" data-i18n-title="tabCustom" title="Tùy biến khôi &amp; Cài đặt">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle></svg>
-          <span data-i18n="tabCustom">Tùy Biến</span>
-        </button>
-      </nav>
+      <!-- Tabs Navigation with Left/Right Scroll Arrows -->
+      <div class="panel-tabs-container">
+        <button id="btn-tabs-scroll-left" class="tabs-scroll-arrow tabs-scroll-arrow-left" type="button" aria-label="Cuộn trái" title="Cuộn sang trái">‹</button>
+        <nav class="panel-tabs" id="panel-tabs">
+          <button class="tab-btn active" data-tab="controls-tab" data-i18n-title="tabControls" title="Bảng điều khiển">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"></rect><circle cx="6" cy="12" r="2"></circle><path d="M14 9l3 3-3 3"></path></svg>
+            <span data-i18n="tabControls">Điều Khiển</span>
+          </button>
+          <button class="tab-btn" data-tab="timer-tab" data-i18n-title="tabTimer" title="Bấm giờ thi đấu">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            <span data-i18n="tabTimer">Bấm Giờ</span>
+          </button>
+          <button class="tab-btn" data-tab="cheatsheet-tab" data-i18n-title="tabFormulas" title="Bảng công thức">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+            <span data-i18n="tabFormulas">Công Thức</span>
+          </button>
+          <button class="tab-btn" data-tab="masterclass-tab" data-i18n-title="tabMasterclass" title="Video tuyển thủ">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>
+            <span data-i18n="tabMasterclass">Video</span>
+          </button>
+          <button class="tab-btn" data-tab="solution-tab" data-i18n-title="tabSolution" title="Lời giải">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+            <span data-i18n="tabSolution">Lời Giải</span>
+          </button>
+          <button class="tab-btn" data-tab="settings-tab" data-i18n-title="tabCustom" title="Tùy biến">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle></svg>
+            <span data-i18n="tabCustom">Tùy Biến</span>
+          </button>
+        </nav>
+        <button id="btn-tabs-scroll-right" class="tabs-scroll-arrow tabs-scroll-arrow-right" type="button" aria-label="Cuộn phải" title="Cuộn sang phải">›</button>
+      </div>
 
       <!-- Tab 1: Controls -->
       <div id="controls-tab" class="tab-content active">
@@ -530,9 +541,7 @@
       <div id="masterclass-tab" class="tab-content">
         <!-- Header banner -->
         <div class="masterclass-header-card">
-          <div class="m-badge">🏆 World Champion Masterclass</div>
-          <h3 class="m-title">Học Từ Các Kỷ Lục Gia Thế Giới</h3>
-          <p class="m-desc">Video hướng dẫn chuẩn chỉ và lời khuyên chiến lược từ J Perm, Feliks Zemdegs, Max Park và Tymon Kolasiński.</p>
+          <h3 class="m-title" data-i18n="masterclassTitle">Video Tuyển Thủ</h3>
         </div>
 
         <!-- Filter Category Tabs -->
@@ -591,7 +600,7 @@
             <div class="avatar-select-group">
               <span class="sub-label">Chọn Avatar:</span>
               <div class="avatar-list">
-                <button class="avatar-pick-btn active" data-avatar="⚡">⚡</button>
+                <button class="avatar-pick-btn active" data-avatar="👤">👤</button>
                 <button class="avatar-pick-btn" data-avatar="🎲">🎲</button>
                 <button class="avatar-pick-btn" data-avatar="🏆">🏆</button>
                 <button class="avatar-pick-btn" data-avatar="🚀">🚀</button>
@@ -992,8 +1001,7 @@
               <span>Đặt lại Rubik Chuẩn</span>
             </button>
             <button id="btn-apply-scan-solve" class="action-btn btn-accent" disabled>
-              <span class="btn-icon">⚡</span>
-              <span>Nạp vào 3D &amp; Giải Rubik Ngay!</span>
+              <span>Nạp Vào 3D &amp; Giải</span>
             </button>
           </div>
         </div>
@@ -1005,8 +1013,8 @@
       <div class="youtube-dialog glassmorphism">
         <div class="youtube-dialog-header">
           <div class="yt-header-left">
-            <span class="yt-badge">🎥 Masterclass Tuyển Thủ</span>
-            <h3 id="yt-modal-title">Tiêu đề video tuyển thủ</h3>
+            <span class="yt-badge">Video Hướng Dẫn</span>
+            <h3 id="yt-modal-title">Tiêu đề video</h3>
           </div>
           <button id="btn-close-yt-modal" class="btn-close-modal" aria-label="Đóng video">&times;</button>
         </div>
@@ -1017,15 +1025,14 @@
           <p id="yt-modal-desc" class="yt-desc-text"></p>
           <div class="yt-footer-actions">
             <button id="btn-yt-try-3d" class="action-btn-coach btn-coach-demo">
-              <span class="btn-icon">⚡</span>
-              <span id="btn-yt-try-3d-text">Nạp Scramble/Công Thức Vào 3D</span>
+              <span id="btn-yt-try-3d-text">Thử Trên 3D</span>
             </button>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Cube Selector & Type Switcher Modal (Mở khi bấm vào chữ Rubik's Studio 3D) -->
+    <!-- Cube Selector & Type Switcher Modal -->
     <div id="cube-selector-modal" class="scanner-modal hidden" role="dialog" aria-modal="true" aria-labelledby="cube-modal-title">
       <div class="scanner-backdrop" id="cube-selector-backdrop"></div>
       <div class="cube-selector-dialog glassmorphism">
@@ -1036,8 +1043,7 @@
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21 16-9 5-9-5V8l9-5 9 5v8Z"/><path d="m3.27 6.96 8.73 4.99 8.73-4.99"/><path d="M12 22.08V12"/></svg>
             </div>
             <div>
-              <h3 id="cube-modal-title">Chọn Khối Rubik &amp; Speedcube</h3>
-              <p class="cs-subtitle">Tùy biến thể loại (2x2, 3x3, 4x4, Mirror) hoặc chọn 6 siêu phẩm flagship thế giới</p>
+              <h3 id="cube-modal-title" data-i18n="modalCubeTitle">Chọn Khối Rubik</h3>
             </div>
           </div>
           <button id="btn-close-cube-selector" class="btn-close-modal" aria-label="Đóng">&times;</button>
@@ -1047,8 +1053,7 @@
           <!-- Section 1: Kích thước & Biến thể Rubik -->
           <div class="cs-section">
             <div class="cs-section-header">
-              <span class="cs-sec-title">KÍCH THƯỚC &amp; BIẾN THỂ (CUBE FORMATS)</span>
-              <span class="cs-sec-tag">Đa Dạng</span>
+              <span class="cs-sec-title" data-i18n="secFormats">KÍCH THƯỚC &amp; BIẾN THỂ</span>
             </div>
             <div class="cs-types-grid">
               <!-- 3x3 Standard -->
@@ -1057,10 +1062,9 @@
                   <span class="cs-type-icon">
                     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M15 3v18M3 9h18M3 15h18"/></svg>
                   </span>
-                  <span class="cs-card-badge badge-primary">WCA Chuẩn</span>
+                  <span class="cs-card-badge badge-primary" data-i18n="type3x3Badge">Tiêu Chuẩn</span>
                 </div>
-                <div class="cs-type-name">3x3x3 Tiêu Chuẩn</div>
-                <div class="cs-type-desc">Khối thi đấu kinh điển WCA. Hỗ trợ giải tự động Kociemba và gợi ý từng bước CFOP.</div>
+                <div class="cs-type-name" data-i18n="type3x3">Rubik 3x3x3</div>
               </button>
 
               <!-- 2x2 Pocket Cube -->
@@ -1069,10 +1073,9 @@
                   <span class="cs-type-icon">
                     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M12 4v16M4 12h16"/></svg>
                   </span>
-                  <span class="cs-card-badge badge-speed">Tốc Độ Mini</span>
+                  <span class="cs-card-badge badge-speed" data-i18n="type2x2Badge">Tốc Độ</span>
                 </div>
-                <div class="cs-type-name">2x2x2 Pocket Cube</div>
-                <div class="cs-type-desc">Gồm 8 viên góc nhỏ gọn, xoay siêu tốc, hoàn hảo cho luyện phản xạ ngón tay và người mới.</div>
+                <div class="cs-type-name" data-i18n="type2x2">Rubik 2x2x2</div>
               </button>
 
               <!-- Mirror Blocks 3x3 -->
@@ -1081,10 +1084,9 @@
                   <span class="cs-type-icon">
                     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m21 16-9 5-9-5V8l9-5 9 5v8Z"/><circle cx="12" cy="12" r="3.5"/></svg>
                   </span>
-                  <span class="cs-card-badge badge-mirror">Gương Bạc Chrome</span>
+                  <span class="cs-card-badge badge-mirror" data-i18n="typeMirrorBadge">Gương</span>
                 </div>
-                <div class="cs-type-name">Mirror Blocks 3x3</div>
-                <div class="cs-type-desc">Các khối lệch kích thước độc đáo, biến dạng không gian 3D khi xáo, mạ bạc gương phản chiếu.</div>
+                <div class="cs-type-name" data-i18n="typeMirror">Rubik Gương 3x3</div>
               </button>
 
               <!-- 4x4 Rubik's Revenge -->
@@ -1093,10 +1095,9 @@
                   <span class="cs-type-icon">
                     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7.5 3v18M12 3v18M16.5 3v18M3 7.5h18M3 12h18M3 16.5h18"/></svg>
                   </span>
-                  <span class="cs-card-badge badge-challenge">Nâng Cao 4 Tầng</span>
+                  <span class="cs-card-badge badge-challenge" data-i18n="type4x4Badge">4 Tầng</span>
                 </div>
-                <div class="cs-type-name">4x4x4 Rubik's Revenge</div>
-                <div class="cs-type-desc">Khối 4 tầng với 56 viên cubie, thử thách giải tâm di động và ghép cặp cạnh nâng cao cho try-hard.</div>
+                <div class="cs-type-name" data-i18n="type4x4">Rubik 4x4x4</div>
               </button>
             </div>
           </div>
@@ -1104,99 +1105,97 @@
           <!-- Section 2: Bộ Sưu Tập 6 Siêu Phẩm Speedcube Thế Giới -->
           <div class="cs-section">
             <div class="cs-section-header">
-              <span class="cs-sec-title">BỘ SƯU TẬP 6 SIÊU PHẨM SPEEDCUBE (FLAGSHIPS)</span>
-              <span class="cs-sec-tag">Pro Brands</span>
+              <span class="cs-sec-title" data-i18n="secFlagships">BỘ SƯU TẬP SPEEDCUBE</span>
             </div>
             <div class="cs-speedcubes-grid">
               <!-- GAN 14 -->
               <button class="cs-speedcube-card active" data-cube="gan14">
                 <div class="cs-sc-header">
                   <span class="cs-brand-lbl">GAN CUBE</span>
-                  <span class="cs-flag-pill" style="color: #a5b4fc; background: rgba(99, 102, 241, 0.2);">Flagship 2024</span>
                 </div>
-                <div class="cs-sc-name">GAN 14 MagLev Pro UV</div>
+                <div class="cs-sc-name">GAN 14 MagLev UV</div>
                 <div class="theme-preview">
                   <span style="background: #ffffff;"></span>
                   <span style="background: #ffd500;"></span>
                   <span style="background: #009b48;"></span>
                   <span style="background: #b71234;"></span>
                 </div>
-                <div class="cs-sc-info">Lõi Primary trắng sữa, bề mặt UV chống xước, nam châm MagLev bay bổng.</div>
               </button>
 
               <!-- MoYu WRM V9 -->
               <button class="cs-speedcube-card" data-cube="moyu_v9">
                 <div class="cs-sc-header">
-                  <span class="cs-brand-lbl">MoYu Culture</span>
-                  <span class="cs-flag-pill" style="color: #fca5a5; background: rgba(239, 68, 68, 0.2);">WR 3.13s (Max Park)</span>
+                  <span class="cs-brand-lbl">MoYu</span>
                 </div>
-                <div class="cs-sc-name">MoYu WeiLong V9 Ball-Core</div>
+                <div class="cs-sc-name">MoYu WeiLong V9</div>
                 <div class="theme-preview">
                   <span style="background: #ffffff;"></span>
                   <span style="background: #ffe600;"></span>
                   <span style="background: #00b84c;"></span>
                   <span style="background: #d81232;"></span>
                 </div>
-                <div class="cs-sc-info">Lõi Cyan Ball-Core xanh ngọc, bóng gương phản quang Nano-UV cực nhạy.</div>
               </button>
 
               <!-- Carbon 3D -->
               <button class="cs-speedcube-card" data-cube="carbon_3d">
                 <div class="cs-sc-header">
                   <span class="cs-brand-lbl">HyperMod</span>
-                  <span class="cs-flag-pill" style="color: #6ee7b7; background: rgba(16, 185, 129, 0.2);">Carbon Tech</span>
                 </div>
-                <div class="cs-sc-name">Carbon Fiber 3D Stealth</div>
+                <div class="cs-sc-name">Carbon Fiber 3D</div>
                 <div class="theme-preview">
                   <span style="background: #f1f5f9;"></span>
                   <span style="background: #eab308;"></span>
                   <span style="background: #10b981;"></span>
                   <span style="background: #ef4444;"></span>
                 </div>
-                <div class="cs-sc-info">Lõi đen nhám bọc sticker sợi Carbon dệt 3D chìm nổi thể thao hầm hố.</div>
               </button>
 
               <!-- QiYi Macaron -->
               <button class="cs-speedcube-card" data-cube="qiyi_macaron">
                 <div class="cs-sc-header">
-                  <span class="cs-brand-lbl">QiYi MoFangGe</span>
-                  <span class="cs-flag-pill" style="color: #fbcfe8; background: rgba(244, 114, 182, 0.2);">Lo-Fi Chill</span>
+                  <span class="cs-brand-lbl">QiYi</span>
                 </div>
-                <div class="cs-sc-name">QiYi Warrior Macaron Pastel</div>
+                <div class="cs-sc-name">Warrior Macaron</div>
                 <div class="theme-preview">
                   <span style="background: #fdfbf7;"></span>
                   <span style="background: #fef08a;"></span>
                   <span style="background: #86efac;"></span>
                   <span style="background: #fca5a5;"></span>
                 </div>
-                <div class="cs-sc-info">Màu phấn pastel dịu mắt, bề mặt nhám lì Lo-Fi chống bám mồ hôi tay.</div>
               </button>
 
               <!-- Crystal Jelly -->
               <button class="cs-speedcube-card" data-cube="crystal_phantom">
                 <div class="cs-sc-header">
-                  <span class="cs-brand-lbl">X-Cube Lab</span>
-                  <span class="cs-flag-pill" style="color: #a5f3fc; background: rgba(6, 182, 212, 0.2);">Limited Ice</span>
+                  <span class="cs-brand-lbl">X-Cube</span>
                 </div>
-                <div class="cs-sc-name">Crystal Jelly Phantom Limited</div>
+                <div class="cs-sc-name">Crystal Phantom</div>
                 <div class="theme-preview">
                   <span style="background: #e0f2fe;"></span>
                   <span style="background: #facc15;"></span>
                   <span style="background: #22c55e;"></span>
                   <span style="background: #f43f5e;"></span>
                 </div>
-                <div class="cs-sc-info">Pha lê tuyết trong suốt băng giá, tán xạ ánh sáng neon 3D lung linh.</div>
               </button>
 
               <!-- Vintage 1980 -->
               <button class="cs-speedcube-card" data-cube="vintage_1980">
                 <div class="cs-sc-header">
-                  <span class="cs-brand-lbl">Ideal Toy (1980)</span>
-                  <span class="cs-flag-pill" style="color: #fde68a; background: rgba(217, 119, 6, 0.2);">Huyền Thoại 1980</span>
+                  <span class="cs-brand-lbl">Ideal Toy</span>
                 </div>
-                <div class="cs-sc-name">Vintage 1980s Erno Rubik Original</div>
+                <div class="cs-sc-name">Vintage 1980s Original</div>
                 <div class="theme-preview">
                   <span style="background: #fef3c7;"></span>
+                  <span style="background: #fde047;"></span>
+                  <span style="background: #15803d;"></span>
+                  <span style="background: #dc2626;"></span>
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
                   <span style="background: #d97706;"></span>
                   <span style="background: #059669;"></span>
                   <span style="background: #dc2626;"></span>

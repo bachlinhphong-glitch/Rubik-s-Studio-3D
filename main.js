@@ -43,35 +43,36 @@
     defaultPlaybackSpeed: 300 // ms
   };
 
-  // --- Multi-Language Localization Catalog (Bilingual Engine) ---
+  // --- Multi-Language Localization Catalog (5 Distinct Languages) ---
   const I18N = {
     vi: {
-      title: "Rubik's Studio 3D - Khối Rubik 3D & Bộ Giải Kociemba Hai Giai Đoạn",
-      brandTitleTooltip: "Bấm vào đây để chọn loại Rubik khác (2x2, 3x3, 4x4, Mirror Blocks, GAN, MoYu...)",
-      brandSubtext: "Kociemba Two-Phase & Trợ lý AI",
+      title: "Rubik's Studio 3D - Bộ Giải & Trợ Lý",
+      brandTitleTooltip: "Đổi loại Rubik",
+      brandSubtext: "Giải Kociemba & Trợ lý AI",
       statusSolved: "ĐÃ GIẢI",
       statusBusy: "ĐANG XỬ LÝ...",
       statusScrambled: "ĐÃ XÁO",
       statusError: "LỖI",
       scrambleLabel: "Chuỗi xáo:",
-      coachTitle: "Trợ Lý AI Rubik - Soi khối & Gợi ý nước đi",
+      coachTitle: "Trợ Lý AI Rubik",
+      coachSubtitle: "Trợ lý hướng dẫn thông minh",
       navCoach: "Trợ Lý AI",
-      masterclassTitle: "Kinh nghiệm từ các kỷ lục gia thế giới",
+      masterclassTitle: "Kinh nghiệm từ các tuyển thủ",
       navMasterclass: "Tuyển Thủ",
-      timerTitle: "Bấm giờ thi đấu Speedcubing WCA",
+      timerTitle: "Bấm giờ thi đấu WCA",
       navTimer: "Bấm Giờ",
-      formulaTitle: "Bảng công thức giải CFOP & Cơ bản",
+      formulaTitle: "Bảng công thức giải Rubik",
       navFormulas: "Công Thức",
-      scannerTitle: "Quét khối Rubik thật bằng camera",
+      scannerTitle: "Quét khối Rubik bằng camera",
       navScanner: "Quét 3D",
-      focusTitle: "Chế độ tập trung Zen Focus (Phím F)",
+      focusTitle: "Chế độ tập trung (Phím F)",
       navFocus: "Tập Trung",
-      turnsTitle: "Tổng số lượt xoay mặt",
-      statTurns: "Nước",
-      profileTitle: "Hồ sơ Speedcuber & Tùy biến",
-      solutionTitle: "Các Bước Giải Tối Ưu",
+      turnsTitle: "Tổng số lượt xoay",
+      statTurns: "Nước đi",
+      profileTitle: "Hồ sơ cá nhân",
+      solutionTitle: "Các Bước Giải",
       noSolutionText: "Chưa có lời giải",
-      emptyTimelineText: "Bấm \"Giải Bằng AI\" để tính toán các bước giải tối ưu nhất.",
+      emptyTimelineText: "Bấm \"Giải Bằng AI\" để bắt đầu.",
       tabControls: "Điều Khiển",
       tabTimer: "Bấm Giờ",
       tabFormulas: "Công Thức",
@@ -81,58 +82,58 @@
       btnScramble: "Xáo Khối",
       btnSolve: "Giải Bằng AI",
       btnReset: "Đặt Lại",
-      btnScan: "Quét Khối Thật",
-      playbackTitle: "Xem Từng Bước Giải",
+      btnScan: "Quét Khối",
+      playbackTitle: "Xem Từng Bước",
       btnPrev: "Lùi",
       btnPlay: "Phát",
       btnPause: "Tạm Dừng",
       btnNext: "Tiến",
       manualTurnsTitle: "Xoay Thủ Công",
-      manualTurnsHint: "Hoặc bấm U, D, L, R, F, B",
+      manualTurnsHint: "Phím U, D, L, R, F, B",
       timerScrambleTitle: "Chuỗi Xáo WCA",
       btnNewScramble: "Đổi Mới",
       btnApply3D: "Nạp Vào 3D",
-      timerIdleHint: "Chạm hoặc Giữ Phím Cách (Space) để sẵn sàng",
-      type3x3: "3x3x3 Tiêu Chuẩn",
-      type2x2: "2x2x2 Pocket Cube",
-      typeMirror: "Mirror Blocks 3x3",
-      type4x4: "4x4x4 Rubik's Revenge",
-      type3x3Badge: "WCA Chuẩn",
-      type2x2Badge: "Tốc Độ Mini",
-      typeMirrorBadge: "Gương Bạc Chrome",
-      type4x4Badge: "Nâng Cao 4 Tầng",
-      type3x3Desc: "Khối thi đấu kinh điển WCA. Hỗ trợ giải tự động Kociemba và gợi ý từng bước CFOP.",
-      type2x2Desc: "Gồm 8 viên góc nhỏ gọn, xoay siêu tốc, hoàn hảo cho luyện phản xạ ngón tay và người mới.",
-      typeMirrorDesc: "Các khối lệch kích thước độc đáo, biến dạng không gian 3D khi xáo, mạ bạc gương phản chiếu.",
-      type4x4Desc: "Khối 4 tầng với 56 viên cubie, thử thách giải tâm di động và ghép cặp cạnh nâng cao cho try-hard."
+      timerIdleHint: "Giữ Phím Cách hoặc chạm màn hình để sẵn sàng",
+      modalCubeTitle: "Chọn Khối Rubik",
+      secFormats: "KÍCH THƯỚC & BIẾN THỂ",
+      secFlagships: "BỘ SƯU TẬP SPEEDCUBE",
+      type3x3: "Rubik 3x3x3",
+      type2x2: "Rubik 2x2x2",
+      typeMirror: "Rubik Gương 3x3",
+      type4x4: "Rubik 4x4x4",
+      type3x3Badge: "Tiêu Chuẩn",
+      type2x2Badge: "Tốc Độ",
+      typeMirrorBadge: "Gương",
+      type4x4Badge: "4 Tầng"
     },
     en: {
-      title: "Rubik's Studio 3D - Interactive 3D Cube & Two-Phase Kociemba Solver",
-      brandTitleTooltip: "Click here to choose another Cube (2x2, 3x3, 4x4, Mirror Blocks, GAN, MoYu...)",
-      brandSubtext: "Kociemba Two-Phase & AI Coach",
+      title: "Rubik's Studio 3D - Solver & AI Coach",
+      brandTitleTooltip: "Switch Cube",
+      brandSubtext: "Kociemba Solver & AI Coach",
       statusSolved: "SOLVED",
-      statusBusy: "SOLVING...",
+      statusBusy: "PROCESSING...",
       statusScrambled: "SCRAMBLED",
       statusError: "ERROR",
       scrambleLabel: "Scramble:",
-      coachTitle: "Rubik AI Coach - Diagnostics & Move Hints",
+      coachTitle: "Rubik AI Coach",
+      coachSubtitle: "Smart 3D Rubik's Coach",
       navCoach: "AI Coach",
-      masterclassTitle: "World Champions Masterclass & Tips",
+      masterclassTitle: "Pro Masterclass & Tips",
       navMasterclass: "Masterclass",
-      timerTitle: "Speedcubing WCA Competition Timer",
+      timerTitle: "WCA Competition Timer",
       navTimer: "Timer",
-      formulaTitle: "Algorithms Cheat Sheet (CFOP & Beginner)",
+      formulaTitle: "Algorithms Cheat Sheet",
       navFormulas: "Algorithms",
-      scannerTitle: "Scan real physical cube with camera",
-      navScanner: "3D Scan",
+      scannerTitle: "Scan Cube via Camera",
+      navScanner: "3D Scanner",
       focusTitle: "Zen Focus Mode (Key F)",
       navFocus: "Focus",
-      turnsTitle: "Total face turns made",
+      turnsTitle: "Total Moves",
       statTurns: "Moves",
-      profileTitle: "Speedcuber Profile & Customization",
-      solutionTitle: "Optimal Solution Steps",
+      profileTitle: "User Profile",
+      solutionTitle: "Solution Steps",
       noSolutionText: "No active solution",
-      emptyTimelineText: "Click \"AI Solve\" to calculate the optimal solution steps.",
+      emptyTimelineText: "Click \"AI Solve\" to calculate steps.",
       tabControls: "Controls",
       tabTimer: "Timer",
       tabFormulas: "Algorithms",
@@ -142,30 +143,212 @@
       btnScramble: "Scramble",
       btnSolve: "AI Solve",
       btnReset: "Reset",
-      btnScan: "Scan Real Cube",
-      playbackTitle: "Step-by-Step Playback",
+      btnScan: "Scan Cube",
+      playbackTitle: "Step Playback",
       btnPrev: "Prev",
       btnPlay: "Play",
       btnPause: "Pause",
       btnNext: "Next",
       manualTurnsTitle: "Manual Turns",
-      manualTurnsHint: "Or press U, D, L, R, F, B",
+      manualTurnsHint: "Keys U, D, L, R, F, B",
       timerScrambleTitle: "WCA Scramble",
       btnNewScramble: "New",
       btnApply3D: "Send to 3D",
-      timerIdleHint: "Touch or Hold Spacebar to prepare",
-      type3x3: "3x3x3 Standard",
-      type2x2: "2x2x2 Pocket Cube",
+      timerIdleHint: "Hold Spacebar or touch screen to ready",
+      modalCubeTitle: "Select Cube",
+      secFormats: "SIZES & VARIANTS",
+      secFlagships: "SPEEDCUBE COLLECTION",
+      type3x3: "3x3x3 Cube",
+      type2x2: "2x2x2 Pocket",
+      typeMirror: "3x3 Mirror Blocks",
+      type4x4: "4x4x4 Revenge",
+      type3x3Badge: "Standard",
+      type2x2Badge: "Speed",
+      typeMirrorBadge: "Mirror",
+      type4x4Badge: "4-Layer"
+    },
+    ja: {
+      title: "Rubik's Studio 3D - 3Dキューブ解析 & AIコーチ",
+      brandTitleTooltip: "キューブを変更",
+      brandSubtext: "二段階解析 & AIアシスタント",
+      statusSolved: "完成",
+      statusBusy: "計算中...",
+      statusScrambled: "崩し状態",
+      statusError: "エラー",
+      scrambleLabel: "崩し手順:",
+      coachTitle: "ルービックAIコーチ",
+      coachSubtitle: "スマート3Dコーチ",
+      navCoach: "AIコーチ",
+      masterclassTitle: "トップ選手の攻略法",
+      navMasterclass: "トップ選手",
+      timerTitle: "WCA競技タイマー",
+      navTimer: "タイマー",
+      formulaTitle: "公式手順一覧",
+      navFormulas: "公式",
+      scannerTitle: "カメラでキューブをスキャン",
+      navScanner: "スキャン",
+      focusTitle: "集中モード (Fキー)",
+      navFocus: "集中",
+      turnsTitle: "総回転数",
+      statTurns: "手数",
+      profileTitle: "プロフィール",
+      solutionTitle: "解決手順",
+      noSolutionText: "解法なし",
+      emptyTimelineText: "「AI解決」を押して手順を計算します。",
+      tabControls: "操作",
+      tabTimer: "タイマー",
+      tabFormulas: "公式",
+      tabMasterclass: "選手解説",
+      tabSolution: "解法",
+      tabCustom: "カスタマイズ",
+      btnScramble: "崩す",
+      btnSolve: "AI解決",
+      btnReset: "リセット",
+      btnScan: "実物スキャン",
+      playbackTitle: "手順再生",
+      btnPrev: "前へ",
+      btnPlay: "再生",
+      btnPause: "一時停止",
+      btnNext: "次へ",
+      manualTurnsTitle: "手動回転",
+      manualTurnsHint: "U, D, L, R, F, Bキー",
+      timerScrambleTitle: "WCA公式スクランブル",
+      btnNewScramble: "新規",
+      btnApply3D: "3Dに反映",
+      timerIdleHint: "スペースキー長押しまたは画面タップで準備",
+      modalCubeTitle: "キューブ選択",
+      secFormats: "サイズ・種類",
+      secFlagships: "競技用キューブ一覧",
+      type3x3: "3x3x3 キューブ",
+      type2x2: "2x2x2 ポケット",
+      typeMirror: "3x3 ミラーブロックス",
+      type4x4: "4x4x4 リベンジ",
+      type3x3Badge: "標準",
+      type2x2Badge: "高速",
+      typeMirrorBadge: "ミラー",
+      type4x4Badge: "4層"
+    },
+    es: {
+      title: "Rubik's Studio 3D - Solucionador & Entrenador AI",
+      brandTitleTooltip: "Cambiar Cubo",
+      brandSubtext: "Solucionador Kociemba & Entrenador",
+      statusSolved: "RESUELTO",
+      statusBusy: "PROCESANDO...",
+      statusScrambled: "MEZCLADO",
+      statusError: "ERROR",
+      scrambleLabel: "Mezcla:",
+      coachTitle: "Entrenador AI Rubik",
+      coachSubtitle: "Entrenador Inteligente 3D",
+      navCoach: "Entrenador",
+      masterclassTitle: "Consejos de Campeones Mundiales",
+      navMasterclass: "Campeones",
+      timerTitle: "Cronómetro de Competición WCA",
+      navTimer: "Cronómetro",
+      formulaTitle: "Tabla de Algoritmos",
+      navFormulas: "Algoritmos",
+      scannerTitle: "Escanear Cubo con Cámara",
+      navScanner: "Escanear",
+      focusTitle: "Modo Concentración (Tecla F)",
+      navFocus: "Enfoque",
+      turnsTitle: "Movimientos Totales",
+      statTurns: "Movimientos",
+      profileTitle: "Perfil de Usuario",
+      solutionTitle: "Pasos de Solución",
+      noSolutionText: "Sin solución activa",
+      emptyTimelineText: "Pulsa \"Resolver con AI\" para calcular.",
+      tabControls: "Control",
+      tabTimer: "Cronómetro",
+      tabFormulas: "Algoritmos",
+      tabMasterclass: "Campeones",
+      tabSolution: "Solución",
+      tabCustom: "Ajustes",
+      btnScramble: "Mezclar",
+      btnSolve: "Resolver con AI",
+      btnReset: "Reiniciar",
+      btnScan: "Escanear Cubo",
+      playbackTitle: "Reproducción Paso a Paso",
+      btnPrev: "Anterior",
+      btnPlay: "Reproducir",
+      btnPause: "Pausa",
+      btnNext: "Siguiente",
+      manualTurnsTitle: "Giros Manuales",
+      manualTurnsHint: "Teclas U, D, L, R, F, B",
+      timerScrambleTitle: "Mezcla WCA",
+      btnNewScramble: "Nueva",
+      btnApply3D: "Enviar al 3D",
+      timerIdleHint: "Mantén Espacio o toca la pantalla para preparar",
+      modalCubeTitle: "Seleccionar Cubo",
+      secFormats: "TAMAÑOS Y VARIANTES",
+      secFlagships: "COLECCIÓN SPEEDCUBE",
+      type3x3: "Cubo 3x3x3",
+      type2x2: "Cubo 2x2x2",
       typeMirror: "Mirror Blocks 3x3",
-      type4x4: "4x4x4 Rubik's Revenge",
-      type3x3Badge: "WCA Standard",
-      type2x2Badge: "Speed Mini",
-      typeMirrorBadge: "Silver Chrome",
-      type4x4Badge: "4-Layer Revenge",
-      type3x3Desc: "Classic WCA competition cube. Full support for Kociemba Two-Phase AI Solver and CFOP coaching.",
-      type2x2Desc: "8 corner cubies, ultra-fast turning, perfect for finger dexterity and beginners.",
-      typeMirrorDesc: "Unique asymmetric blocks that transform into crazy 3D shapes when scrambled, brushed chrome finish.",
-      type4x4Desc: "4-layer cube with 56 cubies, mobile center pieces and edge pairing challenge for try-hards."
+      type4x4: "Cubo 4x4x4",
+      type3x3Badge: "Estándar",
+      type2x2Badge: "Velocidad",
+      typeMirrorBadge: "Espejo",
+      type4x4Badge: "4 Capas"
+    },
+    fr: {
+      title: "Rubik's Studio 3D - Solveur & Coach IA",
+      brandTitleTooltip: "Changer de Cube",
+      brandSubtext: "Solveur Kociemba & Coach IA",
+      statusSolved: "RÉSOLU",
+      statusBusy: "TRAITEMENT...",
+      statusScrambled: "MÉLANGÉ",
+      statusError: "ERREUR",
+      scrambleLabel: "Mélange :",
+      coachTitle: "Coach IA Rubik",
+      coachSubtitle: "Coach Intelligent 3D",
+      navCoach: "Coach IA",
+      masterclassTitle: "Conseils des Champions du Monde",
+      navMasterclass: "Champions",
+      timerTitle: "Chronomètre de Compétition WCA",
+      navTimer: "Chrono",
+      formulaTitle: "Tableau des Formules",
+      navFormulas: "Formules",
+      scannerTitle: "Scanner le Cube Réel par Caméra",
+      navScanner: "Scanner",
+      focusTitle: "Mode Zen (Touche F)",
+      navFocus: "Focus",
+      turnsTitle: "Mouvements Totaux",
+      statTurns: "Coups",
+      profileTitle: "Profil",
+      solutionTitle: "Étapes de Résolution",
+      noSolutionText: "Aucune solution active",
+      emptyTimelineText: "Cliquez sur \"Résoudre avec IA\" pour démarrer.",
+      tabControls: "Commandes",
+      tabTimer: "Chrono",
+      tabFormulas: "Formules",
+      tabMasterclass: "Champions",
+      tabSolution: "Solution",
+      tabCustom: "Personnaliser",
+      btnScramble: "Mélanger",
+      btnSolve: "Résoudre avec IA",
+      btnReset: "Réinitialiser",
+      btnScan: "Scanner Cube",
+      playbackTitle: "Lecture Pas à Pas",
+      btnPrev: "Préc.",
+      btnPlay: "Lecture",
+      btnPause: "Pause",
+      btnNext: "Suiv.",
+      manualTurnsTitle: "Rotations Manuelles",
+      manualTurnsHint: "Touches U, D, L, R, F, B",
+      timerScrambleTitle: "Mélange WCA",
+      btnNewScramble: "Nouveau",
+      btnApply3D: "Envoyer au 3D",
+      timerIdleHint: "Maintenez Espace ou touchez l'écran pour vous préparer",
+      modalCubeTitle: "Choisir un Cube",
+      secFormats: "TAILLES ET VARIANTES",
+      secFlagships: "COLLECTION SPEEDCUBE",
+      type3x3: "Cube 3x3x3",
+      type2x2: "Cube 2x2x2",
+      typeMirror: "Cube Miroir 3x3",
+      type4x4: "Cube 4x4x4",
+      type3x3Badge: "Standard",
+      type2x2Badge: "Vitesse",
+      typeMirrorBadge: "Miroir",
+      type4x4Badge: "4 Étages"
     }
   };
 
@@ -275,7 +458,7 @@
       core: 'black',
       sound: 'keyboard',
       speed: 220,
-      centerLogo: '⚡',
+      centerLogo: 'H',
       isCarbonTexture: true
     },
     qiyi_macaron: {
@@ -535,11 +718,11 @@
       // Cube Format ('3x3' | '2x2' | 'mirror' | '4x4')
       this.cubeType = '3x3';
 
-      // Multi-language state ('vi' | 'en')
+      // Multi-language state ('vi' | 'en' | 'ja' | 'es' | 'fr')
       this.currentLang = 'vi';
       try {
         const savedLang = localStorage.getItem('rubik_language');
-        if (savedLang && ['vi', 'en'].includes(savedLang)) {
+        if (savedLang && ['vi', 'en', 'ja', 'es', 'fr'].includes(savedLang)) {
           this.currentLang = savedLang;
         }
       } catch (e) {}
@@ -556,7 +739,7 @@
       this.wasSolved = true;
       this.userProfile = {
         nickname: 'SpeedCuber_VN',
-        avatar: '⚡'
+        avatar: '👤'
       };
 
       try {
@@ -1013,7 +1196,7 @@
         title = 'Cube Grandmaster 👑';
         badgeClass = 'badge-master';
       } else if (best && best < 15) {
-        title = 'Lightning (Sub-15) ⚡';
+        title = 'Sub-15 Master 🏆';
         badgeClass = 'badge-sub15';
       } else if (best && best < 30) {
         title = 'Speed Demon (Sub-30) 🥇';
@@ -2016,10 +2199,14 @@
       if (this.isRotating) return;
 
       if (this.cubeType !== '3x3') {
-        const msg = this.currentLang === 'vi'
-          ? 'Bộ giải Kociemba Two-Phase được thiết kế chuẩn quốc tế cho khối 3x3x3.\n\nBạn có thể nhấp vào tên Rubik ở góc trên để chuyển về khối 3x3x3 bất kỳ lúc nào!'
-          : 'The two-phase Kociemba solver is designed specifically for 3x3x3 cubes.\n\nYou can click the cube title in the top header to switch back to 3x3x3!';
-        alert(msg);
+        const msgs = {
+          vi: 'Bộ giải áp dụng cho khối 3x3x3. Hãy chuyển về khối 3x3x3 để giải tự động.',
+          en: 'The solver is designed for 3x3x3. Switch back to 3x3x3 to auto-solve.',
+          ja: 'AI自動解析は3x3x3キューブ専用です。3x3x3に戻して実行してください。',
+          es: 'El solucionador está diseñado para 3x3x3. Cambia a 3x3x3 para resolver.',
+          fr: 'Le solveur est conçu pour le 3x3x3. Revenez au 3x3x3 pour la résolution.'
+        };
+        alert(msgs[this.currentLang] || msgs.vi);
         return;
       }
 
@@ -2474,10 +2661,58 @@
         }
       });
 
-      // Language Switcher Toggle
-      document.getElementById('btn-lang-toggle')?.addEventListener('click', () => {
-        const nextLang = this.currentLang === 'vi' ? 'en' : 'vi';
-        this.setLanguage(nextLang);
+      // Language Dropdown Menu Toggle & Selection
+      const btnLangToggle = document.getElementById('btn-lang-toggle');
+      const langDropdown = document.getElementById('lang-dropdown-menu');
+
+      btnLangToggle?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        langDropdown?.classList.toggle('hidden');
+      });
+
+      document.querySelectorAll('.lang-item-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const targetLang = btn.dataset.lang;
+          if (targetLang) {
+            this.setLanguage(targetLang);
+          }
+          langDropdown?.classList.add('hidden');
+        });
+      });
+
+      document.addEventListener('click', (e) => {
+        if (langDropdown && !langDropdown.classList.contains('hidden')) {
+          if (!e.target.closest('.lang-dropdown-wrapper')) {
+            langDropdown.classList.add('hidden');
+          }
+        }
+      });
+
+      // Tab Bar Horizontal Scroll Arrows and Wheel Support
+      const panelTabs = document.getElementById('panel-tabs');
+      const btnTabLeft = document.getElementById('btn-tabs-scroll-left');
+      const btnTabRight = document.getElementById('btn-tabs-scroll-right');
+
+      btnTabLeft?.addEventListener('click', () => {
+        panelTabs?.scrollBy({ left: -140, behavior: 'smooth' });
+      });
+
+      btnTabRight?.addEventListener('click', () => {
+        panelTabs?.scrollBy({ left: 140, behavior: 'smooth' });
+      });
+
+      panelTabs?.addEventListener('wheel', (e) => {
+        if (e.deltaY) {
+          e.preventDefault();
+          panelTabs.scrollLeft += e.deltaY;
+        }
+      }, { passive: false });
+
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        });
       });
 
       // Brand Click to open Cube Selector Modal
@@ -2538,19 +2773,22 @@
     }
 
     setLanguage(lang) {
-      if (!['vi', 'en'].includes(lang)) lang = 'vi';
+      if (!['vi', 'en', 'ja', 'es', 'fr'].includes(lang)) lang = 'vi';
       this.currentLang = lang;
       try {
         localStorage.setItem('rubik_language', lang);
       } catch (e) {}
 
-      const dict = I18N[lang];
-      if (!dict) return;
+      const dict = I18N[lang] || I18N.vi;
 
       document.title = dict.title;
 
       const codeEl = document.getElementById('lang-current-code');
       if (codeEl) codeEl.textContent = lang.toUpperCase();
+
+      document.querySelectorAll('.lang-item-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.lang === lang);
+      });
 
       document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.dataset.i18n;
@@ -2573,16 +2811,38 @@
       const sub = document.getElementById('brand-subtext');
       if (!sub) return;
       const lang = this.currentLang;
+      const dict = I18N[lang] || I18N.vi;
       if (this.cubeType === '2x2') {
-        sub.textContent = lang === 'vi' ? 'Khối Bỏ Túi • 8 Viên Góc' : 'Pocket Cube • 8 Corners';
+        const labels = {
+          vi: 'Rubik 2x2x2 • 8 Viên Góc',
+          en: 'Pocket Cube • 8 Corners',
+          ja: '2x2x2 • コーナー8個',
+          es: 'Cubo 2x2x2 • 8 Esquinas',
+          fr: 'Cube 2x2x2 • 8 Coins'
+        };
+        sub.textContent = labels[lang] || labels.vi;
       } else if (this.cubeType === 'mirror') {
-        sub.textContent = lang === 'vi' ? 'Gương Bạc Chrome Phản Chiếu' : 'Brushed Silver Chrome';
+        const labels = {
+          vi: 'Rubik Gương 3x3 • Phản Chiếu Bạc',
+          en: 'Mirror Blocks 3x3 • Silver Chrome',
+          ja: '3x3 ミラーブロックス • シルバー',
+          es: 'Mirror Blocks 3x3 • Cromo Plateado',
+          fr: 'Cube Miroir 3x3 • Chrome Argenté'
+        };
+        sub.textContent = labels[lang] || labels.vi;
       } else if (this.cubeType === '4x4') {
-        sub.textContent = lang === 'vi' ? "Khối 4 Tầng • 56 Viên Cubie" : "Rubik's Revenge • 56 Cubies";
+        const labels = {
+          vi: "Rubik 4x4x4 • 56 Viên Cubie",
+          en: "Rubik's Revenge • 56 Cubies",
+          ja: "4x4x4 リベンジ • 56個",
+          es: "Cubo 4x4x4 • 56 Piezas",
+          fr: "Cube 4x4x4 • 56 Pièces"
+        };
+        sub.textContent = labels[lang] || labels.vi;
       } else {
         const cubeInfo = ICONIC_CUBES[this.currentIconicCube];
         const cubeName = cubeInfo ? cubeInfo.name : 'GAN 14';
-        sub.textContent = `${cubeName} • ${I18N[lang].brandSubtext}`;
+        sub.textContent = `${cubeName} • ${dict.brandSubtext}`;
       }
     }
 
@@ -4214,14 +4474,14 @@
               quote: '“Đừng học thuộc lòng vẹt! Hãy hiểu cơ chế hoán vị của từng viên cạnh và góc. Nắm vững Sexy Move (R U R\' U\') sẽ giải quyết được 80% tình huống.”',
               scramble: "D' R2 U' B2 U F2 D' B2 L2 D2 L' U B' R2 B2 D2 U' F L",
               tryType: 'scramble',
-              tryLabel: '⚡ Nạp Scramble Luyện Tập'
+              tryLabel: 'Nạp Scramble Luyện Tập'
             },
             {
               id: 'jperm_cfop',
               pro: 'jperm',
               author: 'J Perm',
               authorSub: '5.2M Subscribers • Thánh Hướng Dẫn',
-              avatar: '⚡',
+              avatar: '🎯',
               level: 'CFOP (Sub-20)',
               badgeClass: 'badge-cfop',
               title: 'Lộ Trình Học Full CFOP Từ Sub-60 Xuống Sub-20',
@@ -4230,7 +4490,7 @@
               quote: '“Look-ahead quan trọng hơn TPS rất nhiều. Khi xoay cặp F2L hiện tại, mắt bạn phải quét tìm cặp F2L tiếp theo. Tuyệt đối không nhìn vào viên đang xoay!”',
               scramble: "R U R' U' R' F R2 U' R' U' R U R' F'",
               tryType: 'alg',
-              tryLabel: '⚡ Thử T-Perm Kinh Điển'
+              tryLabel: 'Thử T-Perm Kinh Điển'
             },
             {
               id: 'feliks_inspection',
@@ -4246,7 +4506,7 @@
               quote: '“15 giây quan sát đầu trận là 70% chiến thắng. Mục tiêu là lập kế hoạch giải xong Chữ Thập (Cross) nhắm mắt dưới 8 bước, đồng thời bám vết cặp F2L đầu tiên!”',
               scramble: "B2 L2 U2 R2 D' F2 D B2 R2 D2 U' F' L' B' D' R' F' D R2 U",
               tryType: 'scramble',
-              tryLabel: '⚡ Thử Scramble 4.22s Của Feliks'
+              tryLabel: 'Thử Scramble 4.22s Của Feliks'
             },
             {
               id: 'max_park_wr',
@@ -4262,14 +4522,14 @@
               quote: '“Hạn chế tối đa việc xoay toàn bộ khối (Cube Rotations). Hãy học cách chèn F2L vào các khe phía sau (Back-slot insertion) bằng cả hai tay để giữ nhịp TPS trên 10 turns/s!”',
               scramble: "D2 F' R2 U' B2 L2 F2 R2 U' B2 U F R' D' F2 L' B2 D2 F' R2",
               tryType: 'scramble',
-              tryLabel: '⚡ Nạp Kỷ Lục WR 3.13s Của Max'
+              tryLabel: 'Nạp Kỷ Lục WR 3.13s Của Max'
             },
             {
               id: 'tymon_fingertricks',
               pro: 'tymon',
               author: 'Tymon Kolasiński',
               authorSub: 'Vô Địch Châu Âu • Bậc Thầy TPS & FMC',
-              avatar: '⚡',
+              avatar: '⏱️',
               level: 'Chuyên Nghiệp (Sub-10)',
               badgeClass: 'badge-tps',
               title: 'Tymon Hướng Dẫn Finger-tricks Mượt Mà Cho Sexy Move, Sune & PLL',
@@ -4278,7 +4538,7 @@
               quote: '“Đừng gồng cổ tay! Xoay bằng đầu đốt ngón trỏ và ngón áp út. Thành thạo U2 Double Flick (ngón trỏ rồi ngón giữa kéo bồi) sẽ nhân đôi TPS của bạn!”',
               scramble: "R U2 R' U' R U' R'",
               tryType: 'alg',
-              tryLabel: '⚡ Luyện Sune Siêu Tốc'
+              tryLabel: 'Luyện Sune Siêu Tốc'
             }
           ]
         },
@@ -4295,7 +4555,7 @@
               pro: 'jperm',
               author: 'J Perm',
               authorSub: '5.2M Subscribers • Thánh Hướng Dẫn',
-              avatar: '⚡',
+              avatar: '🎓',
               level: 'Cơ Bản & Tốc Độ',
               badgeClass: 'badge-beginner',
               title: 'Hướng Dẫn Giải Rubik 2x2 Cực Nhanh Bằng Phương Pháp Ortega',
@@ -4304,7 +4564,7 @@
               quote: '“Ortega là bí quyết giải 2x2 dưới 5 giây nhanh nhất: Giải mặt đáy bất kỳ -> OLL mặt trên -> Hoán vị cả 2 tầng (PBL) chỉ với 1 thuật toán.”',
               scramble: "R U' R' U' F2 U' R U R' D R2",
               tryType: 'alg',
-              tryLabel: '⚡ Thử PBL Cạnh Kề'
+              tryLabel: 'Thử PBL Cạnh Kề'
             },
             {
               id: '2x2_zayn',
@@ -4320,7 +4580,7 @@
               quote: '“Trong 15 giây quan sát, bạn phải giải xong cả khối trong đầu trước khi chạm tay vào Rubik. Tốc độ quay đạt tới 14 turns/giây.”',
               scramble: "R2 F2 R2",
               tryType: 'alg',
-              tryLabel: '⚡ Thử 3 Nước Diệu Kỳ R2 F2 R2'
+              tryLabel: 'Thử 3 Nước R2 F2 R2'
             },
             {
               id: '2x2_cubehead',
@@ -4336,7 +4596,7 @@
               quote: '“Sử dụng ngón áp út tay trái kéo tầng D và tập thói quen không bao giờ xoay cả khối (Zero Rotations) khi giải 2x2.”',
               scramble: "F R U' R' U' R U R' F' R U R' U' R' F R F'",
               tryType: 'alg',
-              tryLabel: '⚡ Luyện Y-Perm 2x2'
+              tryLabel: 'Luyện Y-Perm 2x2'
             }
           ]
         },
@@ -4362,7 +4622,7 @@
               quote: '“Đừng bị đánh lừa bởi màu sắc đồng nhất! Khối Rubik Gương chính là 3x3 nhưng mã hóa bằng kích thước. Tìm tâm có độ nhô cao nhất làm tầng đáy và giải theo CFOP.”',
               scramble: "R U R' U' R' F R2 U' R' U' R U R' F'",
               tryType: 'alg',
-              tryLabel: '⚡ Thử T-Perm Cho Mirror Cube'
+              tryLabel: 'Thử T-Perm Cho Mirror'
             },
             {
               id: 'mirror_tingman',
@@ -4378,7 +4638,7 @@
               quote: '“Ngón tay bạn là cảm biến nhạy nhất: vuốt nhẹ ngón cái qua gờ giữa các khối. Nếu trơn tru không gợn, bạn đã tìm đúng vị trí của viên cạnh!”',
               scramble: "F R U R' U' F'",
               tryType: 'alg',
-              tryLabel: '⚡ Thử Mặt Phẳng Tầng Đỉnh'
+              tryLabel: 'Thử Mặt Phẳng Tầng Đỉnh'
             },
             {
               id: 'mirror_cubehead',
@@ -4394,7 +4654,7 @@
               quote: '“Khối Rubik biến hình cực kỳ ấn tượng khi xáo trộn. Luyện tập trí tưởng tượng không gian 3D sẽ giúp bạn giải nó nhanh như 3x3 thông thường!”',
               scramble: "R U R' U R U2 R'",
               tryType: 'alg',
-              tryLabel: '⚡ Thử Sune Tầng 3'
+              tryLabel: 'Thử Sune Tầng 3'
             }
           ]
         },
@@ -4411,7 +4671,7 @@
               pro: 'jperm',
               author: 'J Perm',
               authorSub: '5.2M Subscribers • Thánh Hướng Dẫn',
-              avatar: '⚡',
+              avatar: '🎓',
               level: 'Yau Method Chuẩn Thi Đấu',
               badgeClass: 'badge-cfop',
               title: 'Hướng Dẫn Giải Rubik 4x4 Toàn Diện Bằng Phương Pháp Yau Method',
@@ -4420,7 +4680,7 @@
               quote: '“Yau Method giải quyết triệt để vấn đề mất dấu Chữ Thập. Hoàn thành 2 tâm đối diện -> 3 cạnh chữ thập trắng -> 4 tâm còn lại -> ghép cạnh 3-2-2-2!”',
               scramble: "Rw U2 x Rw U2 Rw U2 Rw' U2 Lw U2 Rw' U2 Rw U2 Rw' U2 Rw'",
               tryType: 'alg',
-              tryLabel: '⚡ Nạp Công Thức OLL Parity'
+              tryLabel: 'Nạp Công Thức OLL Parity'
             },
             {
               id: '4x4_maxpark',
@@ -4436,7 +4696,7 @@
               quote: '“Khi ghép cạnh 4x4, luôn giữ tầm nhìn rộng mở bao quát toàn khối. Đừng bao giờ chớp mắt ở giai đoạn 3-2-2-2 và chuẩn bị sẵn tay cho thuật toán Parity.”',
               scramble: "2R2 U2 2R2 Uw2 2R2 2Uw2",
               tryType: 'alg',
-              tryLabel: '⚡ Nạp Công Thức PLL Parity'
+              tryLabel: 'Nạp Công Thức PLL Parity'
             },
             {
               id: '4x4_feliks',
@@ -4452,7 +4712,7 @@
               quote: '“Nắm chắc công thức hoán đổi 2 cạnh đối diện Uw\' (R U R\' F R\' F\' R) Uw để ghép cặp mượt mà không cần suy nghĩ.”',
               scramble: "R U R' F R' F' R",
               tryType: 'alg',
-              tryLabel: '⚡ Thử Thuật Toán Lật Cạnh'
+              tryLabel: 'Thử Thuật Toán Lật Cạnh'
             }
           ]
         }
@@ -4586,11 +4846,9 @@
 
           <div class="pro-card-actions">
             <button class="pro-btn-watch btn-watch-video" title="Xem video hướng dẫn">
-              <span>▶</span>
               <span>Xem Video</span>
             </button>
             <button class="pro-btn-try btn-try-action" title="${video.tryLabel}">
-              <span>⚡</span>
               <span>${video.tryLabel}</span>
             </button>
           </div>
@@ -4668,17 +4926,37 @@
       if (this.app.cubeType !== '3x3') {
         const stageBadge = document.getElementById('coach-stage-badge');
         const stageDesc = document.getElementById('coach-stage-desc');
-        const isVi = this.app.currentLang === 'vi';
+        const lang = this.app.currentLang;
+        const cubeUpper = this.app.cubeType.toUpperCase();
         if (stageBadge) {
-          stageBadge.textContent = isVi ? `KHỐI ${this.app.cubeType.toUpperCase()}` : `${this.app.cubeType.toUpperCase()} CUBE`;
+          const badgeTexts = {
+            vi: `KHỐI ${cubeUpper}`,
+            en: `${cubeUpper} CUBE`,
+            ja: `${cubeUpper} キューブ`,
+            es: `CUBO ${cubeUpper}`,
+            fr: `CUBE ${cubeUpper}`
+          };
+          stageBadge.textContent = badgeTexts[lang] || badgeTexts.vi;
           stageBadge.className = 'stage-badge badge-ready';
         }
         if (stageDesc) {
-          stageDesc.innerHTML = isVi
-            ? `Bạn đang luyện tập khối <strong>${this.app.cubeType.toUpperCase()}</strong>. Hãy tự do luyện tập xoay, hoặc nhấp vào tiêu đề để chuyển về khối 3x3x3 nhận phân tích CFOP nhé!`
-            : `You are currently training on the <strong>${this.app.cubeType.toUpperCase()}</strong> cube. Feel free to practice, or click the title to switch to 3x3x3 for full CFOP diagnostics!`;
+          const descTexts = {
+            vi: `Bạn đang luyện tập khối <strong>${cubeUpper}</strong>. Nhấp vào tiêu đề để chuyển về khối 3x3x3 nhận gợi ý CFOP.`,
+            en: `Training on <strong>${cubeUpper}</strong> cube. Switch to 3x3x3 for full CFOP hints.`,
+            ja: `現在 <strong>${cubeUpper}</strong> の練習中です。CFOP診断を行うには3x3x3を選択してください。`,
+            es: `Entrenando con el cubo <strong>${cubeUpper}</strong>. Cambia a 3x3x3 para sugerencias CFOP.`,
+            fr: `Entraînement sur le cube <strong>${cubeUpper}</strong>. Choisissez le 3x3x3 pour les indices CFOP.`
+          };
+          stageDesc.innerHTML = descTexts[lang] || descTexts.vi;
         }
-        this.updateHintDisplay([], isVi ? 'Chế độ luyện tập tự do' : 'Free practice mode', 'ready');
+        const freeTexts = {
+          vi: 'Chế độ luyện tập',
+          en: 'Practice mode',
+          ja: '練習モード',
+          es: 'Modo práctica',
+          fr: 'Mode entraînement'
+        };
+        this.updateHintDisplay([], freeTexts[lang] || freeTexts.vi, 'ready');
         return;
       }
 
@@ -4873,7 +5151,7 @@
           this.analyze();
         }
       });
-      this.addChatMessage('assistant', `⚡ Mình vừa xoay demo cho bạn chuỗi: <strong>${movesToRun.join(' ')}</strong> trên khối 3D! Bạn có thể bấm tiếp tục để giải từng bước.`);
+      this.addChatMessage('assistant', `Mình vừa xoay demo cho bạn chuỗi: <strong>${movesToRun.join(' ')}</strong> trên khối 3D! Bạn có thể bấm tiếp tục để giải từng bước.`);
     }
 
     handleQuickPrompt(promptKey) {
@@ -4884,7 +5162,7 @@
         this.addChatMessage('assistant', `🔍 <strong>Phân Tích Hiện Tại:</strong> ${stageDesc}<br><br>💡 Gợi ý nước đi tối ưu: <code>${this.currentHintMoves.join(' ') || 'None'}</code>. Bạn bấm nút <strong>"AI Xoay Demo Trên 3D"</strong> để xem trực tiếp nhé!`);
       } else if (promptKey === 'sexy') {
         this.addChatMessage('user', 'Sexy Move là gì và tại sao tuyển thủ hay dùng?');
-        this.addChatMessage('assistant', `⚡ <strong>Sexy Move</strong> là tổ hợp 4 bước kinh điển nhất thế giới speedcubing:<br><br>
+        this.addChatMessage('assistant', `<strong>Sexy Move</strong> là tổ hợp 4 bước kinh điển nhất thế giới speedcubing:<br><br>
         <code>R U R' U'</code> (Phải lên, Trên sang trái, Phải xuống, Trên sang phải).<br><br>
         ✨ <em>Bí mật thú vị:</em> Nếu khối Rubik đang giải xong, bạn thực hiện Sexy Move đúng <strong>6 lần liên tiếp</strong>, khối sẽ tự động trở về trạng thái giải hoàn tất ban đầu!`);
       } else if (promptKey === 'oll') {
@@ -4932,7 +5210,7 @@
         } else if (lower.includes('sune') || lower.includes('mặt vàng')) {
           this.addChatMessage('assistant', `🌟 <strong>Công thức Sune:</strong> <code>R U R' U R U2 R'</code>. Đây là thuật toán OLL phổ biến và dễ xoay nhất thế giới, dùng để định hướng các góc vàng lên trên!`);
         } else if (lower.includes('nhanh') || lower.includes('tốc độ') || lower.includes('tps')) {
-          this.addChatMessage('assistant', `⚡ <strong>Tăng tốc độ xoay (TPS):</strong> Đừng xoay bằng toàn bộ bàn tay hay cổ tay. Hãy dùng đầu đốt ngón tay trỏ và ngón áp út. Hãy vào tab <strong>Tuyển Thủ</strong> để xem hướng dẫn finger-trick của Tymon nhé!`);
+          this.addChatMessage('assistant', `🏎️ <strong>Tăng tốc độ xoay (TPS):</strong> Đừng xoay bằng toàn bộ bàn tay hay cổ tay. Hãy dùng đầu đốt ngón tay trỏ và ngón áp út. Hãy vào tab <strong>Tuyển Thủ</strong> để xem hướng dẫn finger-trick của Tymon nhé!`);
         } else if (lower.includes('kẹt') || lower.includes('giải hộ') || lower.includes('giúp')) {
           this.addChatMessage('assistant', `💪 Đừng lo lắng! Bấm ngay nút <strong>"AI Xoay Demo Trên 3D"</strong> ở trên để mình biểu diễn nước đi trực tiếp trên khối cho bạn xem nhé!`);
         } else {
@@ -4947,7 +5225,7 @@
 
       const msgDiv = document.createElement('div');
       msgDiv.className = `chat-msg ${role === 'user' ? 'user-msg' : 'coach-msg'}`;
-      const avatar = role === 'user' ? (this.app.userProfile.avatar || '⚡') : '🤖';
+      const avatar = role === 'user' ? (this.app.userProfile.avatar || '👤') : '🤖';
 
       msgDiv.innerHTML = `
         <div class="msg-avatar">${avatar}</div>

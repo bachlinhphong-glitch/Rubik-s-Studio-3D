@@ -689,21 +689,56 @@ html, body {
   overflow: hidden;
 }
 
-/* Panel Tabs - Colorful, Ergonomic & Never-Wrapping */
+/* Panel Tabs Container with Left/Right Scroll Arrows */
+.panel-tabs-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: rgba(10, 15, 28, 0.9);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 0 4px;
+}
+
 .panel-tabs {
   display: flex;
-  background: rgba(10, 15, 28, 0.85);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 8px 10px;
   gap: 6px;
   overflow-x: auto;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
   flex-wrap: nowrap;
+  padding: 8px 4px;
+  scroll-behavior: smooth;
+  flex: 1;
 }
 
 .panel-tabs::-webkit-scrollbar {
   display: none;
+}
+
+.tabs-scroll-arrow {
+  width: 22px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #cbd5e1;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1.1rem;
+  font-weight: 700;
+  line-height: 1;
+  transition: all 0.2s ease;
+  user-select: none;
+  flex-shrink: 0;
+  z-index: 2;
+}
+
+.tabs-scroll-arrow:hover {
+  background: rgba(99, 102, 241, 0.35);
+  color: #ffffff;
+  border-color: #818cf8;
 }
 
 .tab-btn {
@@ -711,16 +746,16 @@ html, body {
   white-space: nowrap;
   display: inline-flex;
   align-items: center;
-  gap: 7px;
+  gap: 6px;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.08);
   color: #cbd5e1;
-  font-size: 0.78rem;
+  font-size: 0.74rem;
   font-weight: 600;
-  padding: 7px 13px;
+  padding: 6px 11px;
   border-radius: var(--radius-full);
   cursor: pointer;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   user-select: none;
 }
 
@@ -2353,25 +2388,44 @@ kbd {
   display: flex;
   gap: 6px;
   overflow-x: auto;
-  padding-bottom: 4px;
+  padding: 4px 0 8px 0;
+  scrollbar-width: none;
+}
+
+.cheat-filter-bar::-webkit-scrollbar {
+  display: none;
 }
 
 .cheat-filter-btn {
-  padding: 6px 12px;
-  background: rgba(30, 41, 59, 0.7);
-  border: 1px solid var(--border-subtle);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 14px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: var(--radius-full);
-  color: var(--text-muted);
-  font-size: 0.75rem;
+  color: #f1f5f9 !important;
+  font-size: 0.76rem;
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
+  line-height: 1.2;
   transition: all 0.15s ease;
+  user-select: none;
 }
 
 .cheat-filter-btn:hover {
-  background: rgba(51, 65, 85, 0.9);
-  color: #ffffff;
+  background: rgba(255, 255, 255, 0.18);
+  color: #ffffff !important;
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.cheat-filter-btn.active {
+  background: #fbbf24;
+  color: #0f172a !important;
+  border-color: #f59e0b;
+  font-weight: 700;
+  box-shadow: 0 0 10px rgba(251, 191, 36, 0.4);
 }
 
 .cheat-filter-btn.active {
@@ -3625,31 +3679,107 @@ kbd {
 }
 
 .masterclass-filter-bar {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
   margin-bottom: 12px;
+  padding-bottom: 4px;
+  scrollbar-width: none;
+}
+
+.masterclass-filter-bar::-webkit-scrollbar {
+  display: none;
 }
 
 .masterclass-filter-btn {
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: var(--text-dim);
-  padding: 4px 10px;
-  font-size: 0.72rem;
-  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 14px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: var(--radius-full);
+  color: #f1f5f9 !important;
+  font-size: 0.76rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s;
   white-space: nowrap;
+  line-height: 1.2;
+  transition: all 0.15s ease;
+  user-select: none;
 }
 
 .masterclass-filter-btn:hover {
-  background: rgba(255, 255, 255, 0.12);
-  color: #ffffff;
+  background: rgba(255, 255, 255, 0.18);
+  color: #ffffff !important;
+  border-color: rgba(255, 255, 255, 0.3);
 }
 
 .masterclass-filter-btn.active {
+  background: #6366f1;
+  color: #ffffff !important;
+  border-color: #818cf8;
+  font-weight: 700;
+  box-shadow: 0 0 10px rgba(99, 102, 241, 0.4);
+}
+
+/* Hide Long Verbose Descriptions in Cube Selector */
+.cs-type-desc, .cs-sc-info {
+  display: none !important;
+}
+
+/* Multi-Language Dropdown Menu */
+.lang-dropdown-wrapper {
+  position: relative;
+}
+
+.lang-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  background: rgba(15, 23, 42, 0.96);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: var(--radius-md);
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 140px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.65);
+  z-index: 1000;
+}
+
+.lang-dropdown-menu.hidden {
+  display: none !important;
+}
+
+.lang-item-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: transparent;
+  border: none;
+  color: #e2e8f0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.lang-item-btn:hover {
   background: rgba(99, 102, 241, 0.25);
-  border-color: rgba(129, 140, 248, 0.6);
   color: #ffffff;
+}
+
+.lang-item-btn.active {
+  background: var(--primary);
+  color: #ffffff;
+  font-weight: 700;
 }
 
 .masterclass-card-list {
