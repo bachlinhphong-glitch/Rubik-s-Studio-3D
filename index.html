@@ -513,7 +513,7 @@
       <!-- Tab: Formula Cheat Sheet (Beginner & CFOP) -->
       <div id="cheatsheet-tab" class="tab-content">
         <!-- Filter Category Tabs -->
-        <div class="cheat-filter-bar">
+        <div id="cheat-filter-bar" class="cheat-filter-bar">
           <button class="cheat-filter-btn active" data-category="all">Tất Cả</button>
           <button class="cheat-filter-btn" data-category="beginner">Cơ Bản (7 Bước)</button>
           <button class="cheat-filter-btn" data-category="oll">2-Look OLL</button>
@@ -536,7 +536,7 @@
         </div>
 
         <!-- Filter Category Tabs -->
-        <div class="cheat-filter-bar masterclass-filter-bar">
+        <div id="masterclass-filter-bar" class="cheat-filter-bar masterclass-filter-bar">
           <button class="masterclass-filter-btn active" data-pro="all">Tất Cả</button>
           <button class="masterclass-filter-btn" data-pro="jperm">J Perm</button>
           <button class="masterclass-filter-btn" data-pro="feliks">Feliks Zemdegs</button>
@@ -901,15 +901,34 @@
             </button>
             <label class="action-btn btn-outline file-upload-btn" title="Tải ảnh mặt Rubik">
               <span class="btn-icon">📁</span>
-              <span>Tải Ảnh Lên</span>
-              <input type="file" id="camera-file-input" accept="image/*" style="display:none;">
+              <span>Tải Ảnh (1 hoặc Nhiều Ảnh)</span>
+              <input type="file" id="camera-file-input" accept="image/*" multiple style="display:none;">
             </label>
           </div>
 
-          <!-- Detected Mini Grid of Active Face -->
+          <!-- Detected Mini Grid of Active Face & 1-Tap Quick Fix Palette -->
           <div class="mini-grid-container">
-            <div class="mini-grid-title">Màu 9 ô nhận diện được (bấm ô bất kỳ để sửa màu nếu webcam nhận nhầm):</div>
-            <div id="detected-mini-grid" class="detected-mini-grid"></div>
+            <div class="mini-grid-header">
+              <span class="mini-grid-title">Mặt đang xem: <strong id="mini-grid-face-name">U (Trắng)</strong></span>
+              <div class="mini-grid-nav-btns">
+                <button id="btn-prev-face" class="btn-face-nav" type="button" title="Mặt trước">⬅ Trước</button>
+                <button id="btn-next-face" class="btn-face-nav" type="button" title="Mặt tiếp theo">Tiếp ➡</button>
+              </div>
+            </div>
+            <div class="mini-grid-workbench">
+              <div id="detected-mini-grid" class="detected-mini-grid"></div>
+              <div class="mini-grid-quick-fix">
+                <span class="quick-fix-label">Sửa nhanh ô đang chọn:</span>
+                <div class="quick-swatches">
+                  <button type="button" class="quick-swatch-btn" data-color="U" style="background: #ffffff; color: #0f172a;" title="Trắng (U)">Trắng</button>
+                  <button type="button" class="quick-swatch-btn" data-color="D" style="background: #ffd500; color: #0f172a;" title="Vàng (D)">Vàng</button>
+                  <button type="button" class="quick-swatch-btn" data-color="F" style="background: #009b48; color: #ffffff;" title="Xanh lá (F)">Lá</button>
+                  <button type="button" class="quick-swatch-btn" data-color="B" style="background: #0046ad; color: #ffffff;" title="Xanh dương (B)">Dương</button>
+                  <button type="button" class="quick-swatch-btn" data-color="R" style="background: #b71234; color: #ffffff;" title="Đỏ (R)">Đỏ</button>
+                  <button type="button" class="quick-swatch-btn" data-color="L" style="background: #ff5800; color: #ffffff;" title="Cam (L)">Cam</button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 

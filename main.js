@@ -414,26 +414,8 @@
     }
 
     playCelebrationFanfare() {
-      if (!this.enabled || this.soundPack === 'mute') return;
-      try {
-        this.init();
-        if (!this.ctx) return;
-        if (this.ctx.state === 'suspended') this.ctx.resume();
-        const now = this.ctx.currentTime;
-        // Joyful fanfare: C5, E5, G5, C6 (chord arpeggio)
-        [523.25, 659.25, 783.99, 1046.50, 1318.51].forEach((freq, idx) => {
-          const osc = this.ctx.createOscillator();
-          const gain = this.ctx.createGain();
-          osc.type = 'triangle';
-          osc.frequency.setValueAtTime(freq, now + idx * 0.09);
-          gain.gain.setValueAtTime(0.25 * this.volume, now + idx * 0.09);
-          gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.09 + 0.35);
-          osc.connect(gain);
-          gain.connect(this.ctx.destination);
-          osc.start(now + idx * 0.09);
-          osc.stop(now + idx * 0.09 + 0.4);
-        });
-      } catch {}
+      // User requirement: No celebration sounds or fanfare in the app
+      return;
     }
 
     playBeep(freq = 880, duration = 0.08) {
@@ -491,27 +473,8 @@
     }
 
     burst(count = 140) {
-      this.init();
-      const colors = ['#38bdf8', '#818cf8', '#34d399', '#facc15', '#f43f5e', '#fb923c', '#e879f9'];
-      for (let i = 0; i < count; i++) {
-        this.particles.push({
-          x: window.innerWidth * (0.3 + Math.random() * 0.4),
-          y: window.innerHeight * 0.65,
-          vx: (Math.random() - 0.5) * 18,
-          vy: -Math.random() * 20 - 8,
-          size: Math.random() * 8 + 5,
-          color: colors[Math.floor(Math.random() * colors.length)],
-          rotation: Math.random() * 360,
-          vrot: (Math.random() - 0.5) * 14,
-          gravity: 0.45,
-          alpha: 1
-        });
-      }
-
-      if (!this.animating) {
-        this.animating = true;
-        this.loop();
-      }
+      // User requirement: No confetti or celebration particles
+      return;
     }
 
     loop() {
@@ -743,7 +706,54 @@
       this.scene.add(this.envGroup);
       this.setEnvironment(this.currentEnv);
 
+      // Studio HDR-style environment map for PBR metallic reflections
+      const studioEnv = this.createStudioEnvironment();
+      if (studioEnv) {
+        this.scene.environment = studioEnv;
+      }
+
       window.addEventListener('resize', () => this.onWindowResize());
+    }
+
+    createStudioEnvironment() {
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = 512;
+        canvas.height = 256;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return null;
+
+        // Smooth studio lighting gradient
+        const grad = ctx.createLinearGradient(0, 0, 0, 256);
+        grad.addColorStop(0, '#f8fafc');
+        grad.addColorStop(0.35, '#94a3b8');
+        grad.addColorStop(0.55, '#64748b');
+        grad.addColorStop(0.8, '#334155');
+        grad.addColorStop(1, '#0f172a');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, 512, 256);
+
+        // Softbox highlights for metallic gleam
+        const drawSoftbox = (cx, cy, rx, ry, color) => {
+          const rad = ctx.createRadialGradient(cx, cy, 0, cx, cy, rx);
+          rad.addColorStop(0, color);
+          rad.addColorStop(1, 'rgba(255,255,255,0)');
+          ctx.fillStyle = rad;
+          ctx.beginPath();
+          ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
+          ctx.fill();
+        };
+
+        drawSoftbox(140, 70, 110, 50, 'rgba(255, 255, 255, 0.95)');
+        drawSoftbox(380, 80, 95, 45, 'rgba(224, 242, 254, 0.85)');
+        drawSoftbox(256, 170, 70, 35, 'rgba(254, 243, 199, 0.55)');
+
+        const texture = new THREE.CanvasTexture(canvas);
+        texture.mapping = THREE.EquirectangularReflectionMapping;
+        return texture;
+      } catch (e) {
+        return null;
+      }
     }
 
     onWindowResize() {
@@ -963,20 +973,7 @@
     }
 
     celebrateSolve(isNewPB = false) {
-      this.audio.playCelebrationFanfare();
-      this.confetti?.burst();
-
-      const toast = document.createElement('div');
-      toast.className = 'celebration-toast';
-      toast.innerHTML = isNewPB
-        ? `🎉 <strong>KỶ LỤC MỚI (NEW PB)!</strong>`
-        : `✨ <strong>CUBE SOLVED - CHÚC MỪNG BẠN!</strong>`;
-      document.body.appendChild(toast);
-      setTimeout(() => toast.classList.add('show'), 20);
-      setTimeout(() => {
-        toast.classList.remove('show');
-        setTimeout(() => toast.remove(), 400);
-      }, 3500);
+      // User requirement: No celebration toasts, confetti or fanfare
     }
 
     toggleFocusMode() {
@@ -1244,11 +1241,22 @@
     }
 
     createMirrorCube() {
-      const mirrorMat = new THREE.MeshStandardMaterial({
-        color: 0xdde5ed,
-        metalness: 0.94,
-        roughness: 0.15
+      // Dark sleek titanium chassis
+      const coreMat = new THREE.MeshStandardMaterial({
+        color: 0x181e29,
+        metalness: 0.35,
+        roughness: 0.45
       });
+
+      // Vibrant Metallic Jewel Face Finish (Gleaming studio reflections)
+      const mirrorMaterials = {
+        U: new THREE.MeshStandardMaterial({ color: 0xf8fafc, metalness: 0.85, roughness: 0.14 }), // Platinum White
+        D: new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.88, roughness: 0.15 }), // Royal Gold
+        F: new THREE.MeshStandardMaterial({ color: 0x10b981, metalness: 0.85, roughness: 0.14 }), // Emerald Green
+        B: new THREE.MeshStandardMaterial({ color: 0x3b82f6, metalness: 0.88, roughness: 0.14 }), // Sapphire Blue
+        R: new THREE.MeshStandardMaterial({ color: 0xef4444, metalness: 0.85, roughness: 0.14 }), // Ruby Red
+        L: new THREE.MeshStandardMaterial({ color: 0xf97316, metalness: 0.88, roughness: 0.15 })  // Sunset Copper
+      };
 
       const wArr = [0.65, 0.96, 1.28];
       const hArr = [0.56, 0.96, 1.38];
@@ -1269,7 +1277,7 @@
             cubie.castShadow = true;
 
             const boxGeo = new THREE.BoxGeometry(w, h, d);
-            const coreMesh = new THREE.Mesh(boxGeo, mirrorMat);
+            const coreMesh = new THREE.Mesh(boxGeo, coreMat);
             coreMesh.castShadow = true;
             coreMesh.receiveShadow = true;
             cubie.add(coreMesh);
@@ -1278,7 +1286,7 @@
 
             if (iy === 1) {
               const sGeo = new THREE.PlaneGeometry(w * 0.90, d * 0.90);
-              const sm = new THREE.Mesh(sGeo, mirrorMat);
+              const sm = new THREE.Mesh(sGeo, mirrorMaterials.U);
               sm.position.set(0, h / 2 + 0.003, 0);
               sm.rotation.x = -Math.PI / 2;
               sm.userData = { face: 'U', isSticker: true };
@@ -1287,7 +1295,7 @@
             }
             if (iy === -1) {
               const sGeo = new THREE.PlaneGeometry(w * 0.90, d * 0.90);
-              const sm = new THREE.Mesh(sGeo, mirrorMat);
+              const sm = new THREE.Mesh(sGeo, mirrorMaterials.D);
               sm.position.set(0, -h / 2 - 0.003, 0);
               sm.rotation.x = Math.PI / 2;
               sm.userData = { face: 'D', isSticker: true };
@@ -1296,7 +1304,7 @@
             }
             if (ix === 1) {
               const sGeo = new THREE.PlaneGeometry(d * 0.90, h * 0.90);
-              const sm = new THREE.Mesh(sGeo, mirrorMat);
+              const sm = new THREE.Mesh(sGeo, mirrorMaterials.R);
               sm.position.set(w / 2 + 0.003, 0, 0);
               sm.rotation.y = Math.PI / 2;
               sm.userData = { face: 'R', isSticker: true };
@@ -1305,7 +1313,7 @@
             }
             if (ix === -1) {
               const sGeo = new THREE.PlaneGeometry(d * 0.90, h * 0.90);
-              const sm = new THREE.Mesh(sGeo, mirrorMat);
+              const sm = new THREE.Mesh(sGeo, mirrorMaterials.L);
               sm.position.set(-w / 2 - 0.003, 0, 0);
               sm.rotation.y = -Math.PI / 2;
               sm.userData = { face: 'L', isSticker: true };
@@ -1314,7 +1322,7 @@
             }
             if (iz === 1) {
               const sGeo = new THREE.PlaneGeometry(w * 0.90, h * 0.90);
-              const sm = new THREE.Mesh(sGeo, mirrorMat);
+              const sm = new THREE.Mesh(sGeo, mirrorMaterials.F);
               sm.position.set(0, 0, d / 2 + 0.003);
               sm.userData = { face: 'F', isSticker: true };
               cubie.add(sm);
@@ -1322,7 +1330,7 @@
             }
             if (iz === -1) {
               const sGeo = new THREE.PlaneGeometry(w * 0.90, h * 0.90);
-              const sm = new THREE.Mesh(sGeo, mirrorMat);
+              const sm = new THREE.Mesh(sGeo, mirrorMaterials.B);
               sm.position.set(0, 0, -d / 2 - 0.003);
               sm.rotation.y = Math.PI;
               sm.userData = { face: 'B', isSticker: true };
@@ -2603,6 +2611,14 @@
       this.createCube();
       this.updateBrandSubtext();
 
+      // Dynamic video & formula recommendations for the selected cube type
+      if (this.cheatSheet) {
+        this.cheatSheet.setCubeType(type);
+      }
+      if (this.masterclass) {
+        this.masterclass.setCubeType(type);
+      }
+
       const dict = I18N[this.currentLang];
       this.updateStatus(`${badgeNames[type]} ${dict.statusSolved}`, 'ready');
       this.clearSolutionUI();
@@ -2770,6 +2786,7 @@
       this.faceOrder = ['U', 'R', 'F', 'D', 'L', 'B'];
       this.currentFace = 'U';
       this.activeBrushColor = 'U';
+      this.selectedTileIndex = 0; // Active tile for 1-tap quick color fixing
 
       // 54 facelet state array (initialized to solved state)
       this.facelets = SOLVED_FACELETS.split('');
@@ -2799,11 +2816,22 @@
         });
       });
 
+      // Next / Prev Face Navigation
+      document.getElementById('btn-prev-face')?.addEventListener('click', () => this.advanceToPrevFace());
+      document.getElementById('btn-next-face')?.addEventListener('click', () => this.advanceToNextFace());
+
+      // 1-Tap Quick Swatch Color Fix
+      document.querySelectorAll('.quick-swatch-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          this.applyColorToSelectedTile(btn.dataset.color);
+        });
+      });
+
       // Camera Controls
       document.getElementById('btn-start-camera')?.addEventListener('click', () => this.toggleCamera());
       document.getElementById('btn-capture-face')?.addEventListener('click', () => this.captureAndDetect());
 
-      // Photo Upload
+      // Photo Upload (Single or Multiple Photos)
       const fileInput = document.getElementById('camera-file-input');
       fileInput?.addEventListener('change', (e) => this.handlePhotoUpload(e));
 
@@ -2940,24 +2968,56 @@
     }
 
     handlePhotoUpload(event) {
-      const file = event.target.files?.[0];
-      if (!file) return;
+      const files = Array.from(event.target.files || []);
+      if (files.length === 0) return;
 
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const img = new Image();
-        img.onload = () => {
-          const size = Math.min(img.width, img.height);
-          const startX = (img.width - size) / 2;
-          const startY = (img.height - size) / 2;
+      if (files.length === 1) {
+        const file = files[0];
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => {
+            const size = Math.min(img.width, img.height);
+            const startX = (img.width - size) / 2;
+            const startY = (img.height - size) / 2;
 
-          const detected = sampleFaceletColors(img, startX, startY, size);
-          this.applyDetectedToFace(this.currentFace, detected);
-          this.advanceToNextFace();
+            const detected = sampleFaceletColors(img, startX, startY, size);
+            this.applyDetectedToFace(this.currentFace, detected);
+            this.advanceToNextFace();
+          };
+          img.src = e.target.result;
         };
-        img.src = e.target.result;
-      };
-      reader.readAsDataURL(file);
+        reader.readAsDataURL(file);
+      } else {
+        // Multi-image upload: map up to 6 images to faces in order ['U', 'L', 'F', 'R', 'B', 'D']
+        const sequence = ['U', 'L', 'F', 'R', 'B', 'D'];
+        let processedCount = 0;
+        files.slice(0, 6).forEach((file, index) => {
+          const face = sequence[index];
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const img = new Image();
+            img.onload = () => {
+              const size = Math.min(img.width, img.height);
+              const startX = (img.width - size) / 2;
+              const startY = (img.height - size) / 2;
+              const detected = sampleFaceletColors(img, startX, startY, size);
+              this.applyDetectedToFace(face, detected);
+              processedCount++;
+              if (processedCount === Math.min(files.length, 6)) {
+                this.setCurrentFace('U');
+                const statusEl = document.getElementById('scanner-status-text');
+                if (statusEl) {
+                  statusEl.textContent = `Đã nhận diện thành công ${processedCount} mặt ảnh! Vui lòng kiểm tra lại sơ đồ bên dưới.`;
+                  statusEl.className = 'status-msg status-success';
+                }
+              }
+            };
+            img.src = e.target.result;
+          };
+          reader.readAsDataURL(file);
+        });
+      }
     }
 
     applyDetectedToFace(face, detectedList) {
@@ -2978,12 +3038,41 @@
       this.validateState();
     }
 
+    advanceToPrevFace() {
+      const sequence = ['U', 'L', 'F', 'R', 'B', 'D'];
+      const currentIdx = sequence.indexOf(this.currentFace);
+      if (currentIdx > 0) {
+        this.setCurrentFace(sequence[currentIdx - 1]);
+      } else {
+        this.setCurrentFace(sequence[sequence.length - 1]);
+      }
+    }
+
     advanceToNextFace() {
       const sequence = ['U', 'L', 'F', 'R', 'B', 'D'];
       const currentIdx = sequence.indexOf(this.currentFace);
       if (currentIdx < sequence.length - 1) {
         this.setCurrentFace(sequence[currentIdx + 1]);
+      } else {
+        this.setCurrentFace(sequence[0]);
       }
+    }
+
+    applyColorToSelectedTile(colorKey) {
+      if (this.selectedTileIndex === 4) return; // Center is locked
+      const faceOffsetMap = { U: 0, R: 9, F: 18, D: 27, L: 36, B: 45 };
+      const offset = faceOffsetMap[this.currentFace];
+      this.facelets[offset + this.selectedTileIndex] = colorKey;
+
+      // Auto advance to next non-center tile for fast continuous fixing
+      let nextTile = this.selectedTileIndex + 1;
+      if (nextTile === 4) nextTile = 5;
+      if (nextTile < 9) {
+        this.selectedTileIndex = nextTile;
+      }
+      this.renderDetectedMiniGrid();
+      this.render2DNet();
+      this.validateState();
     }
 
     renderDetectedMiniGrid() {
@@ -2994,17 +3083,36 @@
       const faceOffsetMap = { U: 0, R: 9, F: 18, D: 27, L: 36, B: 45 };
       const offset = faceOffsetMap[this.currentFace];
 
+      const nameEl = document.getElementById('mini-grid-face-name');
+      if (nameEl && COLOR_SCHEME[this.currentFace]) {
+        nameEl.textContent = `${this.currentFace} (${COLOR_SCHEME[this.currentFace].name})`;
+        nameEl.style.color = COLOR_SCHEME[this.currentFace].css;
+      }
+
       for (let i = 0; i < 9; i++) {
         const faceletIdx = offset + i;
         const colorKey = this.facelets[faceletIdx];
         const tile = document.createElement('div');
         tile.className = `mini-tile color-${colorKey}`;
-        tile.style.backgroundColor = COLOR_SCHEME[colorKey].css;
+        tile.style.backgroundColor = COLOR_SCHEME[colorKey]?.css || '#fff';
+        tile.textContent = colorKey;
         if (i === 4) tile.classList.add('center-tile');
+        if (i === this.selectedTileIndex) tile.classList.add('selected');
 
         tile.addEventListener('click', () => {
           if (i !== 4) {
-            this.facelets[faceletIdx] = this.activeBrushColor;
+            this.selectedTileIndex = i;
+            this.renderDetectedMiniGrid();
+          }
+        });
+
+        // Double click or right click cycles color directly
+        tile.addEventListener('dblclick', () => {
+          if (i !== 4) {
+            const colors = ['U', 'D', 'F', 'B', 'R', 'L'];
+            const curIdx = colors.indexOf(this.facelets[faceletIdx]);
+            const nextColor = colors[(curIdx + 1) % colors.length];
+            this.facelets[faceletIdx] = nextColor;
             this.renderDetectedMiniGrid();
             this.render2DNet();
             this.validateState();
@@ -3523,216 +3631,492 @@
   }
 
   // ==========================================================================
-  // Formula Cheat Sheet (Beginner & CFOP Speedcubing Algorithms)
+  // Formula Cheat Sheet (Beginner, CFOP, 2x2, Mirror, 4x4 Algorithms)
   // ==========================================================================
   class FormulaCheatSheet {
     constructor(app) {
       this.app = app;
+      this.cubeType = '3x3';
       this.activeCategory = 'all';
 
-      this.formulas = [
-        // --- Beginner 7 Steps ---
-        {
-          id: 'beg-1',
-          category: 'beginner',
-          title: 'Bước 1: Hoa Cúc & Dấu Cộng Trắng',
-          subtitle: 'Daisy to White Cross',
-          algs: ['F2'],
-          algString: 'F2 (hoặc đưa cạnh trắng về quanh tâm vàng trước)',
-          desc: 'Tập hợp 4 viên cạnh trắng về quanh tâm vàng, sau đó xoay tầng U khớp tâm màu rồi xoay F2 đưa xuống mặt đáy trắng.'
-        },
-        {
-          id: 'beg-2',
-          category: 'beginner',
-          title: 'Bước 2: Hoàn thành tầng 1 (Sexy Move)',
-          subtitle: 'First Layer Corners',
-          algs: ["R", "U", "R'", "U'"],
-          algString: "R U R' U'",
-          desc: 'Đưa viên góc trắng lên phía trên vị trí cần đến, lặp lại công thức 1 đến 5 lần cho đến khi viên góc vào đúng vị trí.'
-        },
-        {
-          id: 'beg-3r',
-          category: 'beginner',
-          title: 'Bước 3: Tầng 2 - Đưa Cạnh Sang Phải',
-          subtitle: 'Second Layer Right',
-          algs: ["U", "R", "U'", "R'", "U'", "F'", "U", "F"],
-          algString: "U R U' R' U' F' U F",
-          desc: 'Khi viên cạnh ở tầng 3 trùng màu tâm mặt trước và cần đưa sang bên phải tầng 2.'
-        },
-        {
-          id: 'beg-3l',
-          category: 'beginner',
-          title: 'Bước 3: Tầng 2 - Đưa Cạnh Sang Trái',
-          subtitle: 'Second Layer Left',
-          algs: ["U'", "L'", "U", "L", "U", "F", "U'", "F'"],
-          algString: "U' L' U L U F U' F'",
-          desc: 'Khi viên cạnh ở tầng 3 trùng màu tâm mặt trước và cần đưa sang bên trái tầng 2.'
-        },
-        {
-          id: 'beg-4',
-          category: 'beginner',
-          title: 'Bước 4: Tạo Dấu Cộng Vàng',
-          subtitle: 'Yellow Cross (FRUR\'U\'F\')',
-          algs: ["F", "R", "U", "R'", "U'", "F'"],
-          algString: "F R U R' U' F'",
-          desc: 'Áp dụng cho Chữ L ngược (hướng 9h-12h), Đường ngang hoặc Dấu chấm để tạo dấu cộng vàng.'
-        },
-        {
-          id: 'beg-5',
-          category: 'beginner',
-          title: 'Bước 5: Hoán vị 4 cạnh vàng (Sune)',
-          subtitle: 'Permute Edges (Sune)',
-          algs: ["R", "U", "R'", "U", "R", "U2", "R'"],
-          algString: "R U R' U R U2 R'",
-          desc: 'Đổi chỗ các viên cạnh vàng sao cho trùng màu với 4 tâm xung quanh.'
-        },
-        {
-          id: 'beg-6',
-          category: 'beginner',
-          title: 'Bước 6: Định vị 4 góc vàng (Niklas)',
-          subtitle: 'Position Yellow Corners',
-          algs: ["U", "R", "U'", "L'", "U", "R'", "U'", "L"],
-          algString: "U R U' L' U R' U' L",
-          desc: 'Đưa 4 viên góc vàng về đúng vị trí (chưa cần đúng hướng lật).'
-        },
-        {
-          id: 'beg-7',
-          category: 'beginner',
-          title: 'Bước 7: Lật đúng hướng góc vàng',
-          subtitle: 'Orient Corners (R\' D\' R D)',
-          algs: ["R'", "D'", "R", "D"],
-          algString: "R' D' R D (lặp lại đến khi mặt vàng hướng lên)",
-          desc: 'Giữ cố định khối, lặp lại R\' D\' R D đến khi góc vàng hướng lên trên, sau đó chỉ xoay U để đưa góc tiếp theo vào vị trí trên bên phải.'
-        },
+      this.dataByType = {
+        '3x3': {
+          categories: [
+            { id: 'all', name: 'Tất Cả' },
+            { id: 'beginner', name: 'Cơ Bản (7 Bước)' },
+            { id: 'oll', name: '2-Look OLL' },
+            { id: 'pll', name: '2-Look PLL' }
+          ],
+          formulas: [
+            // --- Beginner 7 Steps ---
+            {
+              id: 'beg-1',
+              category: 'beginner',
+              title: 'Bước 1: Hoa Cúc & Dấu Cộng Trắng',
+              subtitle: 'Daisy to White Cross',
+              algs: ['F2'],
+              algString: 'F2 (hoặc đưa cạnh trắng về quanh tâm vàng trước)',
+              desc: 'Tập hợp 4 viên cạnh trắng về quanh tâm vàng, sau đó xoay tầng U khớp tâm màu rồi xoay F2 đưa xuống mặt đáy trắng.'
+            },
+            {
+              id: 'beg-2',
+              category: 'beginner',
+              title: 'Bước 2: Hoàn thành tầng 1 (Sexy Move)',
+              subtitle: 'First Layer Corners',
+              algs: ["R", "U", "R'", "U'"],
+              algString: "R U R' U'",
+              desc: 'Đưa viên góc trắng lên phía trên vị trí cần đến, lặp lại công thức 1 đến 5 lần cho đến khi viên góc vào đúng vị trí.'
+            },
+            {
+              id: 'beg-3r',
+              category: 'beginner',
+              title: 'Bước 3: Tầng 2 - Đưa Cạnh Sang Phải',
+              subtitle: 'Second Layer Right',
+              algs: ["U", "R", "U'", "R'", "U'", "F'", "U", "F"],
+              algString: "U R U' R' U' F' U F",
+              desc: 'Khi viên cạnh ở tầng 3 trùng màu tâm mặt trước và cần đưa sang bên phải tầng 2.'
+            },
+            {
+              id: 'beg-3l',
+              category: 'beginner',
+              title: 'Bước 3: Tầng 2 - Đưa Cạnh Sang Trái',
+              subtitle: 'Second Layer Left',
+              algs: ["U'", "L'", "U", "L", "U", "F", "U'", "F'"],
+              algString: "U' L' U L U F U' F'",
+              desc: 'Khi viên cạnh ở tầng 3 trùng màu tâm mặt trước và cần đưa sang bên trái tầng 2.'
+            },
+            {
+              id: 'beg-4',
+              category: 'beginner',
+              title: 'Bước 4: Tạo Dấu Cộng Vàng',
+              subtitle: 'Yellow Cross (FRUR\'U\'F\')',
+              algs: ["F", "R", "U", "R'", "U'", "F'"],
+              algString: "F R U R' U' F'",
+              desc: 'Áp dụng cho Chữ L ngược (hướng 9h-12h), Đường ngang hoặc Dấu chấm để tạo dấu cộng vàng.'
+            },
+            {
+              id: 'beg-5',
+              category: 'beginner',
+              title: 'Bước 5: Hoán vị 4 cạnh vàng (Sune)',
+              subtitle: 'Permute Edges (Sune)',
+              algs: ["R", "U", "R'", "U", "R", "U2", "R'"],
+              algString: "R U R' U R U2 R'",
+              desc: 'Đổi chỗ các viên cạnh vàng sao cho trùng màu với 4 tâm xung quanh.'
+            },
+            {
+              id: 'beg-6',
+              category: 'beginner',
+              title: 'Bước 6: Định vị 4 góc vàng (Niklas)',
+              subtitle: 'Position Yellow Corners',
+              algs: ["U", "R", "U'", "L'", "U", "R'", "U'", "L"],
+              algString: "U R U' L' U R' U' L",
+              desc: 'Đưa 4 viên góc vàng về đúng vị trí (chưa cần đúng hướng lật).'
+            },
+            {
+              id: 'beg-7',
+              category: 'beginner',
+              title: 'Bước 7: Lật đúng hướng góc vàng',
+              subtitle: 'Orient Corners (R\' D\' R D)',
+              algs: ["R'", "D'", "R", "D"],
+              algString: "R' D' R D (lặp lại đến khi mặt vàng hướng lên)",
+              desc: 'Giữ cố định khối, lặp lại R\' D\' R D đến khi góc vàng hướng lên trên, sau đó chỉ xoay U để đưa góc tiếp theo vào vị trí trên bên phải.'
+            },
 
-        // --- CFOP: 2-Look OLL ---
-        {
-          id: 'oll-sune',
-          category: 'oll',
-          title: 'OLL: Sune (Con Cá 1)',
-          subtitle: '1 góc vàng hướng lên, góc trước mặt hướng phải',
-          algs: ["R", "U", "R'", "U", "R", "U2", "R'"],
-          algString: "R U R' U R U2 R'",
-          desc: 'Công thức Sune kinh điển, finger-trick cực nhanh.'
-        },
-        {
-          id: 'oll-antisune',
-          category: 'oll',
-          title: 'OLL: Anti-Sune (Con Cá 2)',
-          subtitle: '1 góc vàng hướng lên, góc trước mặt hướng thẳng',
-          algs: ["R", "U2", "R'", "U'", "R", "U'", "R'"],
-          algString: "R U2 R' U' R U' R'",
-          desc: 'Nghịch đảo của Sune, giải quyết con cá quay hướng ngược lại.'
-        },
-        {
-          id: 'oll-h',
-          category: 'oll',
-          title: 'OLL: Chữ H (2 Cặp Đèn Đối Xứng)',
-          subtitle: 'Không góc vàng nào hướng lên, 2 cặp đối nhau',
-          algs: ["R", "U", "R'", "U", "R", "U'", "R'", "U", "R", "U2", "R'"],
-          algString: "R U R' U R U' R' U R U2 R'",
-          desc: 'Hai cặp đèn pha đối diện nhau ở mặt trước và mặt sau.'
-        },
-        {
-          id: 'oll-pi',
-          category: 'oll',
-          title: 'OLL: Chữ Pi',
-          subtitle: '1 cặp đèn pha + 2 góc ngược chiều nhau',
-          algs: ["R", "U2", "R2", "U'", "R2", "U'", "R2", "U2", "R"],
-          algString: "R U2 R2 U' R2 U' R2 U2 R",
-          desc: 'Để cặp đèn pha sang bên trái và thực hiện chuỗi xoay.'
-        },
-        {
-          id: 'oll-u',
-          category: 'oll',
-          title: 'OLL: Headlights (Đèn Pha U)',
-          subtitle: '2 góc vàng hướng lên, 2 góc còn lại hướng về trước',
-          algs: ["R2", "D", "R'", "U2", "R", "D'", "R'", "U2", "R'"],
-          algString: "R2 D R' U2 R D' R' U2 R'",
-          desc: 'Hai góc vàng liền kề hướng lên, hai góc còn lại tạo thành 2 đèn pha chiếu về trước.'
-        },
-        {
-          id: 'oll-t',
-          category: 'oll',
-          title: 'OLL: Chameleon (T)',
-          subtitle: '2 góc vàng hướng lên, 2 góc còn lại hướng ra 2 bên',
-          algs: ["F", "R", "U", "R'", "U'", "F'"],
-          algString: "F R U R' U' F'",
-          desc: 'Dạng chữ T, áp dụng công thức để hoàn thành toàn bộ mặt vàng.'
-        },
+            // --- CFOP: 2-Look OLL ---
+            {
+              id: 'oll-sune',
+              category: 'oll',
+              title: 'OLL: Sune (Con Cá 1)',
+              subtitle: '1 góc vàng hướng lên, góc trước mặt hướng phải',
+              algs: ["R", "U", "R'", "U", "R", "U2", "R'"],
+              algString: "R U R' U R U2 R'",
+              desc: 'Công thức Sune kinh điển, finger-trick cực nhanh.'
+            },
+            {
+              id: 'oll-antisune',
+              category: 'oll',
+              title: 'OLL: Anti-Sune (Con Cá 2)',
+              subtitle: '1 góc vàng hướng lên, góc trước mặt hướng thẳng',
+              algs: ["R", "U2", "R'", "U'", "R", "U'", "R'"],
+              algString: "R U2 R' U' R U' R'",
+              desc: 'Nghịch đảo của Sune, giải quyết con cá quay hướng ngược lại.'
+            },
+            {
+              id: 'oll-h',
+              category: 'oll',
+              title: 'OLL: Chữ H (2 Cặp Đèn Đối Xứng)',
+              subtitle: 'Không góc vàng nào hướng lên, 2 cặp đối nhau',
+              algs: ["R", "U", "R'", "U", "R", "U'", "R'", "U", "R", "U2", "R'"],
+              algString: "R U R' U R U' R' U R U2 R'",
+              desc: 'Hai cặp đèn pha đối diện nhau ở mặt trước và mặt sau.'
+            },
+            {
+              id: 'oll-pi',
+              category: 'oll',
+              title: 'OLL: Chữ Pi',
+              subtitle: '1 cặp đèn pha + 2 góc ngược chiều nhau',
+              algs: ["R", "U2", "R2", "U'", "R2", "U'", "R2", "U2", "R"],
+              algString: "R U2 R2 U' R2 U' R2 U2 R",
+              desc: 'Để cặp đèn pha sang bên trái và thực hiện chuỗi xoay.'
+            },
+            {
+              id: 'oll-u',
+              category: 'oll',
+              title: 'OLL: Headlights (Đèn Pha U)',
+              subtitle: '2 góc vàng hướng lên, 2 góc còn lại hướng về trước',
+              algs: ["R2", "D", "R'", "U2", "R", "D'", "R'", "U2", "R'"],
+              algString: "R2 D R' U2 R D' R' U2 R'",
+              desc: 'Hai góc vàng liền kề hướng lên, hai góc còn lại tạo thành 2 đèn pha chiếu về trước.'
+            },
+            {
+              id: 'oll-t',
+              category: 'oll',
+              title: 'OLL: Chameleon (T)',
+              subtitle: '2 góc vàng hướng lên, 2 góc còn lại hướng ra 2 bên',
+              algs: ["F", "R", "U", "R'", "U'", "F'"],
+              algString: "F R U R' U' F'",
+              desc: 'Dạng chữ T, áp dụng công thức để hoàn thành toàn bộ mặt vàng.'
+            },
 
-        // --- CFOP: 2-Look & Full PLL ---
-        {
-          id: 'pll-t',
-          category: 'pll',
-          title: 'PLL: T-Perm',
-          subtitle: 'Hoán vị 2 góc kề nhau + 2 cạnh đối xứng',
-          algs: ["R", "U", "R'", "U'", "R'", "F", "R2", "U'", "R'", "U'", "R", "U", "R'", "F'"],
-          algString: "R U R' U' R' F R2 U' R' U' R U R' F'",
-          desc: 'Công thức PLL thông dụng và quan trọng nhất, finger-trick cực nhanh.'
+            // --- CFOP: 2-Look & Full PLL ---
+            {
+              id: 'pll-t',
+              category: 'pll',
+              title: 'PLL: T-Perm',
+              subtitle: 'Hoán vị 2 góc kề nhau + 2 cạnh đối xứng',
+              algs: ["R", "U", "R'", "U'", "R'", "F", "R2", "U'", "R'", "U'", "R", "U", "R'", "F'"],
+              algString: "R U R' U' R' F R2 U' R' U' R U R' F'",
+              desc: 'Công thức PLL thông dụng và quan trọng nhất, finger-trick cực nhanh.'
+            },
+            {
+              id: 'pll-y',
+              category: 'pll',
+              title: 'PLL: Y-Perm',
+              subtitle: 'Hoán vị 2 góc chéo nhau + 2 cạnh',
+              algs: ["F", "R", "U'", "R'", "U'", "R", "U", "R'", "F'", "R", "U", "R'", "U'", "R'", "F", "R", "F'"],
+              algString: "F R U' R' U' R U R' F' R U R' U' R' F R F'",
+              desc: 'Giải quyết toàn bộ các trường hợp hoán vị 2 góc chéo.'
+            },
+            {
+              id: 'pll-ua',
+              category: 'pll',
+              title: 'PLL: Ua-Perm',
+              subtitle: 'Hoán vị 3 cạnh theo chiều kim đồng hồ',
+              algs: ["R", "U'", "R", "U", "R", "U", "R", "U'", "R'", "U'", "R2"],
+              algString: "R U' R U R U R U' R' U' R2",
+              desc: 'Mặt đã giải xong để ở phía sau, 3 cạnh còn lại xoay theo chiều kim đồng hồ.'
+            },
+            {
+              id: 'pll-ub',
+              category: 'pll',
+              title: 'PLL: Ub-Perm',
+              subtitle: 'Hoán vị 3 cạnh ngược chiều kim đồng hồ',
+              algs: ["R2", "U", "R", "U", "R'", "U'", "R'", "U'", "R'", "U", "R'"],
+              algString: "R2 U R U R' U' R' U' R' U R'",
+              desc: 'Mặt đã giải xong để ở phía sau, 3 cạnh còn lại xoay ngược chiều kim đồng hồ.'
+            },
+            {
+              id: 'pll-h',
+              category: 'pll',
+              title: 'PLL: H-Perm',
+              subtitle: 'Hoán vị chéo 4 cạnh đối diện nhau',
+              algs: ["M2", "U", "M2", "U2", "M2", "U", "M2"],
+              algString: "M2 U M2 U2 M2 U M2",
+              desc: '4 viên cạnh đối xứng đổi chỗ cho nhau (Trước - Sau, Trái - Phải).'
+            },
+            {
+              id: 'pll-z',
+              category: 'pll',
+              title: 'PLL: Z-Perm',
+              subtitle: 'Hoán vị 2 cặp cạnh kề nhau',
+              algs: ["M2", "U", "M2", "U", "M'", "U2", "M2", "U2", "M'"],
+              algString: "M2 U M2 U M' U2 M2 U2 M'",
+              desc: 'Hai cặp cạnh liền kề đổi chỗ cho nhau (Trước - Phải, Sau - Trái).'
+            }
+          ]
         },
-        {
-          id: 'pll-y',
-          category: 'pll',
-          title: 'PLL: Y-Perm',
-          subtitle: 'Hoán vị 2 góc chéo nhau + 2 cạnh',
-          algs: ["F", "R", "U'", "R'", "U'", "R", "U", "R'", "F'", "R", "U", "R'", "U'", "R'", "F", "R", "F'"],
-          algString: "F R U' R' U' R U R' F' R U R' U' R' F R F'",
-          desc: 'Giải quyết toàn bộ các trường hợp hoán vị 2 góc chéo.'
+        '2x2': {
+          categories: [
+            { id: 'all', name: 'Tất Cả' },
+            { id: 'layer1', name: 'Mặt Đáy (First Face)' },
+            { id: 'oll2', name: 'OLL 2x2 (7 Thế)' },
+            { id: 'pbl', name: 'PBL (Đổi Tầng)' }
+          ],
+          formulas: [
+            {
+              id: '2x2-face1',
+              category: 'layer1',
+              title: 'Mặt Đáy: Ghép 4 viên góc cùng màu',
+              subtitle: 'First Face (Ortega Method)',
+              algs: ["R", "U", "R'"],
+              algString: "R U R' hoặc R' D' R D",
+              desc: 'Với phương pháp Ortega, bạn chỉ cần gom 4 góc cùng màu về một mặt (ví dụ mặt trắng), KHÔNG cần khớp màu viền xung quanh như 3x3!'
+            },
+            {
+              id: '2x2-oll-sune',
+              category: 'oll2',
+              title: 'OLL 2x2: Sune (Con Cá)',
+              subtitle: '1 góc vàng hướng lên trên',
+              algs: ["R", "U", "R'", "U", "R", "U2", "R'"],
+              algString: "R U R' U R U2 R'",
+              desc: 'Góc vàng hướng lên đặt ở vị trí dưới-trái (Front-Left), thực hiện Sune để hoàn thành mặt vàng.'
+            },
+            {
+              id: '2x2-oll-antisune',
+              category: 'oll2',
+              title: 'OLL 2x2: Anti-Sune',
+              subtitle: '1 góc vàng hướng lên trên',
+              algs: ["R", "U2", "R'", "U'", "R", "U'", "R'"],
+              algString: "R U2 R' U' R U' R'",
+              desc: 'Góc vàng hướng lên đặt ở vị trí trên-phải (Back-Right), thực hiện Anti-Sune.'
+            },
+            {
+              id: '2x2-oll-h',
+              category: 'oll2',
+              title: 'OLL 2x2: Chữ H (2 Cặp Đèn)',
+              subtitle: 'Không góc vàng nào hướng lên',
+              algs: ["R2", "U2", "R", "U2", "R2"],
+              algString: "R2 U2 R U2 R2",
+              desc: 'Đặt 2 cặp đèn pha chiếu về trước và sau, xoay R2 U2 R U2 R2.'
+            },
+            {
+              id: '2x2-oll-pi',
+              category: 'oll2',
+              title: 'OLL 2x2: Chữ Pi',
+              subtitle: '1 cặp đèn bên trái, 2 góc rời bên phải',
+              algs: ["F", "R", "U", "R'", "U'", "R", "U", "R'", "U'", "F'"],
+              algString: "F (R U R' U') (R U R' U') F'",
+              desc: 'Đặt cặp đèn sang bên trái, thực hiện 2 lần Sexy Move kẹp giữa F và F\'.'
+            },
+            {
+              id: '2x2-oll-t',
+              category: 'oll2',
+              title: 'OLL 2x2: Chữ T',
+              subtitle: '1 cặp đèn chiếu sang 2 bên',
+              algs: ["R", "U", "R'", "U'", "R'", "F", "R", "F'"],
+              algString: "(R U R' U') (R' F R F')",
+              desc: 'Đặt 2 góc vàng đã lật ở bên phải, thực hiện Sexy Move rồi Sledgehammer.'
+            },
+            {
+              id: '2x2-oll-u',
+              category: 'oll2',
+              title: 'OLL 2x2: Đèn Pha U',
+              subtitle: '2 góc vàng hướng lên, 2 góc chiếu trước',
+              algs: ["F", "R", "U", "R'", "U'", "F'"],
+              algString: "F (R U R' U') F'",
+              desc: 'Đặt 2 góc vàng ở phía sau, 2 đèn chiếu về trước, xoay F R U R\' U\' F\'.'
+            },
+            {
+              id: '2x2-oll-l',
+              category: 'oll2',
+              title: 'OLL 2x2: Cánh Cung L',
+              subtitle: '2 góc vàng chéo nhau',
+              algs: ["F", "R'", "F'", "R", "U", "R", "U'", "R'"],
+              algString: "F R' F' R U R U' R'",
+              desc: 'Thế góc chéo, đưa khối về mặt phẳng vàng hoàn chỉnh.'
+            },
+            {
+              id: '2x2-pbl-both-bars',
+              category: 'pbl',
+              title: 'PBL: 2 Thanh Cạnh Kề Cả 2 Tầng',
+              subtitle: 'Cả tầng trên và tầng dưới đều có 1 cặp trùng màu',
+              algs: ["R", "U'", "R'", "U'", "F2", "U'", "R", "U", "R'", "D", "R2"],
+              algString: "R U' R' U' F2 U' R U R' D R2",
+              desc: 'Đặt 2 thanh kề cùng ở mặt trước, thực hiện công thức để giải hoàn tất cả 2 tầng trong 1 bước.'
+            },
+            {
+              id: '2x2-pbl-diag-both',
+              category: 'pbl',
+              title: 'PBL: Chéo Cả 2 Tầng (Không có thanh kề)',
+              subtitle: 'Cả 2 tầng đều không có cặp màu nào trùng nhau',
+              algs: ["R2", "F2", "R2"],
+              algString: "R2 F2 R2",
+              desc: 'Công thức thần thánh chỉ 3 nước đi giải quyết trường hợp chéo đôi!'
+            },
+            {
+              id: '2x2-pbl-top-bar',
+              category: 'pbl',
+              title: 'PBL: Tầng Trên Có Thanh, Tầng Dưới Đã Xong',
+              subtitle: 'T-Perm hoặc J-Perm',
+              algs: ["R", "U", "R'", "U'", "R'", "F", "R2", "U'", "R'", "U'", "R", "U", "R'", "F'"],
+              algString: "R U R' U' R' F R2 U' R' U' R U R' F'",
+              desc: 'Đưa thanh trùng màu sang bên trái và thực hiện T-Perm.'
+            },
+            {
+              id: '2x2-pbl-top-diag',
+              category: 'pbl',
+              title: 'PBL: Tầng Trên Chéo, Tầng Dưới Đã Xong',
+              subtitle: 'Y-Perm 2x2',
+              algs: ["F", "R", "U'", "R'", "U'", "R", "U", "R'", "F'", "R", "U", "R'", "U'", "R'", "F", "R", "F'"],
+              algString: "F R U' R' U' R U R' F' R U R' U' R' F R F'",
+              desc: 'Giải quyết góc chéo tầng trên khi tầng dưới đã hoàn thành.'
+            }
+          ]
         },
-        {
-          id: 'pll-ua',
-          category: 'pll',
-          title: 'PLL: Ua-Perm',
-          subtitle: 'Hoán vị 3 cạnh theo chiều kim đồng hồ',
-          algs: ["R", "U'", "R", "U", "R", "U", "R", "U'", "R'", "U'", "R2"],
-          algString: "R U' R U R U R U' R' U' R2",
-          desc: 'Mặt đã giải xong để ở phía sau, 3 cạnh còn lại xoay theo chiều kim đồng hồ.'
+        'mirror': {
+          categories: [
+            { id: 'all', name: 'Tất Cả' },
+            { id: 'm-cross', name: 'Tầng 1 (Khối Dày Nhất)' },
+            { id: 'm-f2l', name: 'Tầng 2 (Khối Dài)' },
+            { id: 'm-top', name: 'Tầng 3 (Mặt Phẳng)' }
+          ],
+          formulas: [
+            {
+              id: 'mirror-cross',
+              category: 'm-cross',
+              title: 'Quy Tắc Vàng: Chọn Tâm Dày Nhất Làm Đáy',
+              subtitle: 'Thickest Center as White Cross',
+              algs: ["F2"],
+              algString: "Xoay thử các cạnh quanh tâm dày nhất",
+              desc: 'Tìm mặt tâm có độ lồi cao nhất khối. Ghép 4 viên cạnh có cùng độ cao với tâm này để tạo dấu cộng phẳng đầu tiên.'
+            },
+            {
+              id: 'mirror-corner',
+              category: 'm-cross',
+              title: 'Ghép 4 Góc Tầng 1 Bằng Sexy Move',
+              subtitle: 'Sexy Move theo xúc giác độ dày',
+              algs: ["R", "U", "R'", "U'"],
+              algString: "R U R' U' (1 - 5 lần)",
+              desc: 'Đưa viên góc to nhất vào vị trí. Dùng ngón tay sờ mép: nếu khớp phẳng lì với 2 cạnh xung quanh là chính xác!'
+            },
+            {
+              id: 'mirror-f2l-right',
+              category: 'm-f2l',
+              title: 'Tầng 2: Đưa Cạnh Sang Phải',
+              subtitle: 'Cạnh tầng 2 có chiều rộng trùng tâm',
+              algs: ["U", "R", "U'", "R'", "U'", "F'", "U", "F"],
+              algString: "U R U' R' U' F' U F",
+              desc: 'Xoay tầng trên tìm cạnh phẳng với tâm mặt trước, áp dụng công thức để đẩy sang bên phải.'
+            },
+            {
+              id: 'mirror-f2l-left',
+              category: 'm-f2l',
+              title: 'Tầng 2: Đưa Cạnh Sang Trái',
+              subtitle: 'Cạnh tầng 2 có chiều rộng trùng tâm',
+              algs: ["U'", "L'", "U", "L", "U", "F", "U'", "F'"],
+              algString: "U' L' U L U F U' F'",
+              desc: 'Xoay tầng trên tìm cạnh phẳng với tâm mặt trước, áp dụng công thức để đẩy sang bên trái.'
+            },
+            {
+              id: 'mirror-top-cross',
+              category: 'm-top',
+              title: 'Tầng 3: Tạo Dấu Cộng Phẳng Đỉnh',
+              subtitle: 'Nhận diện theo chiều cao các cạnh nhô lên',
+              algs: ["F", "R", "U", "R'", "U'", "F'"],
+              algString: "F R U R' U' F'",
+              desc: 'Chỉ quan sát các cạnh có chiều cao bằng phẳng với tâm đỉnh. Dùng công thức để đưa cả 4 cạnh về cùng một độ cao.'
+            },
+            {
+              id: 'mirror-top-oll',
+              category: 'm-top',
+              title: 'Tầng 3: Làm Phẳng Toàn Bộ Mặt Đỉnh (Sune)',
+              subtitle: 'Cả 4 góc bằng phẳng với tâm đỉnh',
+              algs: ["R", "U", "R'", "U", "R", "U2", "R'"],
+              algString: "R U R' U R U2 R'",
+              desc: 'Áp dụng Sune cho đến khi toàn bộ 9 ô của mặt trên tạo thành một mặt phẳng hoàn hảo.'
+            },
+            {
+              id: 'mirror-top-pll',
+              category: 'm-top',
+              title: 'Tầng 3: Hoán Vị Góc Về Đúng Kích Thước Khối (T-Perm)',
+              subtitle: 'Khối Rubik trở lại hình lập phương hoàn hảo',
+              algs: ["R", "U", "R'", "U'", "R'", "F", "R2", "U'", "R'", "U'", "R", "U", "R'", "F'"],
+              algString: "R U R' U' R' F R2 U' R' U' R U R' F'",
+              desc: 'Tìm 2 góc đã khớp phẳng với cạnh viền để sang bên trái, thực hiện T-Perm để trả khối về hình hộp vuông vức!'
+            }
+          ]
         },
-        {
-          id: 'pll-ub',
-          category: 'pll',
-          title: 'PLL: Ub-Perm',
-          subtitle: 'Hoán vị 3 cạnh ngược chiều kim đồng hồ',
-          algs: ["R2", "U", "R", "U", "R'", "U'", "R'", "U'", "R'", "U", "R'"],
-          algString: "R2 U R U R' U' R' U' R' U R'",
-          desc: 'Mặt đã giải xong để ở phía sau, 3 cạnh còn lại xoay ngược chiều kim đồng hồ.'
-        },
-        {
-          id: 'pll-h',
-          category: 'pll',
-          title: 'PLL: H-Perm',
-          subtitle: 'Hoán vị chéo 4 cạnh đối diện nhau',
-          algs: ["M2", "U", "M2", "U2", "M2", "U", "M2"],
-          algString: "M2 U M2 U2 M2 U M2",
-          desc: '4 viên cạnh đối xứng đổi chỗ cho nhau (Trước - Sau, Trái - Phải).'
-        },
-        {
-          id: 'pll-z',
-          category: 'pll',
-          title: 'PLL: Z-Perm',
-          subtitle: 'Hoán vị 2 cặp cạnh kề nhau',
-          algs: ["M2", "U", "M2", "U", "M'", "U2", "M2", "U2", "M'"],
-          algString: "M2 U M2 U M' U2 M2 U2 M'",
-          desc: 'Hai cặp cạnh liền kề đổi chỗ cho nhau (Trước - Phải, Sau - Trái).'
+        '4x4': {
+          categories: [
+            { id: 'all', name: 'Tất Cả' },
+            { id: 'centers', name: 'Gom Tâm (Centers)' },
+            { id: 'edges', name: 'Ghép Cạnh (Edges)' },
+            { id: 'parity', name: 'Lỗi Parity 4x4' }
+          ],
+          formulas: [
+            {
+              id: '4x4-center-bar',
+              category: 'centers',
+              title: 'Ghép Cặp Tâm 1x2 & Đưa Vào Vị Trí',
+              subtitle: 'Half-Center Bar',
+              algs: ["Rw", "U", "Rw'"],
+              algString: "Rw U Rw'",
+              desc: 'Ghép 2 viên tâm cùng màu thành 1 thanh 1x2, xoay U để né và đưa Rw\' để bảo toàn tâm đối diện.'
+            },
+            {
+              id: '4x4-center-swap',
+              category: 'centers',
+              title: 'Hoán Vị Tâm Cuối Không Phá Tâm Trước',
+              subtitle: 'Last 2 Centers Commutator',
+              algs: ["Rw", "U", "Rw'", "U", "Rw", "U2", "Rw'"],
+              algString: "Rw U Rw' U Rw U2 Rw'",
+              desc: 'Giải quyết 2 tâm cuối cùng (thường là Cam và Xanh lá) mà không làm vỡ các tâm đã hoàn thành.'
+            },
+            {
+              id: '4x4-edge-pair',
+              category: 'edges',
+              title: 'Ghép Cạnh 4x4: Thuật Toán Lật Cạnh (Flipping Alg)',
+              subtitle: 'Edge Pairing (Slice-Flip-Slice)',
+              algs: ["R", "U", "R'", "F", "R'", "F'", "R"],
+              algString: "Uw' (R U R' F R' F' R) Uw",
+              desc: 'Đưa 2 viên cạnh cùng màu về vị trí đối diện ở tầng giữa, xoay Uw\' ghép cặp, lật bằng (R U R\' F R\' F\' R) rồi trả lại Uw.'
+            },
+            {
+              id: '4x4-oll-parity',
+              category: 'parity',
+              title: 'Lỗi OLL Parity: Lật 1 Cạnh Đơn Tầng Cuối',
+              subtitle: 'Trường hợp không thể xảy ra trên 3x3',
+              algs: ["Rw", "U2", "x", "Rw", "U2", "Rw", "U2", "Rw'", "U2", "Lw", "U2", "Rw'", "U2", "Rw", "U2", "Rw'", "U2", "Rw'"],
+              algString: "Rw U2 x Rw U2 Rw U2 Rw' U2 Lw U2 Rw' U2 Rw U2 Rw' U2 Rw'",
+              desc: 'Công thức thần thánh lật 1 viên cạnh duy nhất ở tầng 3 để tạo dấu cộng hợp lệ.'
+            },
+            {
+              id: '4x4-pll-parity',
+              category: 'parity',
+              title: 'Lỗi PLL Parity: Đổi Chỗ 2 Cạnh Đối Diện',
+              subtitle: '2 cạnh tầng cuối bị tráo đổi',
+              algs: ["2R2", "U2", "2R2", "Uw2", "2R2", "2Uw2"],
+              algString: "2R2 U2 2R2 Uw2 2R2 2Uw2",
+              desc: 'Chỉ 6 bước xoay tầng trong 2R2 U2 2R2 Uw2 2R2 2Uw2 để hoán đổi 2 viên cạnh đối xứng về vị trí chuẩn.'
+            }
+          ]
         }
-      ];
+      };
 
       this.initUI();
     }
 
+    setCubeType(type) {
+      if (!this.dataByType[type]) type = '3x3';
+      this.cubeType = type;
+      this.activeCategory = 'all';
+      this.renderCategoryFilterBar();
+      this.renderFormulas();
+    }
+
     initUI() {
-      // Filter buttons
-      document.querySelectorAll('.cheat-filter-btn').forEach(btn => {
+      this.renderCategoryFilterBar();
+      this.renderFormulas();
+    }
+
+    renderCategoryFilterBar() {
+      const bar = document.getElementById('cheat-filter-bar');
+      if (!bar) return;
+      const typeData = this.dataByType[this.cubeType] || this.dataByType['3x3'];
+      bar.innerHTML = '';
+      typeData.categories.forEach(cat => {
+        const btn = document.createElement('button');
+        btn.className = `cheat-filter-btn ${cat.id === this.activeCategory ? 'active' : ''}`;
+        btn.dataset.category = cat.id;
+        btn.textContent = cat.name;
         btn.addEventListener('click', () => {
           document.querySelectorAll('.cheat-filter-btn').forEach(b => b.classList.remove('active'));
           btn.classList.add('active');
-          this.activeCategory = btn.dataset.category;
+          this.activeCategory = cat.id;
           this.renderFormulas();
         });
+        bar.appendChild(btn);
       });
-
-      this.renderFormulas();
     }
 
     renderFormulas() {
@@ -3740,9 +4124,12 @@
       if (!container) return;
       container.innerHTML = '';
 
+      const typeData = this.dataByType[this.cubeType] || this.dataByType['3x3'];
+      const formulasList = typeData.formulas;
+
       const filtered = this.activeCategory === 'all'
-        ? this.formulas
-        : this.formulas.filter(f => f.category === this.activeCategory);
+        ? formulasList
+        : formulasList.filter(f => f.category === this.activeCategory);
 
       filtered.forEach(item => {
         const card = document.createElement('div');
@@ -3777,12 +4164,10 @@
           </div>
         `;
 
-        // "Try on 3D" button
         card.querySelector('.btn-try-3d')?.addEventListener('click', () => {
           this.app.queueSequence(item.algs, { duration: 200 });
         });
 
-        // "Copy" button
         card.querySelector('.btn-copy-alg')?.addEventListener('click', (e) => {
           navigator.clipboard.writeText(item.algs.join(' '));
           const btn = e.currentTarget;
@@ -3797,110 +4182,317 @@
   }
 
   // ==========================================================================
-  // Masterclass & World Champions Video Guides
+  // Masterclass & World Champions Video Guides (Dynamic for 3x3, 2x2, Mirror, 4x4)
   // ==========================================================================
   class MasterclassManager {
     constructor(app) {
       this.app = app;
+      this.cubeType = '3x3';
       this.activePro = 'all';
-      this.videos = [
-        {
-          id: 'jperm_beginner',
-          pro: 'jperm',
-          author: 'J Perm',
-          authorSub: '5.2M Subscribers • Thánh Hướng Dẫn',
-          avatar: '🎓',
-          level: 'Beginner (Cơ Bản)',
-          badgeClass: 'badge-beginner',
-          title: 'Hướng Dẫn Giải Rubik 3x3 Cơ Bản 7 Bước Dễ Hiểu Nhất',
-          ytId: 'R-R0KrXvWbc',
-          duration: '10:14',
-          quote: '“Đừng học thuộc lòng vẹt! Hãy hiểu cơ chế hoán vị của từng viên cạnh và góc. Nắm vững Sexy Move (R U R\' U\') sẽ giải quyết được 80% tình huống.”',
-          scramble: "D' R2 U' B2 U F2 D' B2 L2 D2 L' U B' R2 B2 D2 U' F L",
-          tryType: 'scramble',
-          tryLabel: '⚡ Nạp Scramble Luyện Tập'
+
+      this.dataByType = {
+        '3x3': {
+          filters: [
+            { id: 'all', name: 'Tất Cả' },
+            { id: 'jperm', name: 'J Perm' },
+            { id: 'feliks', name: 'Feliks Zemdegs' },
+            { id: 'maxpark', name: 'Max Park (WR)' },
+            { id: 'tymon', name: 'Tymon Kolasiński' }
+          ],
+          videos: [
+            {
+              id: 'jperm_beginner',
+              pro: 'jperm',
+              author: 'J Perm',
+              authorSub: '5.2M Subscribers • Thánh Hướng Dẫn',
+              avatar: '🎓',
+              level: 'Beginner (Cơ Bản)',
+              badgeClass: 'badge-beginner',
+              title: 'Hướng Dẫn Giải Rubik 3x3 Cơ Bản 7 Bước Dễ Hiểu Nhất',
+              ytId: 'R-R0KrXvWbc',
+              duration: '10:14',
+              quote: '“Đừng học thuộc lòng vẹt! Hãy hiểu cơ chế hoán vị của từng viên cạnh và góc. Nắm vững Sexy Move (R U R\' U\') sẽ giải quyết được 80% tình huống.”',
+              scramble: "D' R2 U' B2 U F2 D' B2 L2 D2 L' U B' R2 B2 D2 U' F L",
+              tryType: 'scramble',
+              tryLabel: '⚡ Nạp Scramble Luyện Tập'
+            },
+            {
+              id: 'jperm_cfop',
+              pro: 'jperm',
+              author: 'J Perm',
+              authorSub: '5.2M Subscribers • Thánh Hướng Dẫn',
+              avatar: '⚡',
+              level: 'CFOP (Sub-20)',
+              badgeClass: 'badge-cfop',
+              title: 'Lộ Trình Học Full CFOP Từ Sub-60 Xuống Sub-20',
+              ytId: 'x5jB_6jYk4M',
+              duration: '14:32',
+              quote: '“Look-ahead quan trọng hơn TPS rất nhiều. Khi xoay cặp F2L hiện tại, mắt bạn phải quét tìm cặp F2L tiếp theo. Tuyệt đối không nhìn vào viên đang xoay!”',
+              scramble: "R U R' U' R' F R2 U' R' U' R U R' F'",
+              tryType: 'alg',
+              tryLabel: '⚡ Thử T-Perm Kinh Điển'
+            },
+            {
+              id: 'feliks_inspection',
+              pro: 'feliks',
+              author: 'Feliks Zemdegs',
+              authorSub: '2x World Champion • 120+ Kỷ Lục Thế Giới',
+              avatar: '🏆',
+              level: 'Nâng Cao (Sub-15)',
+              badgeClass: 'badge-wr',
+              title: 'Masterclass: Cách Quan Sát 15s (Inspection) & Lập Kế Hoạch Cross + 1st Pair',
+              ytId: 'MS5jhby2VdY',
+              duration: '11:45',
+              quote: '“15 giây quan sát đầu trận là 70% chiến thắng. Mục tiêu là lập kế hoạch giải xong Chữ Thập (Cross) nhắm mắt dưới 8 bước, đồng thời bám vết cặp F2L đầu tiên!”',
+              scramble: "B2 L2 U2 R2 D' F2 D B2 R2 D2 U' F' L' B' D' R' F' D R2 U",
+              tryType: 'scramble',
+              tryLabel: '⚡ Thử Scramble 4.22s Của Feliks'
+            },
+            {
+              id: 'max_park_wr',
+              pro: 'maxpark',
+              author: 'Max Park',
+              authorSub: 'WR 3.13s Single • Huyền Thoại Tốc Độ',
+              avatar: '🔥',
+              level: 'Kỷ Lục Thế Giới (WR)',
+              badgeClass: 'badge-wr',
+              title: 'Max Park Phân Tích Kỷ Lục Thế Giới 3.13 Giây & Kỹ Thuật Rotationless F2L',
+              ytId: 'fbdQn3Z3gM4',
+              duration: '08:20',
+              quote: '“Hạn chế tối đa việc xoay toàn bộ khối (Cube Rotations). Hãy học cách chèn F2L vào các khe phía sau (Back-slot insertion) bằng cả hai tay để giữ nhịp TPS trên 10 turns/s!”',
+              scramble: "D2 F' R2 U' B2 L2 F2 R2 U' B2 U F R' D' F2 L' B2 D2 F' R2",
+              tryType: 'scramble',
+              tryLabel: '⚡ Nạp Kỷ Lục WR 3.13s Của Max'
+            },
+            {
+              id: 'tymon_fingertricks',
+              pro: 'tymon',
+              author: 'Tymon Kolasiński',
+              authorSub: 'Vô Địch Châu Âu • Bậc Thầy TPS & FMC',
+              avatar: '⚡',
+              level: 'Chuyên Nghiệp (Sub-10)',
+              badgeClass: 'badge-tps',
+              title: 'Tymon Hướng Dẫn Finger-tricks Mượt Mà Cho Sexy Move, Sune & PLL',
+              ytId: '3bV-3-J3E0E',
+              duration: '13:05',
+              quote: '“Đừng gồng cổ tay! Xoay bằng đầu đốt ngón trỏ và ngón áp út. Thành thạo U2 Double Flick (ngón trỏ rồi ngón giữa kéo bồi) sẽ nhân đôi TPS của bạn!”',
+              scramble: "R U2 R' U' R U' R'",
+              tryType: 'alg',
+              tryLabel: '⚡ Luyện Sune Siêu Tốc'
+            }
+          ]
         },
-        {
-          id: 'jperm_cfop',
-          pro: 'jperm',
-          author: 'J Perm',
-          authorSub: '5.2M Subscribers • Thánh Hướng Dẫn',
-          avatar: '⚡',
-          level: 'CFOP (Sub-20)',
-          badgeClass: 'badge-cfop',
-          title: 'Lộ Trình Học Full CFOP Từ Sub-60 Xuống Sub-20',
-          ytId: 'x5jB_6jYk4M',
-          duration: '14:32',
-          quote: '“Look-ahead quan trọng hơn TPS rất nhiều. Khi xoay cặp F2L hiện tại, mắt bạn phải quét tìm cặp F2L tiếp theo. Tuyệt đối không nhìn vào viên đang xoay!”',
-          scramble: "R U R' U' R' F R2 U' R' U' R U R' F'",
-          tryType: 'alg',
-          tryLabel: '⚡ Thử T-Perm Kinh Điển'
+        '2x2': {
+          filters: [
+            { id: 'all', name: 'Tất Cả' },
+            { id: 'jperm', name: 'J Perm' },
+            { id: 'zayn', name: 'Zayn Khanani (WR)' },
+            { id: 'cubehead', name: 'CubeHead' }
+          ],
+          videos: [
+            {
+              id: '2x2_jperm',
+              pro: 'jperm',
+              author: 'J Perm',
+              authorSub: '5.2M Subscribers • Thánh Hướng Dẫn',
+              avatar: '⚡',
+              level: 'Cơ Bản & Tốc Độ',
+              badgeClass: 'badge-beginner',
+              title: 'Hướng Dẫn Giải Rubik 2x2 Cực Nhanh Bằng Phương Pháp Ortega',
+              ytId: '7v_Hw1zXz0w',
+              duration: '09:40',
+              quote: '“Ortega là bí quyết giải 2x2 dưới 5 giây nhanh nhất: Giải mặt đáy bất kỳ -> OLL mặt trên -> Hoán vị cả 2 tầng (PBL) chỉ với 1 thuật toán.”',
+              scramble: "R U' R' U' F2 U' R U R' D R2",
+              tryType: 'alg',
+              tryLabel: '⚡ Thử PBL Cạnh Kề'
+            },
+            {
+              id: '2x2_zayn',
+              pro: 'zayn',
+              author: 'Zayn Khanani',
+              authorSub: 'Kỷ Lục Gia WR 2x2 0.43s • Bậc Thầy One-Look',
+              avatar: '🏆',
+              level: 'Kỷ Lục Thế Giới (WR)',
+              badgeClass: 'badge-wr',
+              title: 'Zayn Khanani Phân Tích Kỷ Lục 2x2 Dưới 1 Giây & Kỹ Thuật 1-Look CLL',
+              ytId: '3uGvC139z-o',
+              duration: '11:15',
+              quote: '“Trong 15 giây quan sát, bạn phải giải xong cả khối trong đầu trước khi chạm tay vào Rubik. Tốc độ quay đạt tới 14 turns/giây.”',
+              scramble: "R2 F2 R2",
+              tryType: 'alg',
+              tryLabel: '⚡ Thử 3 Nước Diệu Kỳ R2 F2 R2'
+            },
+            {
+              id: '2x2_cubehead',
+              pro: 'cubehead',
+              author: 'CubeHead',
+              authorSub: '2.1M Subscribers • Chuyên Gia Speedcubing',
+              avatar: '🎯',
+              level: 'Sub-4 Giây',
+              badgeClass: 'badge-cfop',
+              title: 'Lộ Trình Tập 2x2 Xuống Sub-3 Giây & Tối Ưu Hóa Finger-tricks Tầng Đáy',
+              ytId: 'sO6rO-5b01M',
+              duration: '08:50',
+              quote: '“Sử dụng ngón áp út tay trái kéo tầng D và tập thói quen không bao giờ xoay cả khối (Zero Rotations) khi giải 2x2.”',
+              scramble: "F R U' R' U' R U R' F' R U R' U' R' F R F'",
+              tryType: 'alg',
+              tryLabel: '⚡ Luyện Y-Perm 2x2'
+            }
+          ]
         },
-        {
-          id: 'feliks_inspection',
-          pro: 'feliks',
-          author: 'Feliks Zemdegs',
-          authorSub: '2x World Champion • 120+ Kỷ Lục Thế Giới',
-          avatar: '🏆',
-          level: 'Nâng Cao (Sub-15)',
-          badgeClass: 'badge-wr',
-          title: 'Masterclass: Cách Quan Sát 15s (Inspection) & Lập Kế Hoạch Cross + 1st Pair',
-          ytId: 'MS5jhby2VdY',
-          duration: '11:45',
-          quote: '“15 giây quan sát đầu trận là 70% chiến thắng. Mục tiêu là lập kế hoạch giải xong Chữ Thập (Cross) nhắm mắt dưới 8 bước, đồng thời bám vết cặp F2L đầu tiên!”',
-          scramble: "B2 L2 U2 R2 D' F2 D B2 R2 D2 U' F' L' B' D' R' F' D R2 U",
-          tryType: 'scramble',
-          tryLabel: '⚡ Thử Scramble 4.22s Của Feliks'
+        'mirror': {
+          filters: [
+            { id: 'all', name: 'Tất Cả' },
+            { id: 'jperm', name: 'J Perm' },
+            { id: 'tingman', name: 'Tingman' },
+            { id: 'cubehead', name: 'CubeHead' }
+          ],
+          videos: [
+            {
+              id: 'mirror_jperm',
+              pro: 'jperm',
+              author: 'J Perm',
+              authorSub: '5.2M Subscribers • Thánh Hướng Dẫn',
+              avatar: '🪞',
+              level: 'Toàn Diện',
+              badgeClass: 'badge-beginner',
+              title: 'Hướng Dẫn Giải Rubik Gương (Mirror Blocks) Dễ Nhất',
+              ytId: 'iL3Q9p9G7Zg',
+              duration: '12:20',
+              quote: '“Đừng bị đánh lừa bởi màu sắc đồng nhất! Khối Rubik Gương chính là 3x3 nhưng mã hóa bằng kích thước. Tìm tâm có độ nhô cao nhất làm tầng đáy và giải theo CFOP.”',
+              scramble: "R U R' U' R' F R2 U' R' U' R U R' F'",
+              tryType: 'alg',
+              tryLabel: '⚡ Thử T-Perm Cho Mirror Cube'
+            },
+            {
+              id: 'mirror_tingman',
+              pro: 'tingman',
+              author: 'Tingman',
+              authorSub: '1.8M Subscribers • Speedcuber & Reviewer',
+              avatar: '💡',
+              level: 'Mẹo Xúc Giác & Nhận Diện',
+              badgeClass: 'badge-tps',
+              title: 'Mẹo Nhận Diện Khối Rubik Gương Siêu Tốc Bằng Cảm Giác Độ Phẳng Của Bề Mặt',
+              ytId: 'w49-2e6Vomg',
+              duration: '10:05',
+              quote: '“Ngón tay bạn là cảm biến nhạy nhất: vuốt nhẹ ngón cái qua gờ giữa các khối. Nếu trơn tru không gợn, bạn đã tìm đúng vị trí của viên cạnh!”',
+              scramble: "F R U R' U' F'",
+              tryType: 'alg',
+              tryLabel: '⚡ Thử Mặt Phẳng Tầng Đỉnh'
+            },
+            {
+              id: 'mirror_cubehead',
+              pro: 'cubehead',
+              author: 'CubeHead',
+              authorSub: '2.1M Subscribers • Chuyên Gia Speedcubing',
+              avatar: '🔥',
+              level: 'Tốc Độ Sub-30s',
+              badgeClass: 'badge-wr',
+              title: 'Thử Thách Giải Rubik Gương Tốc Độ Dưới 30 Giây',
+              ytId: 'X0e3xP9WbYs',
+              duration: '07:45',
+              quote: '“Khối Rubik biến hình cực kỳ ấn tượng khi xáo trộn. Luyện tập trí tưởng tượng không gian 3D sẽ giúp bạn giải nó nhanh như 3x3 thông thường!”',
+              scramble: "R U R' U R U2 R'",
+              tryType: 'alg',
+              tryLabel: '⚡ Thử Sune Tầng 3'
+            }
+          ]
         },
-        {
-          id: 'max_park_wr',
-          pro: 'maxpark',
-          author: 'Max Park',
-          authorSub: 'WR 3.13s Single • Huyền Thoại Tốc Độ',
-          avatar: '🔥',
-          level: 'Kỷ Lục Thế Giới (WR)',
-          badgeClass: 'badge-wr',
-          title: 'Max Park Phân Tích Kỷ Lục Thế Giới 3.13 Giây & Kỹ Thuật Rotationless F2L',
-          ytId: 'fbdQn3Z3gM4',
-          duration: '08:20',
-          quote: '“Hạn chế tối đa việc xoay toàn bộ khối (Cube Rotations). Hãy học cách chèn F2L vào các khe phía sau (Back-slot insertion) bằng cả hai tay để giữ nhịp TPS trên 10 turns/s!”',
-          scramble: "D2 F' R2 U' B2 L2 F2 R2 U' B2 U F R' D' F2 L' B2 D2 F' R2",
-          tryType: 'scramble',
-          tryLabel: '⚡ Nạp Kỷ Lục WR 3.13s Của Max'
-        },
-        {
-          id: 'tymon_fingertricks',
-          pro: 'tymon',
-          author: 'Tymon Kolasiński',
-          authorSub: 'Vô Địch Châu Âu • Bậc Thầy TPS & FMC',
-          avatar: '⚡',
-          level: 'Chuyên Nghiệp (Sub-10)',
-          badgeClass: 'badge-tps',
-          title: 'Tymon Hướng Dẫn Finger-tricks Mượt Mà Cho Sexy Move, Sune & PLL',
-          ytId: '3bV-3-J3E0E',
-          duration: '13:05',
-          quote: '“Đừng gồng cổ tay! Xoay bằng đầu đốt ngón trỏ và ngón áp út. Thành thạo U2 Double Flick (ngón trỏ rồi ngón giữa kéo bồi) sẽ nhân đôi TPS của bạn!”',
-          scramble: "R U2 R' U' R U' R'",
-          tryType: 'alg',
-          tryLabel: '⚡ Luyện Sune Siêu Tốc'
+        '4x4': {
+          filters: [
+            { id: 'all', name: 'Tất Cả' },
+            { id: 'jperm', name: 'J Perm' },
+            { id: 'maxpark', name: 'Max Park (WR)' },
+            { id: 'feliks', name: 'Feliks Zemdegs' }
+          ],
+          videos: [
+            {
+              id: '4x4_jperm',
+              pro: 'jperm',
+              author: 'J Perm',
+              authorSub: '5.2M Subscribers • Thánh Hướng Dẫn',
+              avatar: '⚡',
+              level: 'Yau Method Chuẩn Thi Đấu',
+              badgeClass: 'badge-cfop',
+              title: 'Hướng Dẫn Giải Rubik 4x4 Toàn Diện Bằng Phương Pháp Yau Method',
+              ytId: 'KMWz8wvxvNE',
+              duration: '16:50',
+              quote: '“Yau Method giải quyết triệt để vấn đề mất dấu Chữ Thập. Hoàn thành 2 tâm đối diện -> 3 cạnh chữ thập trắng -> 4 tâm còn lại -> ghép cạnh 3-2-2-2!”',
+              scramble: "Rw U2 x Rw U2 Rw U2 Rw' U2 Lw U2 Rw' U2 Rw U2 Rw' U2 Rw'",
+              tryType: 'alg',
+              tryLabel: '⚡ Nạp Công Thức OLL Parity'
+            },
+            {
+              id: '4x4_maxpark',
+              pro: 'maxpark',
+              author: 'Max Park',
+              authorSub: 'WR 4x4 Single 15.71s & Avg 19.38s • Huyền Thoại 4x4',
+              avatar: '🏆',
+              level: 'Kỷ Lục Thế Giới (WR)',
+              badgeClass: 'badge-wr',
+              title: 'Max Park Phân Tích Kỷ Lục Thế Giới 4x4 15.71s & Kỹ Năng Ghép Cạnh Tốc Độ',
+              ytId: '4j076Z_V-i4',
+              duration: '09:30',
+              quote: '“Khi ghép cạnh 4x4, luôn giữ tầm nhìn rộng mở bao quát toàn khối. Đừng bao giờ chớp mắt ở giai đoạn 3-2-2-2 và chuẩn bị sẵn tay cho thuật toán Parity.”',
+              scramble: "2R2 U2 2R2 Uw2 2R2 2Uw2",
+              tryType: 'alg',
+              tryLabel: '⚡ Nạp Công Thức PLL Parity'
+            },
+            {
+              id: '4x4_feliks',
+              pro: 'feliks',
+              author: 'Feliks Zemdegs',
+              authorSub: 'Cựu Kỷ Lục Gia Thế Giới 4x4 • Bậc Thầy Kỹ Thuật',
+              avatar: '🎯',
+              level: 'Nâng Cao (Sub-35s)',
+              badgeClass: 'badge-wr',
+              title: 'Kỹ Thuật Ghép Cạnh 4x4 3-2-2-2 & Xử Lý Triệt Để Các Thế Parity',
+              ytId: 'd3tKz8k_D5s',
+              duration: '12:10',
+              quote: '“Nắm chắc công thức hoán đổi 2 cạnh đối diện Uw\' (R U R\' F R\' F\' R) Uw để ghép cặp mượt mà không cần suy nghĩ.”',
+              scramble: "R U R' F R' F' R",
+              tryType: 'alg',
+              tryLabel: '⚡ Thử Thuật Toán Lật Cạnh'
+            }
+          ]
         }
-      ];
+      };
 
       this.currentModalVideo = null;
       this.initEvents();
+      this.renderFilterBar();
       this.render();
     }
 
-    initEvents() {
-      document.querySelectorAll('.masterclass-filter-btn').forEach(btn => {
+    setCubeType(type) {
+      if (!this.dataByType[type]) type = '3x3';
+      this.cubeType = type;
+      this.activePro = 'all';
+      this.renderFilterBar();
+      this.render();
+    }
+
+    renderFilterBar() {
+      const bar = document.getElementById('masterclass-filter-bar');
+      if (!bar) return;
+      const typeData = this.dataByType[this.cubeType] || this.dataByType['3x3'];
+      bar.innerHTML = '';
+      typeData.filters.forEach(f => {
+        const btn = document.createElement('button');
+        btn.className = `masterclass-filter-btn ${f.id === this.activePro ? 'active' : ''}`;
+        btn.dataset.pro = f.id;
+        btn.textContent = f.name;
         btn.addEventListener('click', () => {
           document.querySelectorAll('.masterclass-filter-btn').forEach(b => b.classList.remove('active'));
           btn.classList.add('active');
-          this.activePro = btn.dataset.pro;
+          this.activePro = f.id;
           this.render();
         });
+        bar.appendChild(btn);
       });
+    }
 
+    initEvents() {
       // YouTube Modal Close & Backdrop
       document.getElementById('btn-close-yt-modal')?.addEventListener('click', () => this.closeModal());
       document.getElementById('yt-backdrop')?.addEventListener('click', () => this.closeModal());
@@ -3955,9 +4547,12 @@
       if (!container) return;
       container.innerHTML = '';
 
+      const typeData = this.dataByType[this.cubeType] || this.dataByType['3x3'];
+      const videoList = typeData.videos;
+
       const filtered = this.activePro === 'all'
-        ? this.videos
-        : this.videos.filter(v => v.pro === this.activePro);
+        ? videoList
+        : videoList.filter(v => v.pro === this.activePro);
 
       filtered.forEach(video => {
         const card = document.createElement('div');
@@ -4106,17 +4701,17 @@
       if (isSolved) {
         this.currentStage = 'solved';
         if (stageBadge) {
-          stageBadge.textContent = '🎉 ĐÃ GIẢI HOÀN TẤT';
+          stageBadge.textContent = 'ĐÃ GIẢI HOÀN TẤT (100%)';
           stageBadge.className = 'stage-badge badge-ready';
         }
         if (progressBar) progressBar.style.width = '100%';
-        if (stageDesc) stageDesc.innerHTML = '<strong>Tuyệt vời!</strong> Khối Rubik 3D đã được giải hoàn chỉnh 100%. Hãy nhấn Scramble hoặc giữ phím Space để bấm giờ thi đấu nhé!';
+        if (stageDesc) stageDesc.innerHTML = 'Khối Rubik 3D đã được giải hoàn chỉnh 100%. Sẵn sàng xáo trộn (Scramble) hoặc bấm giờ luyện tập.';
         if (statCross) statCross.textContent = '4/4';
         if (statFirst) statFirst.textContent = '4/4';
         if (statF2L) statF2L.textContent = '4/4';
         if (statLL) statLL.textContent = 'Đã xong';
 
-        this.updateHintDisplay([], 'Khối đã giải xong hoàn hảo!', 'solved');
+        this.updateHintDisplay([], 'Trạng thái: Hoàn thành 100%', 'solved');
         return;
       }
 
